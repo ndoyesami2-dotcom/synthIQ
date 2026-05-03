@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Group project — SynthIQ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/synthiq-legal-footer.css" />
+    <style>
+      :root {
+        --bg: #050814;
+        --surface: rgba(18, 24, 48, 0.92);
+        --border: rgba(129, 140, 248, 0.22);
+        --text: #e8ecff;
+        --muted: #94a3b8;
+        --accent: #818cf8;
+        --radius: 1.25rem;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Outfit", system-ui, sans-serif;
+        background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.25), transparent),
+          var(--bg);
+        color: var(--text);
+        padding: clamp(1rem, 4vw, 2rem);
+      }
+      .hidden {
+        display: none !important;
+      }
+      .top-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.25rem;
+        margin-bottom: 1.25rem;
+        align-items: center;
+      }
+      .top-links a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+      .top-links a:hover {
+        text-decoration: underline;
+      }
+      .preview-wrap {
+        max-width: 920px;
+        margin: 0 auto;
+        padding-bottom: 3rem;
+      }
+      .preview-head h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 800;
+      }
+      .preview-head p {
+        margin: 0.35rem 0 0;
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.35rem;
+        backdrop-filter: blur(14px);
+        margin-bottom: 1rem;
+      }
+      .hint {
+        color: var(--muted);
+        font-size: 0.88rem;
+        margin: 0 0 1rem;
+        line-height: 1.5;
+      }
+      .preview-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+      @media (max-width: 640px) {
+        .preview-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .rounded-tile {
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        background: var(--surface);
+        padding: 1.5rem 1.25rem;
+        text-align: center;
+        font-weight: 700;
+        font-size: 1.05rem;
+        cursor: pointer;
+        transition: box-shadow 0.2s ease, border-color 0.2s ease;
+      }
+      .rounded-tile:hover {
+        border-color: rgba(167, 139, 250, 0.45);
+        box-shadow: 0 12px 40px rgba(79, 70, 229, 0.15);
+      }
+      .rounded-tile a {
+        color: inherit;
+        text-decoration: none;
+      }
+      label.lbl {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--accent);
+        margin-bottom: 0.4rem;
+      }
+      .doc-area textarea {
+        width: 100%;
+        min-height: 220px;
+        padding: 0.65rem 0.75rem;
+        border-radius: 0.65rem;
+        border: 1px solid var(--border);
+        background: rgba(6, 10, 26, 0.95);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.95rem;
+        resize: vertical;
+      }
+      .pres-options {
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+        margin: 1rem 0;
+      }
+      .pres-link {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        padding: 0.85rem 1rem;
+        border-radius: 0.85rem;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.25);
+        text-decoration: none;
+        color: var(--text);
+        font-weight: 600;
+      }
+      .pres-link:hover {
+        background: rgba(99, 102, 241, 0.15);
+      }
+      .pres-link img {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        object-fit: contain;
+        background: #fff;
+        padding: 4px;
+      }
+      .muted-link {
+        display: block;
+        margin-top: 0.75rem;
+        font-size: 0.85rem;
+        color: var(--accent);
+        cursor: pointer;
+        text-decoration: underline;
+        font-weight: 600;
+      }
+      .presentation-card {
+        border-radius: 0.85rem;
+        border: 1px solid var(--border);
+        padding: 0.85rem 1rem;
+        margin-bottom: 0.5rem;
+        background: rgba(0, 0, 0, 0.2);
+      }
+      .presentation-card a {
+        color: #a5b4fc;
+        font-weight: 700;
+      }
+      .file-list {
+        margin-top: 0.75rem;
+        font-size: 0.82rem;
+        color: var(--muted);
+        text-align: left;
+      }
+      .gate-panel {
+        max-width: 520px;
+        margin: 3rem auto;
+        text-align: center;
+      }
+      .gate-panel p {
+        color: var(--muted);
+        line-height: 1.55;
+      }
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        z-index: 100;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+      }
+      .modal-overlay.is-open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .modal-box {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        max-width: 420px;
+        width: 100%;
+      }
+      .modal-box h3 {
+        margin: 0 0 0.75rem;
+        font-size: 1.15rem;
+      }
+      input[type="url"] {
+        width: 100%;
+        padding: 0.65rem 0.75rem;
+        border-radius: 0.65rem;
+        border: 1px solid var(--border);
+        background: rgba(6, 10, 26, 0.95);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+      }
+      .wizard-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+      .btn {
+        padding: 0.85rem 1.5rem;
+        border-radius: 0.75rem;
+        border: none;
+        font-family: inherit;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .btn-primary {
+        background: linear-gradient(105deg, #7c3aed, #6366f1);
+        color: #fff;
+      }
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="gatePanel" class="gate-panel">
+      <h1 id="gateTitle" style="margin: 0 0 1rem; font-size: 1.35rem">Group project</h1>
+      <p id="gateText">Checking access…</p>
+      <p style="margin-top: 1.25rem">
+        <a href="./teams.html" id="gateTeamsLink">Teams</a>
+      </p>
+    </div>
+
+    <div id="projectShell" class="hidden">
+      <div class="top-links">
+        <a href="./teams.html" id="linkBackTeams">← Teams</a>
+        <a href="#" id="linkRoom" rel="noopener">Team room</a>
+      </div>
+
+      <div class="preview-wrap">
+        <div class="preview-head">
+          <h1 id="headTeamName">Group project</h1>
+          <p>Team ID: <strong id="headTeamId"></strong></p>
+        </div>
+
+        <div class="preview-grid">
+          <div class="rounded-tile" id="tileImportFiles">
+            Import files
+            <input id="hiddenFileInput" type="file" multiple class="hidden" />
+            <div class="file-list" id="importedFilesList"></div>
+          </div>
+          <div class="rounded-tile"><a href="./flashcards.html">Import flashcard</a></div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin: 0 0 0.75rem; font-size: 1rem">Docs</h3>
+          <p class="hint" style="margin-top: 0">Shared notes — saved on this device (same workspace as Teams preview).</p>
+          <div class="doc-area">
+            <textarea id="teamDocsBody" placeholder="Type here like Google Docs…"></textarea>
+          </div>
+
+          <h3 style="margin: 1.5rem 0 0.5rem; font-size: 1rem">Presentation</h3>
+          <div class="pres-options">
+            <a class="pres-link" href="https://www.canva.com/" target="_blank" rel="noopener noreferrer">
+              <img src="https://www.canva.com/favicon.ico" alt="" width="36" height="36" />
+              Create presentation on Canva
+            </a>
+            <a
+              class="pres-link"
+              href="https://www.microsoft365.com/launch/powerpoint"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                src="https://res.cdn.office.net/files/fabric-cdn-prod_20230815.002/assets/brand-icons/product/png/powerpoint_48x1.png"
+                alt=""
+                width="36"
+                height="36"
+                onerror="this.style.display='none'"
+              />
+              Presentation on PowerPoint
+            </a>
+          </div>
+          <span class="muted-link" id="openPresLinkModal">Already have a presentation — click here</span>
+        </div>
+
+        <div class="presentation-list" id="presentationList"></div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="presModal" aria-hidden="true">
+      <div class="modal-box" role="dialog" aria-labelledby="presModalTitle">
+        <h3 id="presModalTitle">Add presentation link</h3>
+        <p class="hint">Paste a link to Slides, Canva, PowerPoint Online, etc.</p>
+        <label class="lbl" for="presUrlInput">Link</label>
+        <input id="presUrlInput" type="url" placeholder="https://…" />
+        <div class="wizard-actions">
+          <button type="button" class="btn btn-secondary" id="presModalCancel">Cancel</button>
+          <button type="button" class="btn btn-primary" id="presModalNext">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { tabStorageGetJson, tabStorageSetJson } from "./js/synthiq-tab-storage.js";
+      import {
+        auth,
+        authPersistenceReady,
+        db,
+        ensureUsernameIndexFromProfile,
+        refreshIdTokenForFirestore,
+      } from "./signup/signup-firebase.js";
+      import { logTeamActivity } from "./js/team-activity.js";
+      import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+      import { doc, getDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+      const STORAGE_KEY = "synthiq_team_workspace_v1";
+
+      function loadWorkspace() {
+        return tabStorageGetJson(STORAGE_KEY, null);
+      }
+
+      function saveWorkspace(data) {
+        tabStorageSetJson(STORAGE_KEY, data);
+      }
+
+      function normalizeTeamId(raw) {
+        let t = String(raw || "").trim().toUpperCase().replace(/\s+/g, "");
+        if (!t.startsWith("SYN-")) t = "SYN-" + t.replace(/^SYN-?/, "");
+        return t;
+      }
+
+      function parseTeamIdFromUrl() {
+        try {
+          const p = new URLSearchParams(window.location.search);
+          return normalizeTeamId(p.get("id") || p.get("team") || "");
+        } catch (_) {
+          return "";
+        }
+      }
+
+      function escapeHtml(s) {
+        const d = document.createElement("div");
+        d.textContent = s ?? "";
+        return d.innerHTML;
+      }
+
+      function renderPresentations(listEl, presentations, displayName) {
+        listEl.innerHTML = "";
+        presentations.forEach(function (p) {
+          const author = p.author || displayName || "Member";
+          const card = document.createElement("div");
+          card.className = "presentation-card";
+          const safeUrl = String(p.url || "").trim();
+          if (!safeUrl) return;
+          card.innerHTML =
+            '<a href="' +
+            escapeHtml(safeUrl) +
+            '" target="_blank" rel="noopener noreferrer">See ' +
+            escapeHtml(author) +
+            " presentation</a>";
+          listEl.appendChild(card);
+        });
+      }
+
+      function syncUiFromWorkspace(teamId, teamName, displayName) {
+        document.getElementById("headTeamName").textContent = teamName || "Group project";
+        document.getElementById("headTeamId").textContent = teamId;
+        const room = document.getElementById("linkRoom");
+        room.href = "./team-room.html?id=" + encodeURIComponent(teamId);
+
+        const w = loadWorkspace();
+        if (!w || w.teamId !== teamId) return;
+        document.getElementById("teamDocsBody").value = w.docs || "";
+        const fl = document.getElementById("importedFilesList");
+        fl.innerHTML = "";
+        if (w.importedFiles && w.importedFiles.length) {
+          fl.innerHTML =
+            "<strong style=color:#e8ecff>Selected:</strong><br>" + w.importedFiles.map(escapeHtml).join("<br>");
+        }
+        renderPresentations(document.getElementById("presentationList"), w.presentations || [], displayName);
+      }
+
+      function showGate(title, msg) {
+        const gt = document.getElementById("gateTitle");
+        if (gt) gt.textContent = title || "Can’t open group project";
+        document.getElementById("gateText").textContent = msg;
+        document.getElementById("gatePanel").classList.remove("hidden");
+        document.getElementById("projectShell").classList.add("hidden");
+      }
+
+      function showProject() {
+        document.getElementById("gatePanel").classList.add("hidden");
+        document.getElementById("projectShell").classList.remove("hidden");
+      }
+
+      /** Align local workspace storage with this team when user opens this URL directly. */
+      function ensureWorkspaceRow(teamId, teamName) {
+        let w = loadWorkspace();
+        if (w && w.teamId === teamId) {
+          if (teamName && w.teamName !== teamName) {
+            w.teamName = teamName;
+            saveWorkspace(w);
+          }
+          return;
+        }
+        w = {
+          teamId: teamId,
+          teamName: teamName || "Team",
+          invites: Array.isArray(w && w.invites) ? w.invites : [],
+          docs: "",
+          presentations: [],
+          importedFiles: [],
+        };
+        saveWorkspace(w);
+      }
+
+      const teamIdParam = parseTeamIdFromUrl();
+      if (!teamIdParam || !/^SYN-[A-Z0-9-]+$/i.test(teamIdParam)) {
+        showGate("Invalid link", "Add a valid team ID to the URL, for example team-project.html?id=SYN-XXXX.");
+      }
+
+      let docsTimer = null;
+      document.getElementById("teamDocsBody").addEventListener("input", function () {
+        clearTimeout(docsTimer);
+        docsTimer = setTimeout(function () {
+          const w = loadWorkspace();
+          if (!w || w.teamId !== teamIdParam) return;
+          w.docs = document.getElementById("teamDocsBody").value;
+          saveWorkspace(w);
+        }, 400);
+      });
+
+      document.getElementById("tileImportFiles").addEventListener("click", function (e) {
+        if (e.target.closest("a")) return;
+        document.getElementById("hiddenFileInput").click();
+      });
+      document.getElementById("hiddenFileInput").addEventListener("change", function () {
+        const w = loadWorkspace();
+        if (!w || w.teamId !== teamIdParam) return;
+        const names = Array.from(this.files || []).map(function (f) {
+          return f.name;
+        });
+        w.importedFiles = names;
+        saveWorkspace(w);
+        const dn =
+          auth.currentUser?.displayName?.trim() ||
+          auth.currentUser?.email?.split("@")[0] ||
+          "You";
+        syncUiFromWorkspace(teamIdParam, w.teamName, dn);
+        this.value = "";
+      });
+
+      const presModal = document.getElementById("presModal");
+      document.getElementById("openPresLinkModal").addEventListener("click", function () {
+        document.getElementById("presUrlInput").value = "";
+        presModal.classList.add("is-open");
+        presModal.setAttribute("aria-hidden", "false");
+      });
+      document.getElementById("presModalCancel").addEventListener("click", function () {
+        presModal.classList.remove("is-open");
+        presModal.setAttribute("aria-hidden", "true");
+      });
+      presModal.addEventListener("click", function (e) {
+        if (e.target === presModal) {
+          presModal.classList.remove("is-open");
+          presModal.setAttribute("aria-hidden", "true");
+        }
+      });
+
+      document.getElementById("presModalNext").addEventListener("click", async function () {
+        let url = document.getElementById("presUrlInput").value.trim();
+        if (!url) {
+          alert("Paste a link first.");
+          return;
+        }
+        if (!/^https?:\/\//i.test(url)) url = "https://" + url;
+        const author =
+          auth.currentUser?.displayName?.trim() ||
+          auth.currentUser?.email?.split("@")[0] ||
+          "Member";
+        const w = loadWorkspace();
+        if (!w || !w.teamId || w.teamId !== teamIdParam) {
+          alert("Workspace not ready for this team.");
+          return;
+        }
+        w.presentations = w.presentations || [];
+        w.presentations.push({ url: url, author: author });
+        saveWorkspace(w);
+        try {
+          await refreshIdTokenForFirestore(auth.currentUser.uid);
+          await addDoc(collection(db, "teams", w.teamId, "presentations"), {
+            url: url,
+            authorUid: auth.currentUser.uid,
+            authorLabel: author,
+            createdAt: serverTimestamp(),
+          });
+          try {
+            await logTeamActivity(db, w.teamId, auth.currentUser.uid, author, "presentation", "Shared a presentation link.");
+          } catch (logErr) {
+            console.warn(logErr);
+          }
+        } catch (e) {
+          console.warn(e);
+        }
+        presModal.classList.remove("is-open");
+        presModal.setAttribute("aria-hidden", "true");
+        syncUiFromWorkspace(teamIdParam, w.teamName, author);
+      });
+
+      await authPersistenceReady;
+
+      onAuthStateChanged(auth, async function (user) {
+        if (!teamIdParam || !/^SYN-[A-Z0-9-]+$/i.test(teamIdParam)) return;
+
+        if (!user) {
+          await new Promise(function (r) {
+            setTimeout(r, 120);
+          });
+          if (auth.currentUser) return;
+          window.location.replace("./signup/synthiq-signin.html");
+          return;
+        }
+
+        try {
+          await ensureUsernameIndexFromProfile(user.uid);
+          await refreshIdTokenForFirestore(user.uid);
+          const teamSnap = await getDoc(doc(db, "teams", teamIdParam));
+          if (!teamSnap.exists()) {
+            showGate("Team not found", "That team ID doesn’t exist or was removed.");
+            return;
+          }
+          const mu = teamSnap.data().memberUids;
+          if (!Array.isArray(mu) || mu.indexOf(user.uid) === -1) {
+            showGate(
+              "Not a member",
+              "You are not a member of this team yet. Accept an invite or join from Teams.",
+            );
+            return;
+          }
+
+          const teamName = teamSnap.data().name || "Team";
+          ensureWorkspaceRow(teamIdParam, teamName);
+
+          const dn = user.displayName?.trim() || user.email?.split("@")[0] || "You";
+          syncUiFromWorkspace(teamIdParam, teamName, dn);
+          showProject();
+        } catch (e) {
+          console.warn(e);
+          showGate("Something went wrong", e.message || "Could not verify team access.");
+        }
+      });
+    </script>
+    <footer class="synthiq-legal-footer" role="contentinfo">
+      <a href="./terms-and-services.html">Terms and services</a>
+    </footer>
+  </body>
+</html>

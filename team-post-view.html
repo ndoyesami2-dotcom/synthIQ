@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Team post — SynthIQ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/synthiq-legal-footer.css" />
+    <style>
+      :root {
+        --bg: #050814;
+        --surface: rgba(18, 24, 48, 0.92);
+        --border: rgba(129, 140, 248, 0.22);
+        --text: #e8ecff;
+        --muted: #94a3b8;
+        --accent: #818cf8;
+        --radius: 1.25rem;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Outfit", system-ui, sans-serif;
+        background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.25), transparent),
+          var(--bg);
+        color: var(--text);
+        padding: clamp(1rem, 4vw, 2rem);
+      }
+      .hidden {
+        display: none !important;
+      }
+      .wrap {
+        max-width: 640px;
+        margin: 0 auto;
+      }
+      .top-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+      }
+      .top-row a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.88rem;
+        white-space: nowrap;
+      }
+      .top-row a:hover {
+        text-decoration: underline;
+      }
+      .post-title {
+        margin: 0;
+        font-size: clamp(1.35rem, 4vw, 1.65rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.25;
+      }
+      .post-meta {
+        margin: 0.5rem 0 0;
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.35rem 1.5rem;
+        backdrop-filter: blur(14px);
+        margin-bottom: 1.25rem;
+      }
+      .post-desc {
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        word-break: break-word;
+        color: var(--text);
+      }
+      .section-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--accent);
+        margin: 0 0 0.75rem;
+      }
+      .hint {
+        color: var(--muted);
+        font-size: 0.88rem;
+        margin: 0;
+        line-height: 1.5;
+      }
+      #gateErr {
+        color: #fca5a5;
+        font-weight: 600;
+      }
+      .btn-delete-post {
+        padding: 0.45rem 0.85rem;
+        border-radius: 0.55rem;
+        border: 1px solid rgba(248, 113, 113, 0.45);
+        background: rgba(248, 113, 113, 0.12);
+        color: #fca5a5;
+        font-family: inherit;
+        font-weight: 700;
+        font-size: 0.82rem;
+        cursor: pointer;
+      }
+      .btn-delete-post:hover {
+        background: rgba(248, 113, 113, 0.22);
+      }
+      .att-preview-area {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+      }
+      .att-preview-block {
+        border-radius: 1rem;
+        border: 1px solid var(--border);
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.22);
+      }
+      .att-preview-name {
+        font-weight: 700;
+        font-size: 0.85rem;
+        margin-bottom: 0.6rem;
+      }
+      .att-preview-img {
+        max-width: 100%;
+        max-height: min(55vh, 420px);
+        border-radius: 0.65rem;
+        object-fit: contain;
+        display: block;
+        margin-bottom: 0.75rem;
+      }
+      .att-preview-frame {
+        width: 100%;
+        height: min(52vh, 480px);
+        border: none;
+        border-radius: 0.65rem;
+        background: #0a0f22;
+        margin-bottom: 0.75rem;
+      }
+      .att-preview-video {
+        max-width: 100%;
+        max-height: min(45vh, 360px);
+        border-radius: 0.65rem;
+        margin-bottom: 0.75rem;
+      }
+      .att-preview-text {
+        margin: 0 0 0.75rem;
+        max-height: 280px;
+        overflow: auto;
+        font-size: 0.8rem;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .btn {
+        display: inline-block;
+        padding: 0.65rem 1.15rem;
+        border-radius: 0.65rem;
+        border: none;
+        font-family: inherit;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+      }
+      .btn-primary {
+        background: linear-gradient(105deg, #7c3aed, #6366f1);
+        color: #fff;
+        box-shadow: 0 6px 22px rgba(99, 102, 241, 0.35);
+      }
+      .att-link-host {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin: -0.25rem 0 0.65rem;
+        word-break: break-all;
+      }
+      .att-link-preview-wrap {
+        border-radius: 0.65rem;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        background: #0a0f22;
+        margin-bottom: 0.5rem;
+      }
+      .att-link-preview-frame {
+        width: 100%;
+        height: min(42vh, 320px);
+        border: none;
+        display: block;
+        background: #0a0f22;
+      }
+      .att-link-preview-hint {
+        font-size: 0.72rem;
+        margin: 0 0 0.85rem;
+        line-height: 1.45;
+      }
+      .att-link-actions {
+        margin-top: 0.25rem;
+      }
+      .att-enter-link-btn {
+        padding: 0.55rem 1.2rem;
+        border-radius: 0.55rem;
+        border: none;
+        font-family: inherit;
+        font-weight: 700;
+        font-size: 0.88rem;
+        cursor: pointer;
+        background: linear-gradient(105deg, #7c3aed, #6366f1);
+        color: #fff;
+        box-shadow: 0 6px 22px rgba(99, 102, 241, 0.35);
+      }
+      .att-enter-link-btn:hover {
+        filter: brightness(1.06);
+      }
+      .btn-primary:hover {
+        filter: brightness(1.06);
+      }
+      .att-download-row {
+        margin-top: 0.35rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.65rem 1rem;
+      }
+      .att-download-primary {
+        display: inline-block;
+        padding: 0.55rem 1rem;
+        border-radius: 0.6rem;
+        background: linear-gradient(105deg, #7c3aed, #6366f1);
+        color: #fff !important;
+        font-weight: 700;
+        font-size: 0.88rem;
+        text-decoration: none;
+        box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35);
+      }
+      .att-download-primary:hover {
+        filter: brightness(1.08);
+      }
+      .att-download-open {
+        color: #a5b4fc !important;
+        font-weight: 600;
+        font-size: 0.88rem;
+        text-decoration: underline;
+      }
+      .att-download-open:hover {
+        color: #c7d2fe !important;
+      }
+      .att-download-hint {
+        flex-basis: 100%;
+        margin: 0.35rem 0 0;
+        font-size: 0.72rem;
+        color: var(--muted);
+        line-height: 1.35;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="top-row">
+        <a href="./team-room.html" id="backLink">← Team posts</a>
+        <button type="button" id="btnDeletePost" class="btn-delete-post hidden">
+          Delete post
+        </button>
+      </div>
+
+      <p id="gateErr" class="hidden"></p>
+
+      <div id="mainPost" class="hidden">
+        <h1 class="post-title" id="postTitle"></h1>
+        <p class="post-meta" id="postMeta"></p>
+
+        <div class="card" style="margin-top: 1.25rem">
+          <p class="post-desc" id="postDesc"></p>
+        </div>
+
+        <div id="attachmentsSection" class="hidden">
+          <p class="section-label" style="margin-top: 1.5rem">Files</p>
+          <div id="attachmentsPreview" class="att-preview-area"></div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import {
+        auth,
+        authPersistenceReady,
+        db,
+        ensureUsernameIndexFromProfile,
+        refreshIdTokenForFirestore,
+      } from "./signup/signup-firebase.js";
+      import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+      import { doc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+      import { appendAttachmentPreviewBlock } from "./js/team-post-attachment-preview.js";
+
+      let teamId = "";
+      let postId = "";
+      let loadedPostAuthorUid = "";
+
+      function normalizeTeamId(raw) {
+        let t = String(raw || "").trim().toUpperCase().replace(/\s+/g, "");
+        if (!t.startsWith("SYN-")) t = "SYN-" + t.replace(/^SYN-?/, "");
+        return t;
+      }
+
+      function parseParams() {
+        try {
+          const p = new URLSearchParams(window.location.search);
+          return {
+            team: normalizeTeamId(p.get("id") || p.get("team") || ""),
+            post: String(p.get("post") || p.get("pid") || "").trim(),
+          };
+        } catch (_) {
+          return { team: "", post: "" };
+        }
+      }
+
+      function showGate(msg) {
+        document.getElementById("gateErr").textContent = msg;
+        document.getElementById("gateErr").classList.remove("hidden");
+        document.getElementById("mainPost").classList.add("hidden");
+        const delBtn = document.getElementById("btnDeletePost");
+        if (delBtn) delBtn.classList.add("hidden");
+      }
+
+      function renderPost(data) {
+        document.getElementById("gateErr").classList.add("hidden");
+        document.getElementById("mainPost").classList.remove("hidden");
+
+        document.getElementById("postTitle").textContent = data.title || "Post";
+        let when = "";
+        const c = data.createdAt;
+        if (c && c.toMillis) when = new Date(c.toMillis()).toLocaleString();
+        loadedPostAuthorUid = data.authorUid || "";
+        document.getElementById("postMeta").textContent =
+          "Posted by " +
+          (data.authorLabel || "Member") +
+          " · " +
+          (data.component || "Post") +
+          (when ? " · " + when : "");
+
+        document.getElementById("postDesc").textContent = data.description || "";
+
+        const delBtn = document.getElementById("btnDeletePost");
+        const uid = auth.currentUser?.uid || "";
+        if (delBtn) delBtn.classList.toggle("hidden", !loadedPostAuthorUid || uid !== loadedPostAuthorUid);
+
+        const attWrap = document.getElementById("attachmentsPreview");
+        attWrap.innerHTML = "";
+        const atts = Array.isArray(data.attachments) ? data.attachments : [];
+        const sec = document.getElementById("attachmentsSection");
+        if (!atts.length) {
+          sec.classList.add("hidden");
+          return;
+        }
+        sec.classList.remove("hidden");
+        atts.forEach(function (raw) {
+          appendAttachmentPreviewBlock(
+            attWrap,
+            {
+              name: raw.name,
+              mimeType: raw.mimeType,
+              size: typeof raw.size === "number" ? raw.size : Number(raw.size) || 0,
+              dataUrl: raw.dataUrl || raw.dataURL,
+              storageUrl: raw.storageUrl,
+            },
+            { showDownload: true },
+          );
+        });
+      }
+
+      document.getElementById("btnDeletePost").addEventListener("click", async function () {
+        if (!teamId || !postId || auth.currentUser?.uid !== loadedPostAuthorUid) return;
+        if (!confirm("Delete this post for everyone on the team?")) return;
+        try {
+          await refreshIdTokenForFirestore(auth.currentUser.uid);
+          await deleteDoc(doc(db, "teams", teamId, "posts", postId));
+          window.location.href = "./team-room.html?id=" + encodeURIComponent(teamId) + "&tab=posts";
+        } catch (e) {
+          console.warn(e);
+          alert(e.message || "Could not delete post.");
+        }
+      });
+
+      await authPersistenceReady;
+
+      onAuthStateChanged(auth, async function (user) {
+        const params = parseParams();
+        teamId = params.team;
+        postId = params.post;
+
+        document.getElementById("backLink").href =
+          "./team-room.html?id=" + encodeURIComponent(teamId || "SYN-INVALID") + "&tab=posts";
+
+        if (!user) {
+          await new Promise(function (r) {
+            setTimeout(r, 120);
+          });
+          if (auth.currentUser) return;
+          window.location.replace("./signup/synthiq-signin.html");
+          return;
+        }
+
+        if (!teamId || !/^SYN-[A-Z0-9-]+$/i.test(teamId) || !postId) {
+          showGate("Missing team ID or post ID. Open a post from the team room.");
+          return;
+        }
+
+        document.getElementById("backLink").href =
+          "./team-room.html?id=" + encodeURIComponent(teamId) + "&tab=posts";
+
+        try {
+          await ensureUsernameIndexFromProfile(user.uid);
+          await refreshIdTokenForFirestore(user.uid);
+
+          const teamSnap = await getDoc(doc(db, "teams", teamId));
+          if (!teamSnap.exists()) {
+            showGate("Team not found.");
+            return;
+          }
+          const mu = teamSnap.data().memberUids;
+          if (!Array.isArray(mu) || mu.indexOf(user.uid) === -1) {
+            showGate("You are not a member of this team.");
+            return;
+          }
+
+          const postSnap = await getDoc(doc(db, "teams", teamId, "posts", postId));
+          if (!postSnap.exists()) {
+            showGate("Post not found or was removed.");
+            return;
+          }
+
+          renderPost(postSnap.data());
+        } catch (e) {
+          console.warn(e);
+          showGate(e.message || "Could not load post.");
+        }
+      });
+    </script>
+    <footer class="synthiq-legal-footer" role="contentinfo">
+      <a href="./terms-and-services.html">Terms and services</a>
+    </footer>
+  </body>
+</html>

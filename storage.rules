@@ -1,0 +1,19 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isTeamMember(teamId) {
+      return request.auth != null
+        && firestore.exists(/databases/(default)/documents/teams/$(teamId))
+        && firestore.get(/databases/(default)/documents/teams/$(teamId)).data.memberUids is list
+        && request.auth.uid in firestore.get(/databases/(default)/documents/teams/$(teamId)).data.memberUids;
+    }
+
+    /* Large post attachments (PDFs, etc.) — members read/write only. */
+    match /teams/{teamId}/postAttachments/{postId}/{fileName} {
+      allow read: if isTeamMember(teamId);
+      allow write: if isTeamMember(teamId)
+        && request.resource.size < 22 * 1024 * 1024;
+    }
+  }
+}

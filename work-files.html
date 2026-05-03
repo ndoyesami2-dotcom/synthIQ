@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="synthiq-api-base" content="https://test-api.example.com" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Optional: meta synthiq-api-base if this page is not served from the same origin as server.cjs. -->
+    <title>Work Files — SynthIQ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/synthiq-legal-footer.css" />
+    <style>
+      :root {
+        --bg: #050814;
+        --card: rgba(18, 24, 48, 0.85);
+        --border: rgba(129, 140, 248, 0.2);
+        --text: #e8ecff;
+        --muted: #94a3b8;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Outfit", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        padding: clamp(1rem, 3vw, 2rem);
+      }
+      a.home {
+        color: #a5b4fc;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-block;
+        margin-bottom: 1.25rem;
+      }
+      a.home:hover {
+        text-decoration: underline;
+      }
+      h1 {
+        margin: 0 0 0.5rem;
+        font-size: 1.65rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+      .sub {
+        color: var(--muted);
+        margin: 0 0 1.5rem;
+        max-width: 40rem;
+        line-height: 1.5;
+      }
+      .panel {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        backdrop-filter: blur(12px);
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: flex-end;
+        margin-bottom: 1rem;
+      }
+      label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #a5b4fc;
+        display: block;
+        margin-bottom: 0.35rem;
+      }
+      select,
+      input[type="text"],
+      input[type="color"],
+      input[type="file"] {
+        padding: 0.5rem 0.65rem;
+        border-radius: 0.55rem;
+        border: 1px solid var(--border);
+        background: rgba(8, 12, 28, 0.9);
+        color: var(--text);
+        font-family: inherit;
+      }
+      .subject-field-wrap {
+        flex: 1;
+        min-width: 200px;
+      }
+      .subject-inline {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+      }
+      .subject-inline select {
+        flex: 1;
+        min-width: 0;
+        margin-bottom: 0;
+      }
+      .preset-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        box-shadow: 0 0 14px rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+      }
+      .btn {
+        padding: 0.55rem 1rem;
+        border-radius: 0.55rem;
+        border: none;
+        font-family: inherit;
+        font-weight: 700;
+        cursor: pointer;
+        background: linear-gradient(105deg, #7c3aed, #6366f1);
+        color: #fff;
+      }
+      .btn-ghost {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+      }
+      .file-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .file-list li {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        font-size: 0.88rem;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        box-shadow: 0 0 10px currentColor;
+      }
+      .file-list li.session-openable {
+        cursor: pointer;
+        border-radius: 0.45rem;
+        margin: 0 -0.35rem;
+        padding: 0.5rem 0.35rem;
+        transition: background 0.12s ease;
+      }
+      .file-list li.session-openable:hover {
+        background: rgba(129, 140, 248, 0.12);
+      }
+      .file-list li.session-openable:focus-visible {
+        outline: 2px solid rgba(129, 140, 248, 0.55);
+        outline-offset: 2px;
+      }
+      .file-list li.session-openable.is-open {
+        background: rgba(129, 140, 248, 0.18);
+      }
+      .hint-inline {
+        font-size: 0.76rem;
+        color: var(--muted);
+        margin: 0 0 1rem;
+        line-height: 1.45;
+      }
+      .session-row-inner {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        flex: 1;
+        min-width: 0;
+      }
+      .session-label-text {
+        flex: 1;
+        min-width: 0;
+      }
+      .session-actions {
+        flex-shrink: 0;
+        display: flex;
+        gap: 0.35rem;
+      }
+      .btn-mini {
+        font-family: inherit;
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 0.28rem 0.5rem;
+        border-radius: 0.4rem;
+        border: 1px solid rgba(129, 140, 248, 0.4);
+        background: rgba(99, 102, 241, 0.22);
+        color: var(--text);
+        cursor: pointer;
+      }
+      .btn-mini:hover {
+        background: rgba(99, 102, 241, 0.35);
+      }
+      #viewer {
+        width: 100%;
+        min-height: 140px;
+        margin-top: 0.75rem;
+        padding: 0.75rem;
+        border-radius: 0.55rem;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.35);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.85rem;
+        line-height: 1.45;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="home" href="/homepage.html">← Back to dashboard</a>
+    <h1>Work Files</h1>
+    <p class="sub">
+      Import lists files in the browser only—the originals stay on your PC. Click a saved session to <strong>download a .txt summary</strong> to your computer (usual Downloads folder). Use <strong>Browse folder</strong> / <strong>Folder</strong> with <code>node server.cjs</code> on localhost if you want File Explorer.
+    </p>
+
+    <div class="panel">
+      <label for="folderPick">Import folder</label>
+      <input id="folderPick" type="file" webkitdirectory multiple style="margin-bottom: 1rem" />
+      <label for="filesPick">Import downloaded files</label>
+      <input id="filesPick" type="file" multiple style="margin-bottom: 1rem" />
+      <div class="row">
+        <div class="subject-field-wrap">
+          <label for="subjectPick">Subject</label>
+          <div class="subject-inline">
+            <span id="subjectPresetDot" class="preset-dot" title="" aria-hidden="true"></span>
+            <select id="subjectPick">
+              <option value="Biology">Biology</option>
+              <option value="Mathematics">Mathematics</option>
+              <option value="Chemistry">Chemistry</option>
+              <option value="History">History</option>
+              <option value="Custom">Custom lesson…</option>
+            </select>
+          </div>
+        </div>
+        <div id="customFields" style="display: none">
+          <label for="lessonName">Lesson name</label>
+          <input id="lessonName" type="text" placeholder="e.g. Optics unit" />
+        </div>
+        <div id="customColorWrap" style="display: none">
+          <label for="lessonColor">Dot color</label>
+          <input id="lessonColor" type="color" value="#a855f7" />
+        </div>
+      </div>
+      <label for="explorerFolderPath">Folder path for File Explorer (optional)</label>
+      <input
+        id="explorerFolderPath"
+        type="text"
+        spellcheck="false"
+        autocomplete="off"
+        placeholder="Set via Browse folder / picking folder after Save on localhost"
+        style="width: 100%; margin-bottom: 0.35rem"
+      />
+      <p class="hint-inline">
+        On localhost (Windows), use <strong>Browse folder</strong> after <strong>List</strong> to pick a folder and open it in Explorer. When you <strong>save an import</strong>, you can optionally link a folder the same way.
+      </p>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem">
+        <button type="button" class="btn" id="saveImport">Save import to Work Files</button>
+        <button type="button" class="btn btn-ghost" id="btnBrowseExplorerFolder">Browse folder</button>
+        <button type="button" class="btn btn-ghost" id="btnLinkExplorerPath">
+          Apply path to selected session
+        </button>
+      </div>
+      <div class="toolbar">
+        <button type="button" class="btn btn-ghost" id="btnHighlight">Highlight words</button>
+        <button type="button" class="btn btn-ghost" id="btnAi">AI help</button>
+      </div>
+      <textarea id="viewer" readonly placeholder="Imported text previews and notes appear here…"></textarea>
+    </div>
+
+    <div class="panel">
+      <h2 style="margin: 0 0 0.75rem; font-size: 1rem">Imported sessions</h2>
+      <p class="sub" style="margin-top: -0.75rem; margin-bottom: 1rem; font-size: 0.82rem">
+        Click a session to <strong>download a .txt file</strong> with that session’s file list. Use <strong>List</strong> for the viewer; <strong>Folder</strong> opens a linked folder via the server on localhost.
+      </p>
+      <ul class="file-list" id="sessionList"></ul>
+    </div>
+
+    <script type="module">
+      import { tabStorageGetJson, tabStorageSetJson } from "./js/synthiq-tab-storage.js";
+
+      const STORAGE = "synthiq_work_sessions";
+      const PRESET = {
+        Biology: "#3b82f6",
+        Mathematics: "#ef4444",
+        Chemistry: "#22c55e",
+        History: "#eab308",
+      };
+
+      const subjectPick = document.getElementById("subjectPick");
+      const customFields = document.getElementById("customFields");
+      const customColorWrap = document.getElementById("customColorWrap");
+      const folderPick = document.getElementById("folderPick");
+      const filesPick = document.getElementById("filesPick");
+      const sessionList = document.getElementById("sessionList");
+      const viewer = document.getElementById("viewer");
+      const lessonColorInput = document.getElementById("lessonColor");
+
+      let openSessionIndex = -1;
+
+      function workFilesIsLocalhost() {
+        try {
+          let h = (window.location.hostname || "").toLowerCase();
+          if (h.startsWith("[") && h.endsWith("]")) h = h.slice(1, -1);
+          return h === "localhost" || h === "127.0.0.1" || h === "::1";
+        } catch (e) {
+          return false;
+        }
+      }
+
+      /** Same-origin or meta synthiq-api-base for the Node API (see homepage.html, ai-chat.html). */
+      function synthiqApiBases() {
+        const out = [];
+        const seen = {};
+        function push(u) {
+          if (!u || seen[u]) return;
+          seen[u] = true;
+          out.push(u);
+        }
+        try {
+          const m = document.querySelector('meta[name="synthiq-api-base"]');
+          const mc = m && m.getAttribute("content");
+          if (mc != null && String(mc).trim()) push(String(mc).trim().replace(/\/$/, ""));
+        } catch (e0) {}
+        try {
+          if (typeof window !== "undefined" && window.__SYNTHIQ_API_BASE__) {
+            push(String(window.__SYNTHIQ_API_BASE__).replace(/\/$/, ""));
+          }
+        } catch (e1) {}
+        const loc = typeof window !== "undefined" ? window.location : null;
+        const fromHttps = loc && loc.protocol === "https:";
+        if (!fromHttps) {
+          push("http://127.0.0.1:3000");
+          push("http://localhost:3000");
+        }
+        try {
+          const o = loc && loc.origin;
+          if (o && o !== "null" && loc.protocol !== "file:" && loc.protocol !== "blob:") {
+            push(String(o).replace(/\/$/, ""));
+          }
+        } catch (e) {}
+        return out.length ? out : ["http://localhost:3000"];
+      }
+
+      function synthiqWorkFilesShouldRetryApiBase(apiPath, r) {
+        if (!apiPath || apiPath.indexOf("/api/") !== 0) return false;
+        const s = r.status;
+        if (s === 404 || s === 405 || s === 501) return true;
+        const ct = (r.headers.get("content-type") || "").toLowerCase();
+        if (ct.indexOf("application/json") === -1 && ct.indexOf("text/json") === -1) return true;
+        return false;
+      }
+
+      async function synthiqPostJson(apiPath, bodyObj) {
+        const bases = synthiqApiBases();
+        let lastNetErr = null;
+        let last = null;
+        for (let i = 0; i < bases.length; i++) {
+          let r;
+          try {
+            r = await fetch(bases[i] + apiPath, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(bodyObj),
+            });
+          } catch (e) {
+            lastNetErr = e;
+            continue;
+          }
+          const j = await r.json().catch(function () {
+            return {};
+          });
+          last = { r: r, j: j };
+          if (synthiqWorkFilesShouldRetryApiBase(apiPath, r) && i < bases.length - 1) continue;
+          return last;
+        }
+        if (lastNetErr) throw lastNetErr;
+        return last || { r: null, j: {} };
+      }
+
+      async function requestPickFolder(openExplorer) {
+        const { r, j } = await synthiqPostJson("/api/pick-folder", {
+          openExplorer: openExplorer !== false,
+        });
+        if (!r) {
+          throw new Error(
+            "Could not reach node server. Run node server.cjs and open Work Files from http://localhost:3000/work-files.html",
+          );
+        }
+        if (r.status === 501) {
+          return { unavailable: true };
+        }
+        if (r.status === 404) {
+          throw new Error(
+            "SynthIQ API not on this URL. Open Work Files via node at http://localhost:3000/work-files.html (not Live Server on another port).",
+          );
+        }
+        if (!r.ok) {
+          throw new Error(j.error || "Folder picker failed.");
+        }
+        if (!j.ok && j.cancelled) {
+          return { cancelled: true };
+        }
+        if (!j.ok) {
+          return { cancelled: true, error: j.error };
+        }
+        return { path: String(j.path || "").trim(), cancelled: false };
+      }
+
+      function defaultExportFilename(row) {
+        let stem = String((row && row.folderName) || "SynthIQ-WorkFiles")
+          .replace(/[/\\:*?"<>|]+/g, "-")
+          .replace(/\s+/g, " ")
+          .trim()
+          .slice(0, 80);
+        if (!stem) stem = "SynthIQ-WorkFiles";
+        if (/\.txt$/i.test(stem)) return stem;
+        return stem + ".txt";
+      }
+
+      function fallbackBrowserDownloadText(text, filename) {
+        const safeName = String(filename || "SynthIQ-WorkFiles.txt").replace(/[/\\:*?"<>|]+/g, "-") || "SynthIQ-WorkFiles.txt";
+        const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = safeName;
+        a.rel = "noopener";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function () {
+          URL.revokeObjectURL(url);
+        }, 250);
+      }
+
+      function saveSessionToDevice(idx, s) {
+        let fresh = [];
+        try {
+          fresh = tabStorageGetJson(STORAGE, []);
+        } catch (e) {}
+        const row = fresh[idx] || s;
+        const content = formatSessionViewerText(row);
+        const defaultFileName = defaultExportFilename(row);
+        fallbackBrowserDownloadText(content, defaultFileName);
+      }
+
+      function formatSessionViewerText(s) {
+        const files = Array.isArray(s.files) ? s.files : [];
+        const lines = [];
+        lines.push("— " + (s.folderName || "Folder") + " —");
+        lines.push((s.lessonLabel || s.subject || "General") + " · " + files.length + " files");
+        if (s.savedAt) {
+          try {
+            lines.push("Saved " + new Date(s.savedAt).toLocaleString());
+          } catch (e) {
+            lines.push("");
+          }
+        }
+        lines.push("");
+        const maxLines = 400;
+        const n = Math.min(files.length, maxLines);
+        for (let j = 0; j < n; j++) {
+          lines.push(files[j].path || files[j].name || "");
+        }
+        if (files.length > maxLines) {
+          lines.push("");
+          lines.push("… +" + (files.length - maxLines) + " more files");
+        }
+        return lines.join("\n");
+      }
+
+      function applySessionToForm(s) {
+        const rawSub = String(s.subject || "").trim();
+        const presetKeys = Object.keys(PRESET);
+        if (rawSub && presetKeys.indexOf(rawSub) !== -1) {
+          subjectPick.value = rawSub;
+          customFields.style.display = "none";
+          customColorWrap.style.display = "none";
+        } else if (rawSub === "Custom") {
+          subjectPick.value = "Custom";
+          customFields.style.display = "block";
+          customColorWrap.style.display = "block";
+          document.getElementById("lessonName").value = String(s.lessonLabel || "").trim() || "Custom";
+          lessonColorInput.value = s.colorHex || "#a855f7";
+        } else {
+          subjectPick.value = "Custom";
+          customFields.style.display = "block";
+          customColorWrap.style.display = "block";
+          document.getElementById("lessonName").value =
+            String(s.lessonLabel || s.subject || "").trim() || "Custom";
+          lessonColorInput.value = s.colorHex || "#a855f7";
+        }
+        syncPresetDot();
+        const exEl = document.getElementById("explorerFolderPath");
+        if (exEl) exEl.value = String(s.explorerFolderPath || "").trim();
+      }
+
+      async function requestExplorerOpen(absPath) {
+        if (!workFilesIsLocalhost()) {
+          alert("Open Work Files from http://localhost with node server.cjs so Explorer can launch.");
+          return;
+        }
+        try {
+          const { r, j } = await synthiqPostJson("/api/open-explorer", { path: absPath });
+          if (!r) {
+            throw new Error(
+              "Could not reach node server. Use http://localhost:3000/work-files.html with server running.",
+            );
+          }
+          if (r.status === 404) {
+            throw new Error(
+              "Explorer API not on this URL. Open Work Files via http://localhost:3000/work-files.html",
+            );
+          }
+          if (!r.ok || !j.ok) {
+            throw new Error(j.error || "Could not open Explorer.");
+          }
+        } catch (e) {
+          alert(
+            e.message ||
+              "Could not reach the SynthIQ server. On Windows use http://localhost with node server.cjs running.",
+          );
+        }
+      }
+
+      function persistSessionExplorerPath(idx, p) {
+        let arr = [];
+        try {
+          arr = tabStorageGetJson(STORAGE, []);
+        } catch (e) {}
+        if (!arr[idx]) return;
+        arr[idx] = Object.assign({}, arr[idx], { explorerFolderPath: p });
+        tabStorageSetJson(STORAGE, arr);
+        loadSessions();
+      }
+
+      function openSessionAtIndex(idx, s) {
+        openSessionIndex = idx;
+        viewer.value = formatSessionViewerText(s);
+        applySessionToForm(s);
+        sessionList.querySelectorAll("li.session-openable").forEach(function (row, i) {
+          row.classList.toggle("is-open", i === idx);
+        });
+        viewer.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        viewer.focus();
+      }
+
+      function syncPresetDot() {
+        const dot = document.getElementById("subjectPresetDot");
+        if (!dot) return;
+        const v = subjectPick.value;
+        let hex = PRESET[v] || "#6366f1";
+        if (v === "Custom") hex = lessonColorInput.value;
+        dot.style.background = hex;
+      }
+
+      subjectPick.addEventListener("change", function () {
+        const c = subjectPick.value === "Custom";
+        customFields.style.display = c ? "block" : "none";
+        customColorWrap.style.display = c ? "block" : "none";
+        syncPresetDot();
+      });
+
+      lessonColorInput.addEventListener("input", syncPresetDot);
+
+      function loadSessions() {
+        let data = [];
+        try {
+          data = tabStorageGetJson(STORAGE, []);
+        } catch (e) {}
+        if (openSessionIndex >= data.length) openSessionIndex = -1;
+        sessionList.innerHTML = "";
+        data.forEach(function (s, idx) {
+          const li = document.createElement("li");
+          li.className = "session-openable";
+          li.setAttribute("role", "button");
+          li.tabIndex = 0;
+          li.setAttribute(
+            "aria-label",
+            "Download session summary as a file: " +
+              (s.folderName || "Folder") +
+              ", " +
+              (s.lessonLabel || s.subject || "General"),
+          );
+
+          const inner = document.createElement("div");
+          inner.className = "session-row-inner";
+
+          const dot = document.createElement("span");
+          dot.className = "dot";
+          dot.style.background = s.colorHex || "#6366f1";
+
+          const label = document.createElement("span");
+          label.className = "session-label-text";
+          label.textContent =
+            (s.folderName || "Folder") +
+            " · " +
+            (s.lessonLabel || s.subject || "General") +
+            " · " +
+            (s.files || []).length +
+            " files";
+
+          const actions = document.createElement("div");
+          actions.className = "session-actions";
+
+          const btnList = document.createElement("button");
+          btnList.type = "button";
+          btnList.className = "btn-mini";
+          btnList.textContent = "List";
+          btnList.setAttribute("aria-label", "Show file list in viewer");
+          btnList.addEventListener("click", function (e) {
+            e.stopPropagation();
+            let fresh = [];
+            try {
+              fresh = tabStorageGetJson(STORAGE, []);
+            } catch (err) {}
+            const row = fresh[idx] || s;
+            openSessionAtIndex(idx, row);
+          });
+
+          const btnFolder = document.createElement("button");
+          btnFolder.type = "button";
+          btnFolder.className = "btn-mini";
+          btnFolder.textContent = "Folder";
+          btnFolder.setAttribute("aria-label", "Open linked folder in File Explorer");
+          btnFolder.addEventListener("click", function (e) {
+            e.stopPropagation();
+            let fresh = [];
+            try {
+              fresh = tabStorageGetJson(STORAGE, []);
+            } catch (err) {}
+            const row = fresh[idx] || s;
+            const linked = String((row && row.explorerFolderPath) || "").trim();
+            if (!linked) {
+              alert("No folder linked yet. Use Browse folder after List, or paste a path and Apply path.");
+              return;
+            }
+            requestExplorerOpen(linked);
+          });
+
+          inner.appendChild(dot);
+          inner.appendChild(label);
+          inner.appendChild(actions);
+          actions.appendChild(btnList);
+          actions.appendChild(btnFolder);
+          li.appendChild(inner);
+
+          if (idx === openSessionIndex) li.classList.add("is-open");
+
+          li.addEventListener("click", function (ev) {
+            if (ev.target.closest && ev.target.closest(".session-actions")) return;
+            saveSessionToDevice(idx, s);
+          });
+          li.addEventListener("keydown", function (ev) {
+            if (ev.key === "Enter" || ev.key === " ") {
+              ev.preventDefault();
+              saveSessionToDevice(idx, s);
+            }
+          });
+
+          sessionList.appendChild(li);
+        });
+      }
+
+      document.getElementById("btnBrowseExplorerFolder").addEventListener("click", async function () {
+        if (!workFilesIsLocalhost()) {
+          alert("Open Work Files from http://localhost with node server.cjs running.");
+          return;
+        }
+        try {
+          const pick = await requestPickFolder(true);
+          if (pick.unavailable) {
+            alert("Browse folder is only available on Windows with node server.cjs.");
+            return;
+          }
+          if (!pick.path) return;
+          const exEl = document.getElementById("explorerFolderPath");
+          if (exEl) exEl.value = pick.path;
+          if (openSessionIndex >= 0) {
+            persistSessionExplorerPath(openSessionIndex, pick.path);
+          }
+        } catch (err) {
+          alert(err.message || "Could not open folder picker.");
+        }
+      });
+
+      document.getElementById("btnLinkExplorerPath").addEventListener("click", function () {
+        if (openSessionIndex < 0) {
+          alert('Click "List" on a session first so a session is selected.');
+          return;
+        }
+        const p = document.getElementById("explorerFolderPath").value.trim();
+        if (!p) {
+          alert("Paste the full folder path (for example C:\\Users\\You\\Documents\\MyFolder) first.");
+          return;
+        }
+        persistSessionExplorerPath(openSessionIndex, p);
+        alert("Path saved. Click Folder on that session (after List) to open it in Explorer.");
+      });
+
+      document.getElementById("saveImport").addEventListener("click", async function () {
+        const loose = filesPick.files;
+        const folderFiles = folderPick.files;
+        let folderName = "";
+        const list = [];
+
+        if (loose && loose.length) {
+          folderName = "Downloaded files";
+          for (let i = 0; i < loose.length; i++) {
+            list.push({ name: loose[i].name, path: loose[i].name });
+          }
+        } else if (folderFiles && folderFiles.length) {
+          try {
+            folderName = folderFiles[0].webkitRelativePath.split("/")[0] || "Folder";
+          } catch (e) {
+            folderName = "Folder";
+          }
+          for (let i = 0; i < folderFiles.length; i++) {
+            const rel = folderFiles[i].webkitRelativePath || folderFiles[i].name;
+            list.push({
+              name: folderFiles[i].name,
+              path: rel,
+            });
+          }
+        } else {
+          alert("Choose a folder or use Import downloaded files to pick one or more files.");
+          return;
+        }
+
+        let explorerFolderPath = document.getElementById("explorerFolderPath").value.trim();
+
+        if (workFilesIsLocalhost() && !explorerFolderPath) {
+          const btn = document.getElementById("saveImport");
+          const prevText = btn.textContent;
+          btn.disabled = true;
+          btn.textContent = "Choose folder…";
+          try {
+            const pick = await requestPickFolder(true);
+            if (pick.unavailable) {
+              /* non-Windows localhost — save without path */
+            } else if (pick.path) {
+              explorerFolderPath = pick.path;
+              const exEl = document.getElementById("explorerFolderPath");
+              if (exEl) exEl.value = explorerFolderPath;
+            }
+          } catch (err) {
+            alert(err.message || "Could not open folder picker. Is node server.cjs running on Windows?");
+            btn.disabled = false;
+            btn.textContent = prevText;
+            return;
+          }
+          btn.disabled = false;
+          btn.textContent = prevText;
+        }
+
+        let subject = subjectPick.value;
+        let colorHex = PRESET[subject] || "#6366f1";
+        let lessonLabel = subject;
+        if (subject === "Custom") {
+          lessonLabel = document.getElementById("lessonName").value.trim() || "Custom";
+          colorHex = document.getElementById("lessonColor").value;
+          subject = "Custom";
+        }
+        let arr = [];
+        try {
+          arr = tabStorageGetJson(STORAGE, []);
+        } catch (e) {}
+        arr.push({
+          folderName: folderName,
+          files: list,
+          subject: subject,
+          lessonLabel: lessonLabel,
+          colorHex: colorHex,
+          savedAt: new Date().toISOString(),
+          explorerFolderPath: explorerFolderPath,
+        });
+        tabStorageSetJson(STORAGE, arr);
+        const lastIdx = arr.length - 1;
+        openSessionIndex = lastIdx;
+        viewer.value = formatSessionViewerText(arr[lastIdx]);
+        applySessionToForm(arr[lastIdx]);
+        folderPick.value = "";
+        filesPick.value = "";
+        loadSessions();
+      });
+
+      document.getElementById("btnHighlight").addEventListener("click", function () {
+        const t = viewer.value;
+        if (!t.trim()) {
+          alert("Import files and tap Save import to Work Files first to fill the viewer.");
+          return;
+        }
+        const word = window.prompt("Word or phrase to highlight?", "DNA");
+        if (!word) return;
+        const safe = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        viewer.value = t.replace(new RegExp(safe, "gi"), function (m) {
+          return "【" + m + "】";
+        });
+      });
+
+      document.getElementById("btnAi").addEventListener("click", function () {
+        const sel = viewer.value.slice(0, 400);
+        if (!sel.trim()) {
+          alert("Nothing to send to AI yet. Import files and save.");
+          return;
+        }
+        alert(
+          "AI help (demo): connect your model API here. Preview of your selection:\n\n" + sel.slice(0, 200) + "…"
+        );
+      });
+
+      loadSessions();
+      syncPresetDot();
+    </script>
+    <footer class="synthiq-legal-footer" role="contentinfo">
+      <a href="./terms-and-services.html">Terms and services</a>
+    </footer>
+  </body>
+</html>

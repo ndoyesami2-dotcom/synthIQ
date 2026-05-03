@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SynthIQ — Create team post</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/synthiq-legal-footer.css" />
+    <style>
+      :root {
+        --navy-950: #030712;
+        --glass: rgba(22, 30, 58, 0.72);
+        --stroke: rgba(129, 140, 248, 0.28);
+        --text: #e8ecff;
+        --muted: #94a3b8;
+        --radius: 1rem;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Outfit", system-ui, sans-serif;
+        color: var(--text);
+        background: radial-gradient(ellipse 100% 80% at 50% -20%, rgba(99, 102, 241, 0.18), transparent 55%),
+          var(--navy-950);
+      }
+      .wrap {
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 2rem 1.25rem 3rem;
+      }
+      .top-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      .top-row a {
+        color: #a5b4fc;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.88rem;
+      }
+      .top-row a:hover {
+        color: #c7d2fe;
+      }
+      h1 {
+        margin: 0;
+        font-size: 1.35rem;
+        letter-spacing: -0.03em;
+      }
+      .sub {
+        margin: 0.35rem 0 0;
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+      .card {
+        background: var(--glass);
+        border: 1px solid var(--stroke);
+        border-radius: var(--radius);
+        padding: 1.35rem;
+        backdrop-filter: blur(14px);
+      }
+      label {
+        display: block;
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: #a5b4fc;
+        margin-bottom: 0.35rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      input[type="text"],
+      textarea,
+      select {
+        width: 100%;
+        padding: 0.55rem 0.7rem;
+        border-radius: 0.55rem;
+        border: 1px solid var(--stroke);
+        background: rgba(8, 12, 28, 0.95);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+      }
+      textarea {
+        min-height: 140px;
+        resize: vertical;
+      }
+      .file-zone {
+        border: 1px dashed rgba(129, 140, 248, 0.35);
+        border-radius: 0.65rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: rgba(0, 0, 0, 0.2);
+      }
+      .file-zone button {
+        padding: 0.45rem 0.85rem;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(99, 102, 241, 0.25);
+        color: var(--text);
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 0.82rem;
+        cursor: pointer;
+      }
+      .file-zone button:hover {
+        background: rgba(99, 102, 241, 0.38);
+      }
+      .file-list {
+        margin: 0.65rem 0 0;
+        padding: 0;
+        list-style: none;
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      .file-list li {
+        padding: 0.25rem 0;
+      }
+      .actions {
+        display: flex;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+        margin-top: 0.5rem;
+      }
+      .btn {
+        padding: 0.55rem 1.1rem;
+        border-radius: 0.55rem;
+        border: none;
+        font-family: inherit;
+        font-weight: 700;
+        font-size: 0.88rem;
+        cursor: pointer;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: white;
+        box-shadow: 0 8px 28px rgba(99, 102, 241, 0.35);
+      }
+      .btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+      .btn-ghost {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: var(--text);
+        box-shadow: none;
+      }
+      #gateErr {
+        color: #fca5a5;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+      .hint {
+        font-size: 0.72rem;
+        color: var(--muted);
+        margin: -0.5rem 0 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="top-row">
+        <div>
+          <h1>Create post</h1>
+          <p class="sub" id="teamLine">Team · …</p>
+          <p class="sub" id="postingAsLine" style="margin-top: 0.35rem; color: var(--muted)"></p>
+        </div>
+        <a href="./team-room.html" id="backLink">← Team room</a>
+      </div>
+      <p id="gateErr" class="hidden"></p>
+      <div id="mainCard" class="card hidden">
+        <label for="inpTitle">Title</label>
+        <input id="inpTitle" type="text" maxlength="200" placeholder="Short headline" autocomplete="off" />
+
+        <label for="inpDesc">Description</label>
+        <textarea id="inpDesc" maxlength="12000" placeholder="What should your team know?"></textarea>
+
+        <label for="inpComponent">Component</label>
+        <select id="inpComponent">
+          <option value="Announcement">Announcement</option>
+          <option value="Resource">Resource</option>
+          <option value="Discussion">Discussion</option>
+          <option value="Project update">Project update</option>
+        </select>
+
+        <label>Attachments</label>
+        <div class="file-zone">
+          <button type="button" id="btnPickFiles">Choose files…</button>
+          <input type="file" id="hiddenFiles" multiple hidden />
+          <p class="hint">
+            Up to 3 files. Images are resized/JPEG-compressed when needed. Small files embed in the post; larger PDFs and other files upload to team cloud storage so teammates can preview and download.
+          </p>
+          <ul class="file-list" id="fileList"></ul>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn" id="btnPublish">Publish to team</button>
+          <button type="button" class="btn btn-ghost" id="btnCancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import {
+        auth,
+        authPersistenceReady,
+        db,
+        storage,
+        refreshIdTokenForFirestore,
+      } from "./signup/signup-firebase.js";
+      import { uploadTeamPostAttachment } from "./js/synthiq-storage-upload.js";
+      import { logTeamActivity } from "./js/team-activity.js";
+      import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+      import {
+        doc,
+        getDoc,
+        collection,
+        setDoc,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+      import { readAttachmentFromFile } from "./js/synthiq-read-attachment.js";
+
+      const MAX_FILES = 3;
+      const MAX_STORAGE_BYTES = 21 * 1024 * 1024;
+      let teamId = "";
+      let myUid = "";
+      /** @type {{ name: string, mimeType: string, size: number, dataUrl: string, _file?: File }[]} */
+      let picked = [];
+
+      function normalizeTeamId(raw) {
+        let t = String(raw || "").trim().toUpperCase().replace(/\s+/g, "");
+        if (!t.startsWith("SYN-")) t = "SYN-" + t.replace(/^SYN-?/, "");
+        return t;
+      }
+
+      function parseTeamIdFromUrl() {
+        try {
+          const p = new URLSearchParams(window.location.search);
+          return normalizeTeamId(p.get("id") || p.get("team") || "");
+        } catch (_) {
+          return "";
+        }
+      }
+
+      function showGate(msg) {
+        const g = document.getElementById("gateErr");
+        g.textContent = msg;
+        g.classList.remove("hidden");
+        document.getElementById("mainCard").classList.add("hidden");
+      }
+
+      function renderFileList() {
+        const ul = document.getElementById("fileList");
+        ul.innerHTML = "";
+        picked.forEach(function (f) {
+          const li = document.createElement("li");
+          const kb = Math.round(f.size / 1024);
+          let emb = "filename only (too large or not embedded)";
+          if (f.dataUrl) emb = "embedded / downloadable";
+          else if (f._file) emb = "cloud upload (preview after publish)";
+          li.textContent = f.name + " · " + kb + " KB · " + emb;
+          ul.appendChild(li);
+        });
+        if (!picked.length) {
+          const li = document.createElement("li");
+          li.textContent = "No files selected.";
+          ul.appendChild(li);
+        }
+      }
+
+      document.getElementById("btnPickFiles").addEventListener("click", function () {
+        document.getElementById("hiddenFiles").click();
+      });
+
+      document.getElementById("hiddenFiles").addEventListener("change", async function () {
+        const files = Array.from(this.files || []).slice(0, MAX_FILES);
+        picked = [];
+        for (let i = 0; i < files.length; i++) {
+          const meta = await readAttachmentFromFile(files[i]);
+          const row = Object.assign({}, meta);
+          if (!String(row.dataUrl || "").trim()) row._file = files[i];
+          if (row._file && row._file.size > MAX_STORAGE_BYTES) {
+            alert(String(files[i].name || "File") + " is over 21 MB and was skipped.");
+            continue;
+          }
+          picked.push(row);
+        }
+        this.value = "";
+        renderFileList();
+      });
+
+      document.getElementById("btnCancel").addEventListener("click", function () {
+        window.location.href = "./team-room.html?id=" + encodeURIComponent(teamId) + "&tab=posts";
+      });
+
+      document.getElementById("backLink").addEventListener("click", function (e) {
+        e.preventDefault();
+        window.location.href = "./team-room.html?id=" + encodeURIComponent(teamId) + "&tab=posts";
+      });
+
+      document.getElementById("btnPublish").addEventListener("click", async function () {
+        const title = document.getElementById("inpTitle").value.trim();
+        const description = document.getElementById("inpDesc").value.trim();
+        const component = document.getElementById("inpComponent").value;
+        if (!title) {
+          alert("Add a title.");
+          return;
+        }
+        if (!description) {
+          alert("Add a description.");
+          return;
+        }
+        const btn = document.getElementById("btnPublish");
+        btn.disabled = true;
+        try {
+          await refreshIdTokenForFirestore(myUid);
+          const label =
+            auth.currentUser?.displayName?.trim() ||
+            auth.currentUser?.email?.split("@")[0] ||
+            "Member";
+          const postRef = doc(collection(db, "teams", teamId, "posts"));
+          const postId = postRef.id;
+          const src = picked.slice(0, MAX_FILES);
+          const attachments = [];
+          for (let i = 0; i < src.length; i++) {
+            const f = src[i];
+            if (f._file) {
+              attachments.push(await uploadTeamPostAttachment(storage, teamId, postId, i, f._file, f));
+            } else {
+              attachments.push({
+                name: f.name,
+                mimeType: f.mimeType || "application/octet-stream",
+                size: typeof f.size === "number" ? f.size : Number(f.size) || 0,
+                dataUrl: f.dataUrl || "",
+                storageUrl: f.storageUrl || "",
+              });
+            }
+          }
+          await setDoc(postRef, {
+            title,
+            description,
+            component,
+            authorUid: myUid,
+            authorLabel: label,
+            attachments,
+            createdAt: serverTimestamp(),
+          });
+          await logTeamActivity(db, teamId, myUid, label, "post", "Published: " + title);
+          window.location.href = "./team-room.html?id=" + encodeURIComponent(teamId) + "&tab=posts";
+        } catch (e) {
+          console.warn(e);
+          alert(e.message || "Could not publish.");
+          btn.disabled = false;
+        }
+      });
+
+      await authPersistenceReady;
+
+      onAuthStateChanged(auth, async function (user) {
+        if (!user) {
+          window.location.replace("./signup/synthiq-signin.html");
+          return;
+        }
+        myUid = user.uid;
+        teamId = parseTeamIdFromUrl();
+        if (!teamId || !/^SYN-[A-Z0-9-]+$/i.test(teamId)) {
+          showGate("Missing or invalid team ID.");
+          return;
+        }
+        document.getElementById("backLink").href =
+          "./team-room.html?id=" + encodeURIComponent(teamId) + "&tab=posts";
+
+        try {
+          await refreshIdTokenForFirestore(myUid);
+          const teamSnap = await getDoc(doc(db, "teams", teamId));
+          if (!teamSnap.exists()) {
+            showGate("Team not found.");
+            return;
+          }
+          const mu = teamSnap.data().memberUids;
+          if (!Array.isArray(mu) || mu.indexOf(myUid) === -1) {
+            showGate("You are not a member of this team.");
+            return;
+          }
+          document.getElementById("teamLine").textContent =
+            (teamSnap.data().name || "Team") + " · " + teamId;
+          const postingLabel =
+            user.displayName?.trim() || user.email?.split("@")[0] || "Member";
+          document.getElementById("postingAsLine").textContent = "Posting as " + postingLabel;
+          document.getElementById("gateErr").classList.add("hidden");
+          document.getElementById("mainCard").classList.remove("hidden");
+          renderFileList();
+        } catch (e) {
+          console.warn(e);
+          showGate(e.message || "Could not load team.");
+        }
+      });
+    </script>
+    <footer class="synthiq-legal-footer" role="contentinfo">
+      <a href="./terms-and-services.html">Terms and services</a>
+    </footer>
+  </body>
+</html>

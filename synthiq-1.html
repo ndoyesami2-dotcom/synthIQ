@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>synthIQ account — Your name</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="signup.css" />
+    <link rel="stylesheet" href="../css/synthiq-legal-footer.css" />
+  </head>
+  <body class="signup-page" data-progress-mode="step1" data-signup-step="1">
+    <div class="signup-shell">
+      <div class="signup-visual">
+        <img
+          id="signupHeroImg"
+          data-hero-pool="step1"
+          src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&amp;fit=crop&amp;w=2000&amp;q=88"
+          width="2000"
+          height="1333"
+          alt=""
+          decoding="async"
+          fetchpriority="high"
+        />
+        <div class="signup-visual-caption">
+          <p><span class="accent">SynthIQ</span> is trusted by many students.</p>
+        </div>
+      </div>
+      <aside class="signup-aside">
+        <div class="signup-card-aura">
+          <div class="signup-card">
+            <div class="brand"><a href="/">← Home</a></div>
+            <div class="steps">Step 1 of 3</div>
+            <h1>Create your synthIQ account</h1>
+            <p class="sub">Choose a username and enter your full name.</p>
+            <form id="f" novalidate>
+              <div class="field">
+                <label for="username">Username</label>
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  autocomplete="username"
+                  required
+                  minlength="3"
+                  maxlength="32"
+                  pattern="[a-zA-Z0-9._-]+"
+                  placeholder="letters, numbers, . _ -"
+                />
+              </div>
+              <div class="field">
+                <label for="fullName">Full name</label>
+                <input
+                  id="fullName"
+                  name="fullName"
+                  type="text"
+                  autocomplete="name"
+                  required
+                  minlength="2"
+                  maxlength="120"
+                  placeholder="First and last name"
+                />
+              </div>
+              <p class="err" id="err" hidden></p>
+              <div class="actions">
+                <button type="submit" class="btn btn-primary">Continue</button>
+              </div>
+            </form>
+            <div class="signup-progress" aria-labelledby="signupProgressTitle">
+              <div class="signup-progress__top">
+                <span id="signupProgressTitle" class="signup-progress__title">Form progress</span>
+                <span class="signup-progress__pct" id="signupProgressPct">0%</span>
+              </div>
+              <div
+                class="signup-progress__track"
+                id="signupProgressTrack"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+                aria-labelledby="signupProgressTitle"
+              >
+                <div class="signup-progress__fill" id="signupProgressFill"></div>
+              </div>
+              <ol class="signup-progress__steps">
+                <li>Profile</li>
+                <li>Contact</li>
+                <li>Security</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+    <script src="signup-common.js"></script>
+    <script>
+      (function () {
+        var form = document.getElementById("f");
+        var err = document.getElementById("err");
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          err.hidden = true;
+          var username = document.getElementById("username").value.trim();
+          var fullName = document.getElementById("fullName").value.trim();
+          if (username.length < 3 || !/^[a-zA-Z0-9._-]+$/.test(username)) {
+            err.textContent = "Username must be 3–32 characters (letters, numbers, . _ -).";
+            err.hidden = false;
+            return;
+          }
+          if (fullName.length < 2) {
+            err.textContent = "Please enter your full name.";
+            err.hidden = false;
+            return;
+          }
+          var prev = {};
+          try {
+            prev = JSON.parse(sessionStorage.getItem("synthiqSignupDraft") || "{}");
+          } catch (x) {}
+          prev.username = username;
+          prev.fullName = fullName;
+          sessionStorage.setItem("synthiqSignupDraft", JSON.stringify(prev));
+          location.href = "synthiq-2.html";
+        });
+      })();
+    </script>
+    <footer class="synthiq-legal-footer" role="contentinfo">
+      <a href="../terms-and-services.html">Terms and services</a>
+    </footer>
+  </body>
+</html>

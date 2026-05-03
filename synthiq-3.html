@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>synthIQ account — Password</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="signup.css" />
+    <link rel="stylesheet" href="../css/synthiq-legal-footer.css" />
+  </head>
+  <body class="signup-page" data-progress-mode="step3" data-signup-step="3">
+    <div class="signup-shell">
+      <div class="signup-visual">
+        <img
+          id="signupHeroImg"
+          data-hero-pool="step3"
+          src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&amp;fit=crop&amp;w=2000&amp;q=88"
+          width="2000"
+          height="1333"
+          alt=""
+          decoding="async"
+          fetchpriority="high"
+        />
+        <div class="signup-visual-caption">
+          <p>Study smarter with <span class="accent">synth</span>.</p>
+        </div>
+      </div>
+      <aside class="signup-aside">
+        <div class="signup-card-aura">
+          <div class="signup-card">
+            <div class="brand"><a href="/">← Home</a></div>
+            <div class="steps">Step 3 of 3</div>
+            <h1>Set your password</h1>
+            <p class="sub">Use at least 8 characters. Confirm the same password twice.</p>
+            <form id="f" novalidate>
+              <div class="field">
+                <label for="password">Password</label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autocomplete="new-password"
+                  required
+                  minlength="8"
+                  maxlength="128"
+                  placeholder="At least 8 characters"
+                />
+              </div>
+              <div class="field">
+                <label for="password2">Confirm password</label>
+                <input
+                  id="password2"
+                  name="password2"
+                  type="password"
+                  autocomplete="new-password"
+                  required
+                  minlength="8"
+                  maxlength="128"
+                  placeholder="Repeat password"
+                />
+              </div>
+              <p class="err" id="err" hidden></p>
+              <p class="signup-terms-notice">
+                Before using SynthIQ, make sure you have read our
+                <a
+                  class="signup-terms-link"
+                  href="../terms-and-services.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Terms of Service</a
+                >*
+              </p>
+              <div class="actions">
+                <a
+                  class="btn btn-ghost"
+                  href="synthiq-2.html"
+                  style="text-decoration: none; display: inline-flex; align-items: center"
+                  >Back</a
+                >
+                <button type="submit" class="btn btn-primary" id="createAccountBtn">Create account</button>
+              </div>
+            </form>
+            <div class="signup-progress" aria-labelledby="signupProgressTitle">
+              <div class="signup-progress__top">
+                <span id="signupProgressTitle" class="signup-progress__title">Form progress</span>
+                <span class="signup-progress__pct" id="signupProgressPct">0%</span>
+              </div>
+              <div
+                class="signup-progress__track"
+                id="signupProgressTrack"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+                aria-labelledby="signupProgressTitle"
+              >
+                <div class="signup-progress__fill" id="signupProgressFill"></div>
+              </div>
+              <ol class="signup-progress__steps">
+                <li>Profile</li>
+                <li>Contact</li>
+                <li>Security</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+    <script src="signup-common.js"></script>
+    <script>
+      (function () {
+        var draft = {};
+        try {
+          draft = JSON.parse(sessionStorage.getItem("synthiqSignupDraft") || "{}");
+        } catch (e) {}
+        if (!draft.username || !draft.fullName || !draft.email) {
+          location.replace("synthiq-1.html");
+          return;
+        }
+      })();
+    </script>
+    <script type="module">
+      import { registerSynthIQ, authErrorMessage } from "./signup-firebase.js";
+
+      var draft = {};
+      try {
+        draft = JSON.parse(sessionStorage.getItem("synthiqSignupDraft") || "{}");
+      } catch (e) {}
+
+      var form = document.getElementById("f");
+      var err = document.getElementById("err");
+      var btn = document.getElementById("createAccountBtn");
+
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        err.hidden = true;
+        var p1 = document.getElementById("password").value;
+        var p2 = document.getElementById("password2").value;
+        if (p1.length < 8) {
+          err.textContent = "Password must be at least 8 characters.";
+          err.hidden = false;
+          return;
+        }
+        if (p1 !== p2) {
+          err.textContent = "Passwords do not match.";
+          err.hidden = false;
+          return;
+        }
+        if (!draft.email) {
+          err.textContent = "Session expired. Start sign up again.";
+          err.hidden = false;
+          return;
+        }
+
+        var prev = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "Creating account…";
+        try {
+          await registerSynthIQ(draft.email, p1, draft.fullName || "", {
+            username: draft.username,
+            phone: draft.phone,
+            phoneCountry: draft.phoneCountry,
+          });
+          sessionStorage.removeItem("synthiqSignupDraft");
+          window.location.href = "../homepage.html";
+        } catch (firebaseErr) {
+          var code = firebaseErr && firebaseErr.code ? String(firebaseErr.code) : "";
+          var rawMsg =
+            firebaseErr && firebaseErr.message ? String(firebaseErr.message).trim() : "";
+          var base = authErrorMessage(code || rawMsg);
+          err.textContent = code ? base + " [" + code + "]" : rawMsg ? base + " — " + rawMsg : base;
+          err.hidden = false;
+        } finally {
+          btn.disabled = false;
+          btn.textContent = prev;
+        }
+      });
+    </script>
+    <footer class="synthiq-legal-footer" role="contentinfo">
+      <a href="../terms-and-services.html">Terms and services</a>
+    </footer>
+  </body>
+</html>

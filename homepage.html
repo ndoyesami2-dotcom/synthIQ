@@ -1,0 +1,2797 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="synthiq-api-base" content="https://test-api.example.com" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Split hosting: optional meta synthiq-api-base if HTML is not served with server.cjs (same origin as API). -->
+    <title>SynthIQ — Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/synthiq-legal-footer.css" />
+    <style>
+      :root {
+        --bg0: #04060f;
+        --bg1: #0a0e1f;
+        --surface: rgba(18, 24, 48, 0.72);
+        --border: rgba(129, 140, 248, 0.18);
+        --glow: rgba(124, 58, 237, 0.35);
+        --text: #e8ecff;
+        --muted: #94a3b8;
+        --sidebar-w: 258px;
+        --right-w: 300px;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        min-height: 100dvh;
+        font-family: "Outfit", system-ui, sans-serif;
+        background: var(--bg0);
+        color: var(--text);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .app {
+        display: flex;
+        min-height: 100vh;
+        min-height: 100dvh;
+        background:
+          radial-gradient(ellipse 80% 50% at 15% 0%, rgba(79, 70, 229, 0.22), transparent 50%),
+          radial-gradient(ellipse 60% 40% at 90% 10%, rgba(168, 85, 247, 0.15), transparent 45%),
+          linear-gradient(180deg, #050814 0%, #080d1c 100%);
+      }
+
+      /* ——— Sidebar ——— */
+      .sidebar {
+        width: var(--sidebar-w);
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        padding: 1.25rem 0.9rem;
+        border-right: 1px solid var(--border);
+        background: rgba(8, 11, 24, 0.85);
+        backdrop-filter: blur(16px);
+      }
+      .logo-block {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.35rem 0.65rem 1.35rem;
+        text-decoration: none;
+        color: inherit;
+      }
+      .logo-icon {
+        width: 2.35rem;
+        height: 2.35rem;
+        border-radius: 0.7rem;
+        background: linear-gradient(135deg, #7c3aed, #6366f1, #22d3ee);
+        display: grid;
+        place-items: center;
+        box-shadow: 0 0 24px var(--glow);
+      }
+      .logo-icon svg {
+        width: 1.2rem;
+        height: 1.2rem;
+        color: #fff;
+      }
+      .logo-text {
+        font-weight: 800;
+        font-size: 1.15rem;
+        letter-spacing: -0.03em;
+        background: linear-gradient(90deg, #fff, #c7d2fe);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .nav-scroll {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0 0.25rem;
+        margin: 0 -0.25rem;
+      }
+      .nav-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: #64748b;
+        padding: 0.5rem 0.75rem 0.35rem;
+      }
+      .nav a {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.55rem 0.75rem;
+        margin-bottom: 0.2rem;
+        border-radius: 0.65rem;
+        color: #a8b5d4;
+        text-decoration: none;
+        font-size: 0.88rem;
+        font-weight: 600;
+        transition:
+          background 0.15s ease,
+          color 0.15s ease,
+          box-shadow 0.2s ease;
+      }
+      .nav a svg {
+        flex-shrink: 0;
+        opacity: 0.85;
+      }
+      .nav a:hover {
+        background: rgba(99, 102, 241, 0.1);
+        color: #e8ecff;
+      }
+      .nav a.is-active {
+        background: linear-gradient(90deg, rgba(99, 102, 241, 0.35), rgba(34, 211, 238, 0.12));
+        color: #fff;
+        box-shadow:
+          0 0 0 1px rgba(129, 140, 248, 0.35),
+          0 4px 24px rgba(99, 102, 241, 0.2);
+      }
+
+      .nav-dropdown {
+        position: relative;
+        margin-bottom: 0.2rem;
+      }
+      .nav-dropdown-row {
+        display: flex;
+        align-items: stretch;
+        gap: 0;
+        border-radius: 0.65rem;
+        overflow: visible;
+      }
+      .nav-dropdown-row:hover .nav-dropdown-link {
+        background: rgba(99, 102, 241, 0.1);
+        color: #e8ecff;
+      }
+      .nav-dropdown-link {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.55rem 0.5rem 0.55rem 0.75rem;
+        border-radius: 0.65rem 0 0 0.65rem;
+        color: #a8b5d4;
+        text-decoration: none;
+        font-size: 0.88rem;
+        font-weight: 600;
+        transition:
+          background 0.15s ease,
+          color 0.15s ease;
+      }
+      .nav-dropdown-link svg {
+        flex-shrink: 0;
+        opacity: 0.85;
+      }
+      .nav-dropdown-toggle {
+        flex-shrink: 0;
+        width: 2.35rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        border-radius: 0 0.65rem 0.65rem 0;
+        background: transparent;
+        color: #a8b5d4;
+        cursor: pointer;
+        transition:
+          background 0.15s ease,
+          color 0.15s ease;
+      }
+      .nav-dropdown-toggle:hover {
+        background: rgba(99, 102, 241, 0.15);
+        color: #e8ecff;
+      }
+      .nav-dropdown-arrow {
+        width: 14px;
+        height: 14px;
+        transition: transform 0.2s ease;
+      }
+      .nav-dropdown.is-open .nav-dropdown-arrow {
+        transform: rotate(180deg);
+      }
+      .nav-dropdown-panel {
+        display: none;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: calc(100% + 4px);
+        z-index: 80;
+        padding: 0.35rem;
+        border-radius: 0.65rem;
+        background: rgba(15, 23, 42, 0.98);
+        border: 1px solid rgba(129, 140, 248, 0.28);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+        max-height: 240px;
+        overflow-y: auto;
+      }
+      .nav-dropdown.is-open .nav-dropdown-panel {
+        display: block;
+      }
+      .nav-dropdown-panel .nav-dropdown-empty {
+        padding: 0.5rem 0.65rem;
+        font-size: 0.78rem;
+        color: #64748b;
+        line-height: 1.35;
+      }
+      .nav-dropdown-panel a.nav-dropdown-item {
+        display: block;
+        padding: 0.45rem 0.65rem;
+        margin-bottom: 0.15rem;
+        border-radius: 0.45rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #cbd5e1;
+        text-decoration: none;
+        transition: background 0.12s ease;
+      }
+      .nav-dropdown-panel a.nav-dropdown-item:hover {
+        background: rgba(99, 102, 241, 0.2);
+        color: #f1f5ff;
+      }
+      .nav-dropdown-panel a.nav-dropdown-item small {
+        display: block;
+        margin-top: 0.15rem;
+      }
+      .nav-dropdown-panel a.nav-dropdown-item small.nav-team-sub {
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: #64748b;
+        letter-spacing: 0.02em;
+      }
+
+      .nav-dropdown-panel a.nav-dropdown-item:hover small.nav-team-sub {
+        color: #94a3b8;
+      }
+
+      .nav-dropdown-panel .nav-team-row {
+        display: flex;
+        align-items: stretch;
+        gap: 0;
+        margin-bottom: 0.15rem;
+        border-radius: 0.45rem;
+        overflow: hidden;
+        transition: background 0.12s ease;
+      }
+      .nav-dropdown-panel .nav-team-row:hover {
+        background: rgba(99, 102, 241, 0.2);
+      }
+      .nav-dropdown-panel .nav-team-row .nav-team-row-link.nav-dropdown-item {
+        flex: 1;
+        margin-bottom: 0;
+        min-width: 0;
+      }
+      .nav-dropdown-panel .nav-team-row:hover .nav-team-row-link.nav-dropdown-item {
+        background: transparent;
+      }
+      .nav-team-delete {
+        flex-shrink: 0;
+        align-self: stretch;
+        border: none;
+        background: transparent;
+        color: #94a3b8;
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 0.35rem 0.55rem;
+        cursor: pointer;
+        transition:
+          background 0.12s ease,
+          color 0.12s ease;
+      }
+      .nav-team-delete:hover {
+        color: #fecaca;
+        background: rgba(248, 113, 113, 0.18);
+      }
+      .nav-team-delete:focus-visible {
+        outline: 2px solid rgba(129, 140, 248, 0.8);
+        outline-offset: -2px;
+      }
+
+      .upgrade-card {
+        margin: 1rem 0.35rem 0.75rem;
+        padding: 1rem;
+        border-radius: 0.9rem;
+        background: linear-gradient(145deg, rgba(88, 28, 135, 0.35), rgba(30, 27, 75, 0.9));
+        border: 1px solid rgba(167, 139, 250, 0.35);
+        box-shadow: 0 8px 32px rgba(124, 58, 237, 0.2);
+      }
+      .upgrade-card h3 {
+        margin: 0 0 0.35rem;
+        font-size: 0.9rem;
+        font-weight: 800;
+      }
+      .upgrade-card p {
+        margin: 0 0 0.75rem;
+        font-size: 0.72rem;
+        color: #c4b5fd;
+        line-height: 1.4;
+      }
+      .btn-pro {
+        width: 100%;
+        padding: 0.55rem;
+        border: none;
+        border-radius: 0.55rem;
+        font-family: inherit;
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: #fff;
+        cursor: pointer;
+        background: linear-gradient(105deg, #a855f7, #6366f1);
+        box-shadow: 0 0 24px rgba(168, 85, 247, 0.45);
+        transition: filter 0.15s ease, transform 0.12s ease;
+      }
+      a.btn-pro {
+        display: block;
+        text-align: center;
+        text-decoration: none;
+        box-sizing: border-box;
+      }
+      .btn-pro:hover {
+        filter: brightness(1.08);
+        transform: translateY(-1px);
+      }
+
+      .account-upgrade-box {
+        margin: 0.85rem 0.35rem 0.75rem;
+        padding: 0.75rem 0.85rem;
+        border-radius: 0.8rem;
+        background: rgba(0, 0, 0, 0.28);
+        border: 1px solid rgba(233, 213, 255, 0.18);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.05),
+          0 4px 16px rgba(0, 0, 0, 0.2);
+      }
+      .account-upgrade-box .account-upgrade-label {
+        margin: 0 0 0.5rem;
+        font-size: 0.62rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: rgba(196, 181, 253, 0.9);
+      }
+
+      .account-rail-btn {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.55rem 0.6rem;
+        border-radius: 0.65rem;
+        border: 1px solid rgba(167, 139, 250, 0.42);
+        background: rgba(15, 10, 40, 0.65);
+        color: #f1f5ff;
+        font-family: inherit;
+        cursor: pointer;
+        text-align: left;
+        transition:
+          background 0.18s ease,
+          border-color 0.18s ease;
+      }
+      .account-rail-btn:hover {
+        background: rgba(99, 102, 241, 0.22);
+        border-color: rgba(196, 181, 253, 0.5);
+      }
+      .rail-avatar-ring {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6366f1, #22d3ee);
+        padding: 2px;
+        flex-shrink: 0;
+        position: relative;
+        overflow: hidden;
+      }
+      .rail-avatar-ring img.rail-avatar-img {
+        position: absolute;
+        inset: 2px;
+        width: calc(100% - 4px);
+        height: calc(100% - 4px);
+        border-radius: 50%;
+        object-fit: cover;
+        display: none;
+      }
+      .rail-avatar-ring.has-photo img.rail-avatar-img {
+        display: block;
+      }
+      .rail-avatar-ring span.rail-avatar-fallback {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: rgba(15, 23, 42, 0.95);
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: #c7d2fe;
+      }
+      .rail-avatar-ring.has-photo span.rail-avatar-fallback {
+        display: none;
+      }
+      .account-rail-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.12rem;
+        min-width: 0;
+        flex: 1;
+      }
+      .account-rail-name {
+        font-weight: 800;
+        font-size: 0.82rem;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 100%;
+      }
+      .account-rail-plan {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: rgba(196, 181, 253, 0.88);
+      }
+
+      .tasks-section {
+        margin-top: 1.5rem;
+        padding: 1.15rem 1.25rem;
+        border-radius: 1rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        backdrop-filter: blur(12px);
+      }
+      .tasks-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+      }
+      .tasks-head .section-title {
+        margin: 0;
+      }
+      .tasks-add {
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 0.55rem;
+        border: none;
+        cursor: pointer;
+        font-size: 1.35rem;
+        font-weight: 700;
+        line-height: 1;
+        color: #fff;
+        background: linear-gradient(135deg, #7c3aed, #6366f1);
+        box-shadow: 0 0 18px rgba(99, 102, 241, 0.4);
+        transition: transform 0.12s ease;
+      }
+      .tasks-add:hover {
+        transform: scale(1.06);
+      }
+      .tasks-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+      }
+      .task-row-dash {
+        padding: 0.65rem 0.75rem;
+        border-radius: 0.65rem;
+        background: rgba(0, 0, 0, 0.22);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .task-row-dash h4 {
+        margin: 0 0 0.2rem;
+        font-size: 0.88rem;
+        font-weight: 700;
+      }
+      .task-row-dash p {
+        margin: 0;
+        font-size: 0.72rem;
+        color: var(--muted);
+        line-height: 1.35;
+      }
+      .task-row-dash time {
+        display: block;
+        margin-top: 0.35rem;
+        font-size: 0.65rem;
+        color: #64748b;
+      }
+
+      .modal-dash[hidden] {
+        display: none !important;
+      }
+      .modal-dash {
+        position: fixed;
+        inset: 0;
+        z-index: 300;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        background: rgba(4, 6, 15, 0.75);
+        backdrop-filter: blur(8px);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+      }
+      .modal-dash.is-open {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+      }
+      .modal-dash-panel.modal-dash-panel-promo {
+        border-radius: 1.25rem;
+        text-align: center;
+      }
+      .modal-dash-panel.modal-dash-panel-promo .modal-dash-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .modal-dash-panel {
+        width: min(100%, 26rem);
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 1.25rem;
+        border-radius: 1rem;
+        background: rgba(16, 20, 40, 0.96);
+        border: 1px solid var(--border);
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+      }
+      .modal-dash-panel h3 {
+        margin: 0 0 1rem;
+        font-size: 1.1rem;
+      }
+      .modal-dash-panel .field {
+        margin-bottom: 0.85rem;
+      }
+      .modal-dash-panel label {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #a5b4fc;
+        margin-bottom: 0.35rem;
+      }
+      .modal-dash-panel input,
+      .modal-dash-panel textarea,
+      .modal-dash-panel select {
+        width: 100%;
+        padding: 0.55rem 0.65rem;
+        border-radius: 0.55rem;
+        border: 1px solid rgba(129, 140, 248, 0.25);
+        background: rgba(8, 12, 28, 0.85);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.88rem;
+      }
+      .modal-dash-panel textarea {
+        min-height: 4.5rem;
+        resize: vertical;
+      }
+
+      .modal-dash-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+      .btn-dash {
+        flex: 1;
+        padding: 0.6rem;
+        border-radius: 0.55rem;
+        border: none;
+        font-family: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .btn-dash-primary {
+        background: linear-gradient(105deg, #7c3aed, #6366f1);
+        color: #fff;
+      }
+      .btn-dash-ghost {
+        background: transparent;
+        color: var(--text);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+      }
+
+      /* ——— Main column ——— */
+      .main-wrap {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.85rem 1.35rem;
+        border-bottom: 1px solid var(--border);
+        background: rgba(6, 9, 20, 0.75);
+        backdrop-filter: blur(12px);
+      }
+      .search-wrap {
+        flex: 1;
+        max-width: 520px;
+      }
+      .search-wrap label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+      }
+      .search-input {
+        width: 100%;
+        padding: 0.7rem 1rem 0.7rem 2.65rem;
+        border-radius: 999px;
+        border: 1px solid rgba(129, 140, 248, 0.25);
+        background: rgba(12, 16, 36, 0.85);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.92rem;
+        outline: none;
+        transition:
+          border-color 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+      .search-input::placeholder {
+        color: #64748b;
+      }
+      .search-input:focus {
+        border-color: rgba(34, 211, 238, 0.45);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+      }
+      .search-inner {
+        position: relative;
+      }
+      .search-inner svg {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        pointer-events: none;
+      }
+
+      .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        flex-shrink: 0;
+      }
+      .icon-btn {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.65rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+        color: #a5b4fc;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .icon-btn:hover {
+        background: rgba(99, 102, 241, 0.2);
+        color: #fff;
+      }
+      .credits-badge {
+        padding: 0.45rem 0.85rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #e0e7ff;
+        border: 1px solid rgba(52, 211, 153, 0.35);
+        background: rgba(52, 211, 153, 0.1);
+        box-shadow: 0 0 20px rgba(52, 211, 153, 0.12);
+      }
+      .avatar-sm {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.65rem;
+        background: linear-gradient(135deg, #a855f7, #3b82f6);
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        cursor: pointer;
+      }
+
+      .content-row {
+        flex: 1;
+        display: flex;
+        gap: 1.25rem;
+        padding: 1.25rem 1.35rem 1.5rem;
+        min-height: 0;
+      }
+      .center {
+        flex: 1;
+        min-width: 0;
+        overflow-y: auto;
+      }
+      .right-panel {
+        width: var(--right-w);
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        overflow-y: auto;
+      }
+
+      /* Hero */
+      .hero-dash {
+        display: grid;
+        grid-template-columns: 1fr minmax(180px, 240px);
+        gap: 1.25rem;
+        align-items: center;
+        padding: 1.35rem 1.5rem;
+        margin-bottom: 1.25rem;
+        border-radius: 1.15rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(14px);
+        position: relative;
+        overflow: hidden;
+      }
+      .hero-dash::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 80% 30%, rgba(99, 102, 241, 0.15), transparent 50%);
+        pointer-events: none;
+      }
+      .hero-particles {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      .hero-particles span {
+        position: absolute;
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: #67e8f9;
+        opacity: 0.5;
+        animation: drift 6s ease-in-out infinite;
+      }
+      .hero-particles span:nth-child(1) {
+        left: 15%;
+        top: 20%;
+        animation-delay: 0s;
+      }
+      .hero-particles span:nth-child(2) {
+        left: 45%;
+        top: 60%;
+        animation-delay: 1.5s;
+      }
+      .hero-particles span:nth-child(3) {
+        left: 70%;
+        top: 25%;
+        animation-delay: 3s;
+      }
+      @keyframes drift {
+        0%,
+        100% {
+          transform: translate(0, 0);
+          opacity: 0.2;
+        }
+        50% {
+          transform: translate(8px, -12px);
+          opacity: 0.8;
+        }
+      }
+      .hero-copy {
+        position: relative;
+        z-index: 1;
+      }
+      .hero-copy h1 {
+        margin: 0 0 0.4rem;
+        font-size: clamp(1.5rem, 2.8vw, 2rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+      .hero-copy p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+      .hero-robot {
+        position: relative;
+        z-index: 1;
+        filter: drop-shadow(0 12px 32px rgba(0, 0, 0, 0.4));
+      }
+      .hero-robot svg {
+        width: 100%;
+        height: auto;
+        max-height: 200px;
+      }
+
+      /* Feature cards */
+      .section-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #818cf8;
+        margin: 0 0 0.85rem;
+      }
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.85rem;
+        margin-bottom: 1.75rem;
+      }
+      @media (max-width: 1100px) {
+        .feature-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .feat-card {
+        padding: 1.15rem 1.2rem;
+        border-radius: 1rem;
+        background: rgba(14, 18, 36, 0.75);
+        border: 1px solid rgba(129, 140, 248, 0.15);
+        transition:
+          transform 0.25s ease,
+          border-color 0.2s ease,
+          box-shadow 0.25s ease;
+        cursor: pointer;
+      }
+      .feat-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(167, 139, 250, 0.45);
+        box-shadow: 0 12px 40px rgba(99, 102, 241, 0.2);
+      }
+      .feat-card .fi {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.65rem;
+        display: grid;
+        place-items: center;
+        margin-bottom: 0.75rem;
+        font-size: 1.1rem;
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.5), rgba(59, 130, 246, 0.35));
+        box-shadow: 0 0 24px rgba(99, 102, 241, 0.35);
+      }
+      .feat-card h3 {
+        margin: 0 0 0.35rem;
+        font-size: 1rem;
+        font-weight: 800;
+      }
+      .feat-card p {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+
+      /* Continue learning */
+      .learn-scroll {
+        display: flex;
+        gap: 0.85rem;
+        overflow-x: auto;
+        padding-bottom: 0.35rem;
+        margin-bottom: 0.25rem;
+        scroll-snap-type: x mandatory;
+      }
+      .learn-card {
+        flex: 0 0 min(240px, 78vw);
+        scroll-snap-align: start;
+        border-radius: 1rem;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        background: rgba(10, 14, 28, 0.9);
+      }
+      .learn-card .thumb {
+        height: 100px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+      }
+      .learn-card .thumb::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(180deg, transparent 30%, rgba(4, 6, 15, 0.95));
+      }
+      .learn-card .body {
+        padding: 0.85rem 1rem 1rem;
+      }
+      .learn-card h4 {
+        margin: 0 0 0.2rem;
+        font-size: 0.95rem;
+        font-weight: 800;
+      }
+      .learn-card .sub {
+        font-size: 0.72rem;
+        color: var(--muted);
+        margin-bottom: 0.65rem;
+      }
+      .progress-bar {
+        height: 0.35rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+      }
+      .progress-bar i {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #6366f1, #22d3ee);
+        box-shadow: 0 0 12px rgba(34, 211, 238, 0.4);
+      }
+      .learn-card > a:hover .body h4 {
+        color: #c7d2fe;
+      }
+      .continue-learn-hint {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin: 0.25rem 0 0.75rem;
+        line-height: 1.45;
+      }
+
+      /* Right panel cards */
+      .rp-card {
+        padding: 1rem;
+        border-radius: 1rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.3);
+      }
+      .rp-card h3 {
+        margin: 0 0 0.75rem;
+        font-size: 0.82rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .streak-big {
+        font-size: 1.75rem;
+        font-weight: 800;
+        background: linear-gradient(90deg, #fbbf24, #f97316);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin-bottom: 0.75rem;
+      }
+      .week-dots {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.25rem;
+      }
+      .week-dots span {
+        width: 1.85rem;
+        height: 1.85rem;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-size: 0.58rem;
+        font-weight: 800;
+        color: #64748b;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(0, 0, 0, 0.25);
+      }
+      .week-dots span.done {
+        color: #fff;
+        border-color: rgba(52, 211, 153, 0.5);
+        background: rgba(52, 211, 153, 0.2);
+        box-shadow: 0 0 12px rgba(52, 211, 153, 0.25);
+      }
+      .week-dots span.today {
+        border-color: rgba(167, 139, 250, 0.6);
+        box-shadow: 0 0 14px rgba(124, 58, 237, 0.35);
+        color: #e9d5ff;
+      }
+
+      .ring-wrap {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      .ring {
+        width: 88px;
+        height: 88px;
+        flex-shrink: 0;
+      }
+      .stat-rows {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+      }
+      .stat-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      .stat-row strong {
+        color: #e8ecff;
+      }
+
+      .quick-ai {
+        display: flex;
+        gap: 0.5rem;
+      }
+      .quick-ai input {
+        flex: 1;
+        min-width: 0;
+        padding: 0.6rem 0.75rem;
+        border-radius: 0.65rem;
+        border: 1px solid rgba(129, 140, 248, 0.25);
+        background: rgba(8, 12, 28, 0.8);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.82rem;
+        outline: none;
+      }
+      .quick-ai input:focus {
+        border-color: rgba(34, 211, 238, 0.5);
+      }
+      .quick-ai button {
+        width: 2.65rem;
+        height: 2.65rem;
+        flex-shrink: 0;
+        border-radius: 0.65rem;
+        border: none;
+        cursor: pointer;
+        background: linear-gradient(135deg, #7c3aed, #6366f1);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.45);
+        transition: transform 0.12s ease;
+      }
+      .quick-ai button:hover {
+        transform: scale(1.05);
+      }
+
+      .suggest-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .suggest-list li {
+        padding: 0.55rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #c7d2fe;
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+      }
+      .suggest-list li:last-child {
+        border-bottom: none;
+      }
+      .suggest-list li::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #a855f7, #22d3ee);
+        flex-shrink: 0;
+      }
+
+      .activity-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+      }
+      .act-item {
+        padding: 0.65rem 0.75rem;
+        border-radius: 0.65rem;
+        background: rgba(0, 0, 0, 0.22);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .act-item p {
+        margin: 0 0 0.35rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #e2e8f0;
+        line-height: 1.35;
+      }
+      .act-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      .act-meta time {
+        font-size: 0.65rem;
+        color: #64748b;
+      }
+      .act-meta .mini {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.35rem;
+        font-size: 0.62rem;
+        font-weight: 700;
+        border: 1px solid rgba(129, 140, 248, 0.3);
+        background: rgba(99, 102, 241, 0.12);
+        color: #a5b4fc;
+        cursor: pointer;
+      }
+      .act-meta .mini:hover {
+        background: rgba(99, 102, 241, 0.22);
+      }
+
+      @media (max-width: 1200px) {
+        .content-row {
+          flex-direction: column;
+        }
+        .right-panel {
+          width: 100%;
+          flex-direction: row;
+          flex-wrap: wrap;
+        }
+        .right-panel .rp-card {
+          flex: 1 1 calc(50% - 0.5rem);
+          min-width: 240px;
+        }
+      }
+      @media (max-width: 900px) {
+        .app {
+          flex-direction: column;
+        }
+        .sidebar {
+          width: 100%;
+          flex-direction: row;
+          flex-wrap: wrap;
+          align-items: center;
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+        .nav-scroll {
+          display: flex;
+          flex-wrap: wrap;
+          flex: 1;
+          max-height: none;
+        }
+        .nav {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.25rem;
+        }
+        .nav a {
+          margin-bottom: 0;
+        }
+        .upgrade-card {
+          flex: 1 1 200px;
+        }
+        .hero-dash {
+          grid-template-columns: 1fr;
+        }
+        .hero-robot {
+          max-width: 220px;
+          margin: 0 auto;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .hero-particles span,
+        .feat-card {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+
+      /* Account modal (shared IDs with js/synthiq-account-ui.js) */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 600;
+        background: rgba(4, 6, 15, 0.82);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        backdrop-filter: blur(12px);
+      }
+
+      .modal-overlay.is-open {
+        display: flex;
+      }
+
+      .modal-box-account {
+        background: linear-gradient(165deg, rgba(22, 30, 58, 0.96), rgba(15, 23, 42, 0.98));
+        border: 1px solid var(--border);
+        border-radius: 1.15rem;
+        padding: 1.35rem;
+        max-width: 440px;
+        width: 100%;
+        box-shadow: 0 28px 60px rgba(0, 0, 0, 0.55);
+      }
+
+      .modal-box-account h3 {
+        margin: 0 0 0.65rem;
+        font-size: 1.1rem;
+      }
+
+      .account-modal-hint {
+        margin: 0 0 1rem;
+        font-size: 0.78rem;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+
+      .account-avatar-preview {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+        background: linear-gradient(135deg, #6366f1, #22d3ee);
+        padding: 3px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .account-avatar-preview img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #0f172a;
+        display: none;
+      }
+
+      .account-avatar-preview.has-photo img {
+        display: block;
+      }
+
+      .account-avatar-preview .acct-fallback {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: #0f172a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: #c7d2fe;
+      }
+
+      .account-avatar-preview.has-photo .acct-fallback {
+        display: none;
+      }
+
+      .account-photo-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-bottom: 0.65rem;
+      }
+
+      .btn-account-primary {
+        padding: 0.52rem 1rem;
+        border-radius: 0.55rem;
+        border: none;
+        font-family: inherit;
+        font-weight: 700;
+        font-size: 0.82rem;
+        cursor: pointer;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: #fff;
+      }
+
+      .btn-account-ghost {
+        padding: 0.52rem 1rem;
+        border-radius: 0.55rem;
+        border: 1px solid var(--border);
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 0.82rem;
+        cursor: pointer;
+        background: transparent;
+        color: var(--text);
+      }
+
+      .account-modal-note {
+        font-size: 0.68rem;
+        color: var(--muted);
+        margin: 0 0 1rem;
+      }
+
+      .account-info-row {
+        font-size: 0.82rem;
+        margin-bottom: 0.55rem;
+        word-break: break-word;
+      }
+
+      .account-lbl {
+        display: block;
+        font-size: 0.62rem;
+        font-weight: 700;
+        color: #a5b4fc;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.2rem;
+      }
+
+      .account-uid {
+        font-size: 0.72rem;
+        color: var(--muted);
+      }
+
+      .account-photo-msg {
+        font-size: 0.78rem;
+        margin: 0.5rem 0 0;
+        min-height: 1.2em;
+      }
+
+      .modal-account-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <a class="logo-block" href="/homepage.html">
+          <div class="logo-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+              <path
+                d="M12 5a3 3 0 0 1 3 3v1h1a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v2a3 3 0 1 1-6 0v-2H8a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h1V8a3 3 0 0 1 3-3Z"
+              />
+              <path d="M9 14h6" stroke-linecap="round" />
+            </svg>
+          </div>
+          <span class="logo-text">SynthIQ</span>
+        </a>
+
+        <div class="nav-scroll">
+          <div class="nav-label">Menu</div>
+          <nav class="nav" aria-label="Main">
+            <a class="is-active" href="/homepage.html">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                <path d="M9 22V12h6v10" />
+              </svg>
+              Home
+            </a>
+            <a href="./ai-chat.html">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              Chat with AI
+            </a>
+            <a href="/work-files.html">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+              </svg>
+              Work Files
+            </a>
+            <a href="./flashcards.html">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M3 9h18M9 21V9" />
+              </svg>
+              Flashcards
+            </a>
+            <a href="./quiz-mode.html">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" />
+              </svg>
+              Quiz Mode
+            </a>
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 11l3 3L22 4" />
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+              </svg>
+              Tasks
+            </a>
+            <a href="./team-invites.html" title="See team invites people sent you">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 12h-6l-2 3h-4l-2-3H2" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+              </svg>
+              Team invites
+            </a>
+            <div class="nav-dropdown" id="navTeamsDropdown">
+              <div class="nav-dropdown-row">
+                <a class="nav-dropdown-link" href="./teams.html" id="linkNavTeamsMain">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="9" cy="8" r="3.5" />
+                    <circle cx="16" cy="9" r="2.8" />
+                    <path d="M3 20c0-3.5 3-6 6-6s6 2.5 6 6M14 20c0-2 1.8-3.5 4-3.5" stroke-linecap="round" />
+                  </svg>
+                  Teams
+                </a>
+                <button
+                  type="button"
+                  class="nav-dropdown-toggle"
+                  id="btnTeamsDropdown"
+                  aria-expanded="false"
+                  aria-controls="teamsCreatedPanel"
+                  aria-label="Show teams you’re in (created or joined)"
+                >
+                  <svg class="nav-dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25">
+                    <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+              </div>
+              <div class="nav-dropdown-panel" id="teamsCreatedPanel" role="menu"></div>
+            </div>
+          </nav>
+
+          <div class="nav-label">Library</div>
+          <nav class="nav" aria-label="Library">
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+              History
+            </a>
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+              </svg>
+              Bookmarks
+            </a>
+          </nav>
+
+          <div class="upgrade-card" id="synthiq-upgrade-card">
+            <h3>Upgrade to Pro</h3>
+            <p>Unlimited AI chats, priority models, and advanced analytics.</p>
+            <a
+              class="btn-pro"
+              id="btnHomeViewPlans"
+              href="./pricing.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              >View plans</a
+            >
+          </div>
+
+          <div class="account-upgrade-box">
+            <p class="account-upgrade-label">Your profile</p>
+            <button type="button" class="account-rail-btn" id="btnHomeAccount" aria-haspopup="dialog">
+              <span class="rail-avatar-ring" id="homeRailAvatarWrap">
+                <img class="rail-avatar-img" id="homeRailAvatarImg" alt="" />
+                <span class="rail-avatar-fallback" id="homeRailAvatarFallback">?</span>
+              </span>
+              <span class="account-rail-text">
+                <span class="account-rail-name" id="homeRailUsername">…</span>
+                <span class="account-rail-plan" id="homeRailPlan">Free plan</span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+      </aside>
+
+      <div class="main-wrap">
+        <header class="topbar">
+          <div class="search-wrap">
+            <label for="q">Search</label>
+            <div class="search-inner">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8" />
+                <path d="M21 21l-4.35-4.35" />
+              </svg>
+              <input class="search-input" id="q" type="search" placeholder="Search anything…" autocomplete="off" />
+            </div>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" class="icon-btn" aria-label="Notifications">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+            </button>
+            <span class="credits-badge">150 Credits</span>
+            <div class="avatar-sm" role="img" aria-label="Account"></div>
+          </div>
+        </header>
+
+        <div class="content-row">
+          <main class="center">
+            <section class="hero-dash" aria-labelledby="greet">
+              <div class="hero-particles" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="hero-copy">
+                <h1 id="greet">Hello! 👋</h1>
+                <p>Ready to continue your learning journey?</p>
+              </div>
+              <div class="hero-robot" aria-hidden="true">
+                <svg viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="rm" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#94a3d4" />
+                      <stop offset="100%" stop-color="#3d4a7a" />
+                    </linearGradient>
+                    <radialGradient id="eye" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#22d3ee" />
+                      <stop offset="100%" stop-color="#2563eb" />
+                    </radialGradient>
+                  </defs>
+                  <rect x="30" y="135" width="140" height="10" rx="3" fill="#1e293b" />
+                  <rect x="95" y="95" width="70" height="45" rx="5" fill="#0f172a" stroke="#475569" />
+                  <rect x="100" y="100" width="60" height="32" rx="2" fill="url(#rm)" opacity="0.3" />
+                  <rect x="48" y="105" width="44" height="38" rx="16" fill="url(#rm)" />
+                  <circle cx="100" cy="55" r="38" fill="url(#rm)" />
+                  <circle cx="88" cy="52" r="8" fill="url(#eye)" />
+                  <circle cx="112" cy="52" r="8" fill="url(#eye)" />
+                  <circle cx="90" cy="50" r="2.5" fill="#fff" opacity="0.9" />
+                  <circle cx="114" cy="50" r="2.5" fill="#fff" opacity="0.9" />
+                  <rect x="72" y="118" width="14" height="22" rx="7" fill="url(#rm)" />
+                  <rect x="118" y="118" width="14" height="22" rx="7" fill="url(#rm)" />
+                  <rect x="58" y="125" width="10" height="18" rx="2" fill="#6366f1" opacity="0.9" />
+                  <rect x="70" y="118" width="10" height="25" rx="2" fill="#7c3aed" opacity="0.95" />
+                  <rect x="82" y="128" width="8" height="15" rx="2" fill="#22d3ee" opacity="0.85" />
+                </svg>
+              </div>
+            </section>
+
+            <h2 class="section-title">Quick tools</h2>
+            <div class="feature-grid">
+              <a class="feat-card is-clickable" href="./ai-chat.html" style="text-decoration: none; color: inherit; display: block" aria-label="Open Chat with AI">
+                <div class="fi" aria-hidden="true">💬</div>
+                <h3>Chat with AI</h3>
+                <p>Ask anything. Get instant explanations.</p>
+              </a>
+              <article class="feat-card">
+                <div class="fi" aria-hidden="true">✨</div>
+                <h3>Summarize</h3>
+                <p>Summarize long texts in seconds.</p>
+              </article>
+              <a class="feat-card" href="./flashcards.html" style="text-decoration: none; color: inherit; display: block">
+                <div class="fi" aria-hidden="true">🗂️</div>
+                <h3>Flashcards</h3>
+                <p>Learn faster with smart flashcards.</p>
+              </a>
+              <a class="feat-card" href="./quiz-mode.html" style="text-decoration: none; color: inherit; display: block">
+                <div class="fi" aria-hidden="true">❓</div>
+                <h3>Quiz Mode</h3>
+                <p>Practice with multiple-choice from your flashcard decks.</p>
+              </a>
+            </div>
+
+            <h2 class="section-title">Continue learning</h2>
+            <p id="continueLearningHint" class="continue-learn-hint">
+              Resume quizzes you exited early. Items appear here when you save progress from Quiz mode (built from your decks).
+            </p>
+            <div class="learn-scroll" id="continueLearningScroll"></div>
+
+            <section class="tasks-section" aria-labelledby="tasksHeading">
+              <div class="tasks-head">
+                <h2 class="section-title" id="tasksHeading">Tasks</h2>
+                <button type="button" class="tasks-add" id="openTaskModal" aria-label="Create task">+</button>
+              </div>
+              <div class="tasks-list" id="tasksList"></div>
+            </section>
+          </main>
+
+          <aside class="right-panel" aria-label="Insights and tools">
+            <div class="rp-card">
+              <h3>🔥 Study streak</h3>
+              <div class="streak-big">7 days</div>
+              <div class="week-dots" aria-hidden="true">
+                <span class="done">M</span>
+                <span class="done">T</span>
+                <span class="done">W</span>
+                <span class="done">T</span>
+                <span class="done">F</span>
+                <span class="done">S</span>
+                <span class="today">S</span>
+              </div>
+            </div>
+
+            <div class="rp-card">
+              <h3>📈 Overall progress</h3>
+              <div class="ring-wrap">
+                <div class="ring" aria-hidden="true">
+                  <svg width="88" height="88" viewBox="0 0 88 88">
+                    <defs>
+                      <linearGradient id="pg" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#a855f7" />
+                        <stop offset="100%" stop-color="#22d3ee" />
+                      </linearGradient>
+                    </defs>
+                    <g transform="rotate(-90 44 44)">
+                      <circle cx="44" cy="44" r="36" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8" />
+                      <circle
+                        cx="44"
+                        cy="44"
+                        r="36"
+                        fill="none"
+                        stroke="url(#pg)"
+                        stroke-width="8"
+                        stroke-linecap="round"
+                        stroke-dasharray="226.2"
+                        stroke-dashoffset="72.4"
+                      />
+                    </g>
+                    <text x="44" y="49" text-anchor="middle" fill="#e8ecff" font-size="15" font-weight="800" font-family="Outfit, sans-serif">
+                      68%
+                    </text>
+                  </svg>
+                </div>
+                <div class="stat-rows">
+                  <div class="stat-row"><span>Completed</span><strong>24</strong></div>
+                  <div class="stat-row"><span>In progress</span><strong>11</strong></div>
+                  <div class="stat-row"><span>To do</span><strong>8</strong></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="rp-card">
+              <h3>🤖 Quick Ask AI</h3>
+              <div class="quick-ai">
+                <input id="quickAiInput" type="text" placeholder="Type your question here…" autocomplete="off" />
+                <button type="button" id="quickAiSend" aria-label="Send to AI">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="rp-card">
+              <h3>💡 Suggested for you</h3>
+              <ul class="suggest-list">
+                <li>Physics video — Kinematics crash course</li>
+                <li>Chemistry article — Periodic trends</li>
+                <li>Memory improvement guide</li>
+              </ul>
+            </div>
+
+            <div class="rp-card">
+              <h3>🧾 Recent activity</h3>
+              <div class="activity-list">
+                <div class="act-item">
+                  <p>You asked about Photosynthesis</p>
+                  <div class="act-meta">
+                    <time>Today · 4:12 PM</time>
+                    <button type="button" class="mini">Open</button>
+                  </div>
+                </div>
+                <div class="act-item">
+                  <p>Study Notes: Quadratic Equations</p>
+                  <div class="act-meta">
+                    <time>Yesterday · 8:30 PM</time>
+                    <button type="button" class="mini">Resume</button>
+                  </div>
+                </div>
+                <div class="act-item">
+                  <p>Quiz Completed: Atomic Structure</p>
+                  <div class="act-meta">
+                    <time>Mon · 6:15 PM</time>
+                    <button type="button" class="mini">Review</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal-dash"
+      id="taskModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="taskModalTitle"
+      hidden
+      inert
+    >
+      <div class="modal-dash-panel">
+        <h3 id="taskModalTitle">New task</h3>
+        <div class="field">
+          <label for="taskTitle">Title</label>
+          <input id="taskTitle" type="text" placeholder="e.g. Finish lab report" />
+        </div>
+        <div class="field">
+          <label for="taskDesc">Description</label>
+          <textarea id="taskDesc" placeholder="Details…"></textarea>
+        </div>
+        <div class="field">
+          <label for="taskWhen">Date &amp; time</label>
+          <input id="taskWhen" type="datetime-local" />
+        </div>
+        <div class="field">
+          <label for="taskFiles">Attach files</label>
+          <input id="taskFiles" type="file" multiple />
+        </div>
+        <div class="field">
+          <label for="taskWorkPick">Or attach a Work File session</label>
+          <select id="taskWorkPick">
+            <option value="">— None —</option>
+          </select>
+        </div>
+        <div class="modal-dash-actions">
+          <button type="button" class="btn-dash btn-dash-ghost" id="closeTaskModal">Cancel</button>
+          <button type="button" class="btn-dash btn-dash-primary" id="saveTask">Save task</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="accountModal" aria-hidden="true">
+      <div class="modal-box modal-box-account" role="dialog" aria-labelledby="accountModalTitle">
+        <h3 id="accountModalTitle">Your account</h3>
+        <p class="account-modal-hint">
+          Your SynthIQ sign-in details. Profile photo is saved to your account (Firestore + Auth when supported).
+        </p>
+        <div class="account-avatar-preview" id="accountAvatarPreview">
+          <img id="accountAvatarImg" alt="" />
+          <div class="acct-fallback" id="accountAvatarFallback">?</div>
+        </div>
+        <div class="account-photo-actions">
+          <button type="button" class="btn-account-primary" id="btnPickProfilePhoto">Choose photo…</button>
+          <input type="file" id="hiddenProfilePhoto" accept="image/jpeg,image/png,image/webp,image/gif" hidden />
+        </div>
+        <p class="account-modal-note">Opens your file picker. Images are resized automatically.</p>
+        <div class="account-info-row"><span class="account-lbl">Display name</span><span id="accDisplayName">—</span></div>
+        <div class="account-info-row"><span class="account-lbl">Email</span><span id="accEmail">—</span></div>
+        <div class="account-info-row"><span class="account-lbl">User ID</span><span id="accUid" class="account-uid">—</span></div>
+        <p class="account-photo-msg" id="accountPhotoMsg" aria-live="polite"></p>
+        <div class="modal-account-actions">
+          <button type="button" class="btn-account-ghost" id="openPasswordFromAccount">Change password…</button>
+          <button type="button" class="btn-account-ghost" id="accountModalClose">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal-dash"
+      id="passwordModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="passwordModalTitle"
+      hidden
+      inert
+    >
+      <div class="modal-dash-panel">
+        <h3 id="passwordModalTitle">Change password</h3>
+        <p style="margin: 0 0 0.85rem; font-size: 0.8rem; color: #94a3b8; line-height: 1.45">
+          For email/password accounts only. Enter your current password, then a new one (at least 8 characters).
+        </p>
+        <div class="field">
+          <label for="pwCurrent">Current password</label>
+          <input id="pwCurrent" type="password" autocomplete="current-password" />
+        </div>
+        <div class="field">
+          <label for="pwNew">New password</label>
+          <input id="pwNew" type="password" autocomplete="new-password" minlength="8" maxlength="128" />
+        </div>
+        <div class="field">
+          <label for="pwNew2">Confirm new password</label>
+          <input id="pwNew2" type="password" autocomplete="new-password" minlength="8" maxlength="128" />
+        </div>
+        <p class="err" id="pwModalErr" hidden style="margin-top: 0.5rem"></p>
+        <p id="pwModalOk" hidden style="margin-top: 0.5rem; font-size: 0.82rem; color: #34d399"></p>
+        <div class="modal-dash-actions">
+          <button type="button" class="btn-dash btn-dash-ghost" id="closePasswordModal">Cancel</button>
+          <button type="button" class="btn-dash btn-dash-primary" id="savePasswordBtn">Update password</button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal-dash"
+      id="teamsMoreTeamsModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="teamsMoreTeamsTitle"
+      aria-hidden="true"
+      hidden
+      inert
+    >
+      <div class="modal-dash-panel modal-dash-panel-promo">
+        <h3 id="teamsMoreTeamsTitle">Upgrade to Pro</h3>
+        <p style="margin: 0 0 1.15rem; font-size: 0.88rem; color: var(--muted); line-height: 1.5">
+          Free accounts include one team you create. Upgrade to create unlimited teams and unlock premium collaboration.
+        </p>
+        <div class="modal-dash-actions" style="flex-direction: column; align-items: stretch">
+          <button type="button" class="btn-dash btn-dash-primary" id="teamsMoreTeamsUpgrade">Upgrade to Pro</button>
+          <button type="button" class="btn-dash btn-dash-ghost" id="teamsMoreTeamsClose">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import {
+        auth,
+        authPersistenceReady,
+        db,
+        ensureUserProfileDocument,
+        updateSynthIQPassword,
+        authErrorMessage,
+        refreshIdTokenForFirestore,
+      } from "./signup/signup-firebase.js";
+      import {
+        syncAccountPhotoCache,
+        bindSynthIQAccountUi,
+        closeSynthIQAccountModal,
+        refreshAccountAvatarSlots,
+        planDisplayFromFirestore,
+      } from "./js/synthiq-account-ui.js";
+      import { tabStorageGetJson, tabStorageSetJson } from "./js/synthiq-tab-storage.js";
+      import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+      import {
+        doc,
+        getDoc,
+        deleteDoc,
+        collection,
+        query,
+        where,
+        getDocs,
+        onSnapshot,
+      } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+      const TASKS_KEY = "synthiq_tasks";
+      const WORK_SESSIONS_KEY = "synthiq_work_sessions";
+      const TEAMS_NAV_CACHE_KEY = "synthiq_teams_nav_v2";
+      let unsubDeckQuizProgress = null;
+
+      /**
+       * Node APIs live on server.cjs (default :3000). Live Server / other origins won’t have /api/* — probe fallbacks.
+       * Optional override: window.__SYNTHIQ_API_BASE__ = "http://localhost:3000"
+       */
+      function synthiqApiBaseCandidates() {
+        var bases = [];
+        if (typeof document !== "undefined") {
+          var m = document.querySelector('meta[name="synthiq-api-base"]');
+          var mc = m && m.getAttribute("content");
+          if (mc != null && String(mc).trim()) {
+            bases.push(String(mc).trim().replace(/\/$/, ""));
+          }
+        }
+        if (typeof window !== "undefined" && window.__SYNTHIQ_API_BASE__) {
+          var custom = String(window.__SYNTHIQ_API_BASE__).replace(/\/$/, "");
+          if (custom) bases.push(custom);
+        }
+        var loc = typeof window !== "undefined" ? window.location : null;
+        var fromHttps = loc && loc.protocol === "https:";
+        if (!fromHttps) {
+          bases.push("http://127.0.0.1:3000");
+          bases.push("http://localhost:3000");
+        }
+        if (loc) {
+          var proto = loc.protocol;
+          var origin = loc.origin;
+          if (origin && origin !== "null" && proto !== "file:" && proto !== "blob:") {
+            bases.push(String(origin).replace(/\/$/, ""));
+          }
+        }
+        var seen = {};
+        var out = [];
+        bases.forEach(function (b) {
+          if (b && !seen[b]) {
+            seen[b] = true;
+            out.push(b);
+          }
+        });
+        return out;
+      }
+
+      function synthiqShouldRetryApiBase(path, r) {
+        if (!path || path.indexOf("/api/") !== 0) return false;
+        const s = r.status;
+        if (s === 404 || s === 405 || s === 501) return true;
+        const ct = (r.headers.get("content-type") || "").toLowerCase();
+        if (ct.indexOf("application/json") === -1 && ct.indexOf("text/json") === -1) return true;
+        return false;
+      }
+
+      async function synthiqPostJson(path, payload) {
+        var bases = synthiqApiBaseCandidates();
+        var lastRes = null;
+        var lastErr = null;
+        for (var i = 0; i < bases.length; i++) {
+          try {
+            var r = await fetch(bases[i] + path, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+            lastRes = r;
+            if (synthiqShouldRetryApiBase(path, r)) continue;
+            return r;
+          } catch (e) {
+            lastErr = e;
+          }
+        }
+        if (lastRes) return lastRes;
+        throw lastErr || new Error("SynthIQ API unreachable");
+      }
+
+      function subscribeContinueLearning(uid) {
+        if (unsubDeckQuizProgress) {
+          unsubDeckQuizProgress();
+          unsubDeckQuizProgress = null;
+        }
+        const scrollEl = document.getElementById("continueLearningScroll");
+        const hintEl = document.getElementById("continueLearningHint");
+        if (!scrollEl || !uid) return;
+
+        function hueFromString(s) {
+          let h = 0;
+          const str = String(s || "");
+          for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+          return h % 360;
+        }
+
+        unsubDeckQuizProgress = onSnapshot(
+          collection(db, "users", uid, "deckQuizProgress"),
+          function (snap) {
+            scrollEl.innerHTML = "";
+            if (snap.empty) {
+              if (hintEl) {
+                hintEl.hidden = false;
+                hintEl.textContent =
+                  "Resume quizzes you exited early. Items appear here when you save progress from Quiz mode (built from your decks).";
+              }
+              return;
+            }
+            if (hintEl) hintEl.hidden = true;
+            snap.forEach(function (docSnap) {
+              const p = docSnap.data();
+              const deckId = docSnap.id;
+              const total =
+                typeof p.totalQuestions === "number"
+                  ? p.totalQuestions
+                  : Array.isArray(p.cardOrder)
+                    ? p.cardOrder.length
+                    : 0;
+              const idx = typeof p.currentIndex === "number" ? p.currentIndex : 0;
+              const name = p.deckName || "Deck quiz";
+              const subj = p.subject || "General";
+              const pct = total > 0 ? Math.min(100, Math.round((idx / total) * 100)) : 0;
+
+              const art = document.createElement("article");
+              art.className = "learn-card";
+              const a = document.createElement("a");
+              a.href = "./quiz-mode.html?deck=" + encodeURIComponent(deckId);
+              a.style.cssText = "text-decoration:none;color:inherit;display:block;";
+              const thumb = document.createElement("div");
+              thumb.className = "thumb";
+              const hue = hueFromString(deckId + subj);
+              thumb.style.background =
+                "linear-gradient(135deg, hsl(" +
+                hue +
+                ",52%,36%), hsl(" +
+                ((hue + 42) % 360) +
+                ",48%,22%))";
+              const body = document.createElement("div");
+              body.className = "body";
+              const h4 = document.createElement("h4");
+              h4.textContent = name;
+              const sub = document.createElement("div");
+              sub.className = "sub";
+              const qn = Math.min(idx + 1, Math.max(total, 1));
+              const td = Math.max(total, 1);
+              sub.textContent = subj + " · Quiz · question " + qn + " of " + td;
+              const bar = document.createElement("div");
+              bar.className = "progress-bar";
+              const ii = document.createElement("i");
+              ii.style.width = pct + "%";
+              bar.appendChild(ii);
+              body.appendChild(h4);
+              body.appendChild(sub);
+              body.appendChild(bar);
+              a.appendChild(thumb);
+              a.appendChild(body);
+              art.appendChild(a);
+              scrollEl.appendChild(art);
+            });
+          },
+          function (err) {
+            console.warn(err);
+            if (hintEl) {
+              hintEl.hidden = false;
+              hintEl.textContent =
+                "Could not load deck quiz progress. Deploy Firestore rules that allow users/{uid}/deckQuizProgress.";
+            }
+          }
+        );
+      }
+      const greetEl = document.getElementById("greet");
+      const tasksList = document.getElementById("tasksList");
+      const taskModal = document.getElementById("taskModal");
+      const passwordModal = document.getElementById("passwordModal");
+      const teamsMoreTeamsModal = document.getElementById("teamsMoreTeamsModal");
+      const workPick = document.getElementById("taskWorkPick");
+
+      async function userFirestorePlanIsPro(uid) {
+        try {
+          const snap = await getDoc(doc(db, "users", uid));
+          if (!snap.exists()) return false;
+          return String(snap.data().plan || "").trim().toLowerCase() === "pro";
+        } catch (_) {
+          return false;
+        }
+      }
+
+      /** Avoid getIdToken(true) here — it forces a network refresh and slows Teams ▾ on every open. */
+      async function ensureTeamsAuthLight(uid) {
+        await authPersistenceReady;
+        if (typeof auth.authStateReady === "function") {
+          await auth.authStateReady();
+        }
+        const u = auth.currentUser;
+        if (!u || u.uid !== uid) {
+          const err = new Error("Sign-in session not ready.");
+          err.code = "auth/not-ready-for-firestore";
+          throw err;
+        }
+        await u.getIdToken(false);
+      }
+
+      async function userHasCreatedTeam(uid) {
+        await ensureTeamsAuthLight(uid);
+        const snap = await getDocs(query(collection(db, "teams"), where("createdByUid", "==", uid)));
+        return !snap.empty;
+      }
+
+      function closeTeamsMoreTeamsModal() {
+        if (!teamsMoreTeamsModal) return;
+        teamsMoreTeamsModal.classList.remove("is-open");
+        teamsMoreTeamsModal.hidden = true;
+        teamsMoreTeamsModal.setAttribute("inert", "");
+        teamsMoreTeamsModal.setAttribute("aria-hidden", "true");
+      }
+
+      function openTeamsMoreTeamsModal() {
+        if (!teamsMoreTeamsModal) return;
+        teamsMoreTeamsModal.removeAttribute("inert");
+        teamsMoreTeamsModal.removeAttribute("aria-hidden");
+        teamsMoreTeamsModal.hidden = false;
+        requestAnimationFrame(function () {
+          teamsMoreTeamsModal.classList.add("is-open");
+        });
+      }
+
+      closeTeamsMoreTeamsModal();
+
+      function closePasswordModalUi() {
+        if (!passwordModal) return;
+        passwordModal.classList.remove("is-open");
+        passwordModal.hidden = true;
+        passwordModal.setAttribute("inert", "");
+        passwordModal.setAttribute("aria-hidden", "true");
+      }
+
+      function openPasswordModalUi() {
+        if (!passwordModal) return;
+        const errEl = document.getElementById("pwModalErr");
+        const okEl = document.getElementById("pwModalOk");
+        if (errEl) errEl.hidden = true;
+        if (okEl) okEl.hidden = true;
+        const a = document.getElementById("pwCurrent");
+        const b = document.getElementById("pwNew");
+        const c = document.getElementById("pwNew2");
+        if (a) a.value = "";
+        if (b) b.value = "";
+        if (c) c.value = "";
+        passwordModal.removeAttribute("inert");
+        passwordModal.removeAttribute("aria-hidden");
+        passwordModal.hidden = false;
+        requestAnimationFrame(function () {
+          passwordModal.classList.add("is-open");
+        });
+      }
+
+      closePasswordModalUi();
+
+      function closeTaskModalUi() {
+        if (!taskModal) return;
+        taskModal.classList.remove("is-open");
+        taskModal.hidden = true;
+        taskModal.setAttribute("inert", "");
+        taskModal.setAttribute("aria-hidden", "true");
+      }
+
+      function openTaskModalUi() {
+        if (!taskModal) return;
+        taskModal.removeAttribute("inert");
+        taskModal.removeAttribute("aria-hidden");
+        taskModal.hidden = false;
+        requestAnimationFrame(function () {
+          taskModal.classList.add("is-open");
+        });
+      }
+
+      closeTaskModalUi();
+
+      function quickAiTrySend() {
+        const q = document.getElementById("quickAiInput");
+        const t = q ? q.value.trim() : "";
+        if (!t) return;
+        if (q) q.value = "";
+        window.location.href = "./ai-chat.html?q=" + encodeURIComponent(t);
+      }
+
+      function timeGreeting() {
+        const h = new Date().getHours();
+        if (h < 12) return "Good morning";
+        if (h < 17) return "Good afternoon";
+        return "Good evening";
+      }
+
+      function loadTasks() {
+        if (!tasksList) return;
+        let list = [];
+        list = tabStorageGetJson(TASKS_KEY, []);
+        tasksList.innerHTML = "";
+        if (!list.length) {
+          tasksList.innerHTML =
+            '<p style="margin:0;font-size:0.8rem;color:#64748b">No tasks yet. Tap + to create one.</p>';
+          return;
+        }
+        list
+          .sort((a, b) => (a.when || "").localeCompare(b.when || ""))
+          .forEach((t) => {
+            const row = document.createElement("div");
+            row.className = "task-row-dash";
+            const files = (t.fileNames || []).length ? ` · ${t.fileNames.length} file(s)` : "";
+            const wf = t.workFileLabel ? ` · Work file: ${t.workFileLabel}` : "";
+            row.innerHTML = `<h4>${escapeHtml(t.title || "Untitled")}</h4><p>${escapeHtml(
+              t.description || ""
+            )}</p><time>${escapeHtml(t.when || "")}${escapeHtml(files)}${escapeHtml(wf)}</time>`;
+            tasksList.appendChild(row);
+          });
+      }
+
+      function escapeHtml(s) {
+        const d = document.createElement("div");
+        d.textContent = s;
+        return d.innerHTML;
+      }
+
+      function populateWorkFileSelect() {
+        if (!workPick) return;
+        let sessions = [];
+        sessions = tabStorageGetJson(WORK_SESSIONS_KEY, []);
+        workPick.innerHTML = '<option value="">— None —</option>';
+        sessions.forEach((s, i) => {
+          const opt = document.createElement("option");
+          opt.value = String(i);
+          opt.textContent = s.folderName || `Session ${i + 1}`;
+          workPick.appendChild(opt);
+        });
+      }
+
+      async function loadHomeProfileFields(user) {
+        let username = "";
+        let plan = "";
+        let fullName = user.displayName?.trim() || "";
+        try {
+          const snap = await getDoc(doc(db, "users", user.uid));
+          if (snap.exists()) {
+            const d = snap.data();
+            if (d.username != null && String(d.username).trim()) username = String(d.username).trim();
+            if (d.plan != null) plan = String(d.plan);
+            if (!fullName) fullName = (d.fullName || d.username || "").trim();
+          }
+        } catch (_) {}
+        const greetName = fullName || username || user.email?.split("@")[0] || "there";
+        const railUsername = username || user.email?.split("@")[0] || "Member";
+        return { greetName, railUsername, plan };
+      }
+
+      const navTeamsDropdown = document.getElementById("navTeamsDropdown");
+      const btnTeamsDropdown = document.getElementById("btnTeamsDropdown");
+      const teamsCreatedPanel = document.getElementById("teamsCreatedPanel");
+
+      function setTeamsDropdownOpen(open) {
+        if (!navTeamsDropdown || !btnTeamsDropdown) return;
+        navTeamsDropdown.classList.toggle("is-open", open);
+        btnTeamsDropdown.setAttribute("aria-expanded", open ? "true" : "false");
+      }
+
+      async function subtitleForTeam(teamData, viewerUid, memo) {
+        const creatorUid = teamData.createdByUid || "";
+        if (!creatorUid || creatorUid === viewerUid) return "Your team";
+        if (memo[creatorUid] !== undefined) return memo[creatorUid];
+        let line = "Created by teammate";
+        try {
+          const snap = await getDoc(doc(db, "users", creatorUid));
+          if (snap.exists()) {
+            const d = snap.data();
+            const un = d.username != null && String(d.username).trim() ? String(d.username).trim() : "";
+            if (un) line = "Created by @" + un;
+            else {
+              const fn = d.fullName != null && String(d.fullName).trim() ? String(d.fullName).trim() : "";
+              if (fn) line = "Created by " + fn;
+              else if (d.email != null && String(d.email).trim())
+                line = "Created by " + String(d.email).trim().split("@")[0];
+            }
+          }
+        } catch (_) {}
+        memo[creatorUid] = line;
+        return line;
+      }
+
+      function paintStaleTeamsFromCache(uid) {
+        try {
+          const raw = sessionStorage.getItem(TEAMS_NAV_CACHE_KEY);
+          if (!raw) return false;
+          const o = JSON.parse(raw);
+          if (o.uid !== uid || !Array.isArray(o.items) || !o.items.length) return false;
+          const rows = o.items.map(function (item) {
+            const ms = typeof item.sortMs === "number" ? item.sortMs : 0;
+            return {
+              id: item.id,
+              data: {
+                name: item.name || "Untitled team",
+                createdByUid: item.createdByUid || "",
+                createdAt: { toMillis: function () { return ms; } },
+              },
+            };
+          });
+          appendTeamDropdownRows(
+            rows,
+            o.items.map(function (it) {
+              return it.sub || "";
+            }),
+            uid,
+          );
+          return true;
+        } catch (_) {
+          return false;
+        }
+      }
+
+      function appendTeamDropdownRows(rows, subs, viewerUid) {
+        teamsCreatedPanel.innerHTML = "";
+        if (!rows.length) return;
+        for (let i = 0; i < rows.length; i++) {
+          const r = rows[i];
+          const sub = subs[i] != null ? subs[i] : "";
+          const row = document.createElement("div");
+          row.className = "nav-team-row";
+          const a = document.createElement("a");
+          a.className = "nav-dropdown-item nav-team-row-link";
+          a.href = "./team-room.html?id=" + encodeURIComponent(r.id);
+          a.setAttribute("role", "menuitem");
+          a.textContent = r.data.name || "Untitled team";
+          const sm = document.createElement("small");
+          sm.className = "nav-team-sub";
+          sm.textContent = sub;
+          a.appendChild(sm);
+          row.appendChild(a);
+          const creatorUid = r.data.createdByUid || "";
+          if (creatorUid && creatorUid === viewerUid) {
+            const delBtn = document.createElement("button");
+            delBtn.type = "button";
+            delBtn.className = "nav-team-delete";
+            delBtn.setAttribute("aria-label", "Delete team");
+            delBtn.title = "Delete team";
+            delBtn.textContent = "Delete";
+            delBtn.addEventListener("click", function (ev) {
+              ev.preventDefault();
+              ev.stopPropagation();
+              deleteTeamFromDropdown(r.id, r.data.name || "", viewerUid);
+            });
+            row.appendChild(delBtn);
+          }
+          teamsCreatedPanel.appendChild(row);
+        }
+      }
+
+      function saveTeamsNavCache(uid, rows, subs) {
+        try {
+          sessionStorage.setItem(
+            TEAMS_NAV_CACHE_KEY,
+            JSON.stringify({
+              uid: uid,
+              at: Date.now(),
+              items: rows.map(function (r, i) {
+                const ta =
+                  r.data.createdAt && typeof r.data.createdAt.toMillis === "function"
+                    ? r.data.createdAt.toMillis()
+                    : 0;
+                return {
+                  id: r.id,
+                  name: r.data.name || "Untitled team",
+                  createdByUid: r.data.createdByUid || "",
+                  sub: subs[i] || "",
+                  sortMs: ta,
+                };
+              }),
+            }),
+          );
+        } catch (_) {}
+      }
+
+      function clearTeamsNavCache() {
+        try {
+          sessionStorage.removeItem(TEAMS_NAV_CACHE_KEY);
+        } catch (_) {}
+      }
+
+      /** When client Firestore rules reject team list queries, same-origin server can list via Admin SDK. */
+      async function deleteTeamFromDropdown(teamId, teamName, viewerUid) {
+        var nm = teamName || "Untitled team";
+        if (!confirm('Delete "' + nm + '"? This removes the team for all members and cannot be undone.')) return;
+        try {
+          await refreshIdTokenForFirestore(viewerUid);
+        } catch (err) {
+          alert(err.message || "Sign-in required.");
+          return;
+        }
+        var token = await auth.currentUser.getIdToken();
+        try {
+          var r = await synthiqPostJson("/api/delete-team", {
+            idToken: token,
+            teamId: teamId,
+          });
+            var j = await r.json().catch(function () {
+              return {};
+            });
+            if (r.ok) {
+              clearTeamsNavCache();
+              loadCreatedTeams(viewerUid);
+              return;
+            }
+            if (r.status === 404) {
+              clearTeamsNavCache();
+              loadCreatedTeams(viewerUid);
+              return;
+            }
+            if (r.status === 403) {
+              alert(j.error || "You don’t have permission to delete this team.");
+              return;
+            }
+            /* Server errors, 503 (no admin), 401 (bad token on server): still try client rules delete. */
+            try {
+              await deleteDoc(doc(db, "teams", teamId));
+              clearTeamsNavCache();
+              loadCreatedTeams(viewerUid);
+              return;
+            } catch (clientDelErr) {
+              console.warn("SynthIQ delete-team (client fallback)", r.status, j, clientDelErr);
+              alert(
+                (j && j.error) ||
+                  (clientDelErr && clientDelErr.message) ||
+                  "Could not delete team. Redeploy Firestore rules or sign in again."
+              );
+              return;
+            }
+          } catch (netErr) {
+            console.warn("SynthIQ delete-team (server)", netErr);
+          }
+        try {
+          await deleteDoc(doc(db, "teams", teamId));
+          clearTeamsNavCache();
+          loadCreatedTeams(viewerUid);
+        } catch (e2) {
+          console.warn("SynthIQ delete-team (client-only)", e2);
+          alert(e2.message || "Could not delete team.");
+        }
+      }
+
+      async function fetchTeamsViaAdminFallback(uid) {
+        try {
+          var user = auth.currentUser;
+          if (!user || user.uid !== uid) return null;
+          var idToken = await user.getIdToken();
+          var r = await synthiqPostJson("/api/list-my-teams", { idToken: idToken });
+          var j = await r.json().catch(function () {
+            return null;
+          });
+          if (!r.ok || !j || !j.ok || !Array.isArray(j.teams)) {
+            console.warn("SynthIQ teams dropdown list-my-teams failed", r.status, j);
+            return null;
+          }
+          return j.teams;
+        } catch (err) {
+          console.warn("SynthIQ teams dropdown (admin fallback)", err);
+          return null;
+        }
+      }
+
+      async function loadCreatedTeams(uid) {
+        if (!teamsCreatedPanel || !uid) return;
+        const painted = paintStaleTeamsFromCache(uid);
+        if (!painted) teamsCreatedPanel.innerHTML = '<div class="nav-dropdown-empty">Loading…</div>';
+        const creatorMemo = {};
+        const byId = {};
+        let queryErr = null;
+
+        function mergeSnap(snap) {
+          snap.forEach(function (d) {
+            byId[d.id] = { id: d.id, data: d.data() };
+          });
+        }
+
+        function mergeRemoteTeams(remote) {
+          if (!remote || !remote.length) return;
+          remote.forEach(function (t) {
+            if (!t || !t.id || byId[t.id]) return;
+            const ms = typeof t.createdAtMs === "number" ? t.createdAtMs : 0;
+            byId[t.id] = {
+              id: t.id,
+              data: {
+                name: t.name,
+                createdByUid: t.createdByUid,
+                createdAt: { toMillis: function () { return ms; } },
+              },
+            };
+          });
+        }
+
+        async function mergeTeamsFromProfileJoinedIds(userSnapOpt) {
+          try {
+            let us = userSnapOpt;
+            if (!us) us = await getDoc(doc(db, "users", uid));
+            if (!us.exists()) return;
+            const raw = us.data().joinedTeamIds;
+            if (!Array.isArray(raw) || !raw.length) return;
+            await Promise.all(
+              raw.map(async function (tid) {
+                if (typeof tid !== "string" || !tid || byId[tid]) return;
+                try {
+                  const ts = await getDoc(doc(db, "teams", tid));
+                  if (ts.exists()) byId[tid] = { id: tid, data: ts.data() };
+                } catch (_) {}
+              }),
+            );
+          } catch (_) {}
+        }
+
+        async function runFirestoreTeamQueriesParallel() {
+          let lastErr = null;
+          const settled = await Promise.allSettled([
+            getDocs(query(collection(db, "teams"), where("memberUids", "array-contains", uid))),
+            getDocs(query(collection(db, "teams"), where("createdByUid", "==", uid))),
+          ]);
+          if (settled[0].status === "fulfilled") mergeSnap(settled[0].value);
+          else {
+            lastErr = settled[0].reason;
+            console.warn("SynthIQ teams dropdown (member query)", settled[0].reason);
+          }
+          if (settled[1].status === "fulfilled") mergeSnap(settled[1].value);
+          else {
+            lastErr = settled[1].reason;
+            console.warn("SynthIQ teams dropdown (creator query)", settled[1].reason);
+          }
+          return lastErr;
+        }
+
+        try {
+          await ensureTeamsAuthLight(uid);
+          const [remoteTeams, userSnap] = await Promise.all([
+            fetchTeamsViaAdminFallback(uid),
+            getDoc(doc(db, "users", uid)),
+          ]);
+          mergeRemoteTeams(remoteTeams);
+          await mergeTeamsFromProfileJoinedIds(userSnap);
+
+          queryErr = await runFirestoreTeamQueriesParallel();
+
+          if (!Object.keys(byId).length && queryErr && queryErr.code === "permission-denied" && auth.currentUser) {
+            await auth.currentUser.getIdToken(true);
+            queryErr = await runFirestoreTeamQueriesParallel();
+            await mergeTeamsFromProfileJoinedIds(null);
+          }
+
+          let rows = Object.keys(byId).map(function (k) {
+            return byId[k];
+          });
+
+          if (rows.length) {
+            queryErr = null;
+          }
+
+          rows.sort(function (a, b) {
+            const ta =
+              a.data.createdAt && typeof a.data.createdAt.toMillis === "function"
+                ? a.data.createdAt.toMillis()
+                : 0;
+            const tb =
+              b.data.createdAt && typeof b.data.createdAt.toMillis === "function"
+                ? b.data.createdAt.toMillis()
+                : 0;
+            return tb - ta;
+          });
+
+          if (!rows.length) {
+            const hint =
+              queryErr && queryErr.code === "permission-denied"
+                ? "Firestore blocked team reads. Deploy latest firestore.rules. If the UI is on a different host than the API, set meta synthiq-api-base or window.__SYNTHIQ_API_BASE__ to your server.cjs https origin. Locally: run node server.cjs and open via http://localhost:3000."
+                : queryErr && queryErr.message
+                  ? queryErr.message
+                  : "";
+            teamsCreatedPanel.innerHTML =
+              '<div class="nav-dropdown-empty">' +
+              (hint
+                ? "Could not load teams. " + escapeHtml(hint)
+                : "No teams yet. Create or join one from Teams.") +
+              "</div>";
+            return;
+          }
+
+          const subs = await Promise.all(rows.map((r) => subtitleForTeam(r.data, uid, creatorMemo)));
+          appendTeamDropdownRows(rows, subs, uid);
+          saveTeamsNavCache(uid, rows, subs);
+        } catch (e) {
+          console.warn(e);
+          const hint =
+            e && e.code === "permission-denied"
+              ? "Firestore denied team reads. Deploy latest rules / verify Firebase project."
+              : e && e.message
+                ? e.message
+                : "Network or Firestore error.";
+          teamsCreatedPanel.innerHTML =
+            '<div class="nav-dropdown-empty">Could not load teams. ' + escapeHtml(hint) + "</div>";
+        }
+      }
+
+      if (btnTeamsDropdown && navTeamsDropdown) {
+        btnTeamsDropdown.addEventListener("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          const open = !navTeamsDropdown.classList.contains("is-open");
+          setTeamsDropdownOpen(open);
+          if (open && auth.currentUser) loadCreatedTeams(auth.currentUser.uid);
+        });
+        document.addEventListener("click", function (e) {
+          if (!navTeamsDropdown.contains(e.target)) setTeamsDropdownOpen(false);
+        });
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape") setTeamsDropdownOpen(false);
+        });
+      }
+
+      async function initAuth() {
+        await authPersistenceReady;
+        onAuthStateChanged(auth, async function (user) {
+          if (user) {
+            try {
+              await ensureUserProfileDocument(user);
+            } catch (profileErr) {
+              console.warn("SynthIQ: could not ensure Firestore profile document", profileErr);
+            }
+            const { greetName, railUsername, plan } = await loadHomeProfileFields(user);
+            if (greetEl) greetEl.textContent = `${timeGreeting()}, “${greetName}”! 👋`;
+            const ru = document.getElementById("homeRailUsername");
+            const rp = document.getElementById("homeRailPlan");
+            if (ru) ru.textContent = railUsername;
+            if (rp) rp.textContent = planDisplayFromFirestore(plan);
+            try {
+              await syncAccountPhotoCache(user.uid);
+            } catch (_) {}
+            refreshAccountAvatarSlots(user, {
+              wrapId: "homeRailAvatarWrap",
+              imgId: "homeRailAvatarImg",
+              fallbackId: "homeRailAvatarFallback",
+            });
+            loadTasks();
+            subscribeContinueLearning(user.uid);
+            const prefetchUid = user.uid;
+            function prefetchTeamsNav() {
+              if (!teamsCreatedPanel || !auth.currentUser || auth.currentUser.uid !== prefetchUid) return;
+              loadCreatedTeams(prefetchUid);
+            }
+            if (typeof requestIdleCallback === "function") {
+              requestIdleCallback(prefetchTeamsNav, { timeout: 2500 });
+            } else {
+              setTimeout(prefetchTeamsNav, 500);
+            }
+            return;
+          }
+          if (unsubDeckQuizProgress) {
+            unsubDeckQuizProgress();
+            unsubDeckQuizProgress = null;
+          }
+          await new Promise(function (r) {
+            setTimeout(r, 150);
+          });
+          if (auth.currentUser) return;
+          window.location.replace("./signup/synthiq-signin.html");
+        });
+      }
+
+      initAuth();
+
+      const linkNavTeamsMain = document.getElementById("linkNavTeamsMain");
+      if (linkNavTeamsMain) {
+        linkNavTeamsMain.addEventListener("click", async function (e) {
+          e.preventDefault();
+          const u = auth.currentUser;
+          if (!u) {
+            window.location.href = "./teams.html";
+            return;
+          }
+          try {
+            const pro = await userFirestorePlanIsPro(u.uid);
+            if (!pro && (await userHasCreatedTeam(u.uid))) {
+              openTeamsMoreTeamsModal();
+              return;
+            }
+          } catch (err) {
+            console.warn(err);
+          }
+          window.location.href = "./teams.html";
+        });
+      }
+      if (teamsMoreTeamsModal) {
+        teamsMoreTeamsModal.addEventListener("click", function (e) {
+          if (e.target === teamsMoreTeamsModal) closeTeamsMoreTeamsModal();
+        });
+      }
+      const btnTeamsMoreUpgrade = document.getElementById("teamsMoreTeamsUpgrade");
+      const btnTeamsMoreClose = document.getElementById("teamsMoreTeamsClose");
+      if (btnTeamsMoreUpgrade) {
+        btnTeamsMoreUpgrade.addEventListener("click", function () {
+          closeTeamsMoreTeamsModal();
+          const u = "./pricing.html";
+          const w = window.open(u, "_blank", "noopener,noreferrer");
+          if (!w) window.location.href = u;
+        });
+      }
+      if (btnTeamsMoreClose) {
+        btnTeamsMoreClose.addEventListener("click", function () {
+          closeTeamsMoreTeamsModal();
+        });
+      }
+
+      bindSynthIQAccountUi({
+        getMyUid: function () {
+          return auth.currentUser?.uid || "";
+        },
+        openSelectors: ["#btnHomeAccount"],
+        sidebarAvatar: {
+          wrapId: "homeRailAvatarWrap",
+          imgId: "homeRailAvatarImg",
+          fallbackId: "homeRailAvatarFallback",
+        },
+      });
+
+      document.getElementById("openTaskModal").addEventListener("click", function () {
+        populateWorkFileSelect();
+        openTaskModalUi();
+      });
+      function closeTask() {
+        closeTaskModalUi();
+      }
+      document.getElementById("closeTaskModal").addEventListener("click", closeTask);
+      if (taskModal) {
+        taskModal.addEventListener("click", function (e) {
+          if (e.target === taskModal) closeTask();
+        });
+      }
+
+      const quickAiSendBtn = document.getElementById("quickAiSend");
+      const quickAiInputEl = document.getElementById("quickAiInput");
+      if (quickAiSendBtn) quickAiSendBtn.addEventListener("click", quickAiTrySend);
+      if (quickAiInputEl) {
+        quickAiInputEl.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            quickAiTrySend();
+          }
+        });
+      }
+
+      const openPwFromAcct = document.getElementById("openPasswordFromAccount");
+      if (openPwFromAcct) {
+        openPwFromAcct.addEventListener("click", function () {
+          closeSynthIQAccountModal();
+          openPasswordModalUi();
+        });
+      }
+      document.getElementById("closePasswordModal").addEventListener("click", function () {
+        closePasswordModalUi();
+      });
+      if (passwordModal) {
+        passwordModal.addEventListener("click", function (e) {
+          if (e.target === passwordModal) closePasswordModalUi();
+        });
+      }
+
+      document.getElementById("savePasswordBtn").addEventListener("click", async function () {
+        const errEl = document.getElementById("pwModalErr");
+        const okEl = document.getElementById("pwModalOk");
+        errEl.hidden = true;
+        okEl.hidden = true;
+        okEl.textContent = "";
+        const cur = document.getElementById("pwCurrent").value;
+        const n1 = document.getElementById("pwNew").value;
+        const n2 = document.getElementById("pwNew2").value;
+        if (!cur) {
+          errEl.textContent = "Enter your current password.";
+          errEl.hidden = false;
+          return;
+        }
+        if (n1.length < 8) {
+          errEl.textContent = "New password must be at least 8 characters.";
+          errEl.hidden = false;
+          return;
+        }
+        if (n1 !== n2) {
+          errEl.textContent = "New passwords do not match.";
+          errEl.hidden = false;
+          return;
+        }
+        const btn = document.getElementById("savePasswordBtn");
+        const prev = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "Updating…";
+        try {
+          await updateSynthIQPassword(cur, n1);
+          okEl.textContent = "Password updated.";
+          okEl.hidden = false;
+          document.getElementById("pwCurrent").value = "";
+          document.getElementById("pwNew").value = "";
+          document.getElementById("pwNew2").value = "";
+        } catch (e) {
+          const code = e && e.code ? String(e.code) : "";
+          errEl.textContent = authErrorMessage(code) + (code ? " [" + code + "]" : "");
+          errEl.hidden = false;
+        } finally {
+          btn.disabled = false;
+          btn.textContent = prev;
+        }
+      });
+
+      document.getElementById("saveTask").addEventListener("click", async function () {
+        const title = document.getElementById("taskTitle").value.trim();
+        const description = document.getElementById("taskDesc").value.trim();
+        const when = document.getElementById("taskWhen").value;
+        const fileInput = document.getElementById("taskFiles");
+        let list = [];
+        list = tabStorageGetJson(TASKS_KEY, []);
+        const fileNames = Array.from((fileInput && fileInput.files) || []).map(function (f) {
+          return f.name;
+        });
+        let workFileLabel = "";
+        const wi = workPick ? workPick.value : "";
+        if (wi !== "") {
+          let sessions = [];
+          sessions = tabStorageGetJson(WORK_SESSIONS_KEY, []);
+          const s = sessions[Number(wi)];
+          if (s) workFileLabel = s.folderName || "Work file";
+        }
+        list.push({
+          id:
+            typeof crypto !== "undefined" && crypto.randomUUID
+              ? crypto.randomUUID()
+              : "t-" + Date.now(),
+          title: title || "Untitled",
+          description,
+          when,
+          fileNames,
+          workFileLabel,
+        });
+        tabStorageSetJson(TASKS_KEY, list);
+        document.getElementById("taskTitle").value = "";
+        document.getElementById("taskDesc").value = "";
+        document.getElementById("taskWhen").value = "";
+        fileInput.value = "";
+        workPick.value = "";
+        closeTask();
+        loadTasks();
+      });
+    </script>
+    <footer class="synthiq-legal-footer" role="contentinfo">
+      <a href="./terms-and-services.html">Terms and services</a>
+    </footer>
+  </body>
+</html>

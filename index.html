@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI for Student — Smarter Learning</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/synthiq-legal-footer.css" />
+    <style>
+      :root {
+        --navy-0: #050814;
+        --navy-1: #0a0f24;
+        --navy-2: #0f1733;
+        --indigo: #4f46e5;
+        --violet: #7c3aed;
+        --purple: #a855f7;
+        --cyan: #22d3ee;
+        --blue: #3b82f6;
+        --text: #e8ecff;
+        --muted: #94a3c8;
+        --glass: rgba(15, 23, 48, 0.55);
+        --glass-border: rgba(120, 140, 255, 0.22);
+        --glow-purple: rgba(168, 85, 247, 0.45);
+        --glow-blue: rgba(59, 130, 246, 0.4);
+        --radius-lg: 1.35rem;
+        --radius-xl: 1.75rem;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Outfit", system-ui, sans-serif;
+        background: var(--navy-0);
+        color: var(--text);
+        -webkit-font-smoothing: antialiased;
+      }
+      body.modal-open {
+        overflow: hidden;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 3fr 2fr;
+        min-height: 100vh;
+        min-height: 100dvh;
+      }
+      @media (max-width: 1080px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* ——— Hero (60%) ——— */
+      .hero {
+        position: relative;
+        padding: clamp(1.25rem, 3vw, 2rem) clamp(1.25rem, 4vw, 3.5rem)
+          clamp(2rem, 5vw, 3rem);
+        overflow: hidden;
+        background:
+          radial-gradient(ellipse 90% 70% at 20% 20%, rgba(79, 70, 229, 0.35), transparent 55%),
+          radial-gradient(ellipse 70% 50% at 85% 30%, rgba(168, 85, 247, 0.28), transparent 50%),
+          radial-gradient(ellipse 60% 40% at 50% 100%, rgba(34, 211, 238, 0.12), transparent 45%),
+          linear-gradient(165deg, var(--navy-1) 0%, var(--navy-0) 45%, #080c1a 100%);
+      }
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='1' cy='1' r='1' fill='rgba(255,255,255,0.06)'/%3E%3C/svg%3E");
+        opacity: 0.5;
+        pointer-events: none;
+      }
+
+      .particles {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      .particle {
+        position: absolute;
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: #fff;
+        opacity: 0;
+        box-shadow: 0 0 10px var(--cyan), 0 0 20px rgba(168, 85, 247, 0.5);
+        animation: float-p 8s ease-in-out infinite;
+      }
+      .particle:nth-child(1) {
+        left: 12%;
+        top: 18%;
+        animation-delay: 0s;
+      }
+      .particle:nth-child(2) {
+        left: 28%;
+        top: 42%;
+        animation-delay: 1.2s;
+        width: 2px;
+        height: 2px;
+      }
+      .particle:nth-child(3) {
+        left: 55%;
+        top: 12%;
+        animation-delay: 2.4s;
+      }
+      .particle:nth-child(4) {
+        left: 72%;
+        top: 38%;
+        animation-delay: 0.6s;
+      }
+      .particle:nth-child(5) {
+        left: 88%;
+        top: 22%;
+        animation-delay: 3s;
+        width: 2px;
+        height: 2px;
+      }
+      .particle:nth-child(6) {
+        left: 40%;
+        top: 68%;
+        animation-delay: 1.8s;
+      }
+      @keyframes float-p {
+        0%,
+        100% {
+          opacity: 0;
+          transform: translateY(0) scale(1);
+        }
+        20% {
+          opacity: 0.85;
+        }
+        50% {
+          opacity: 0.4;
+          transform: translateY(-18px) scale(1.1);
+        }
+      }
+
+      .streak {
+        position: absolute;
+        width: 140%;
+        height: 1px;
+        top: 25%;
+        left: -20%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(34, 211, 238, 0.15),
+          rgba(168, 85, 247, 0.35),
+          rgba(59, 130, 246, 0.2),
+          transparent
+        );
+        transform: rotate(-8deg);
+        pointer-events: none;
+        filter: blur(0.5px);
+      }
+      .streak-2 {
+        top: 55%;
+        opacity: 0.6;
+        transform: rotate(-5deg);
+      }
+
+      .logo-row {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        margin-bottom: clamp(1.5rem, 4vh, 2.5rem);
+      }
+      .logo-icon {
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 0.65rem;
+        background: linear-gradient(135deg, var(--violet), var(--cyan));
+        display: grid;
+        place-items: center;
+        box-shadow: 0 0 24px var(--glow-purple), 0 4px 16px rgba(0, 0, 0, 0.35);
+      }
+      .logo-icon svg {
+        width: 1.2rem;
+        height: 1.2rem;
+        color: #fff;
+      }
+      .logo-text {
+        font-weight: 700;
+        font-size: 1.05rem;
+        letter-spacing: -0.02em;
+        background: linear-gradient(90deg, #fff, #c4d4ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .hero-copy {
+        position: relative;
+        z-index: 2;
+        max-width: 34rem;
+      }
+      .headline {
+        margin: 0 0 1rem;
+        font-size: clamp(2.15rem, 4.8vw, 3.35rem);
+        font-weight: 800;
+        line-height: 1.08;
+        letter-spacing: -0.03em;
+      }
+      .headline .grad {
+        background: linear-gradient(
+          115deg,
+          #c4b5fd 0%,
+          #a855f7 25%,
+          #6366f1 55%,
+          #22d3ee 95%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 0 40px rgba(168, 85, 247, 0.35));
+      }
+      .sub {
+        margin: 0;
+        font-size: clamp(1rem, 1.8vw, 1.15rem);
+        color: var(--muted);
+        line-height: 1.55;
+        max-width: 32rem;
+      }
+
+      .hero-visual {
+        position: relative;
+        z-index: 1;
+        flex: 1;
+        min-height: clamp(240px, 38vh, 400px);
+        margin-top: clamp(1rem, 3vh, 2rem);
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+      }
+
+      .bubble {
+        position: absolute;
+        z-index: 4;
+        padding: 0.55rem 0.85rem;
+        border-radius: 1rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #e8ecff;
+        background: rgba(20, 28, 55, 0.75);
+        border: 1px solid rgba(129, 140, 248, 0.35);
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+          0 8px 32px rgba(0, 0, 0, 0.35),
+          0 0 28px rgba(99, 102, 241, 0.25);
+        backdrop-filter: blur(10px);
+        animation: bob 5s ease-in-out infinite;
+      }
+      .bubble::after {
+        content: "";
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background: inherit;
+        border: inherit;
+        border-top: none;
+        border-left: none;
+        border-radius: 0 0 4px 0;
+        bottom: -5px;
+        transform: rotate(45deg);
+        left: 1.2rem;
+        box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.2);
+      }
+      .bubble--1 {
+        left: 4%;
+        top: 8%;
+        max-width: 11rem;
+        animation-delay: 0s;
+      }
+      .bubble--2 {
+        right: 2%;
+        top: 18%;
+        max-width: 10rem;
+        animation-delay: 1.5s;
+      }
+      @keyframes bob {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-6px);
+        }
+      }
+
+      .task-card {
+        position: absolute;
+        z-index: 4;
+        right: 6%;
+        bottom: 18%;
+        width: min(11rem, 88vw);
+        padding: 0.75rem 0.85rem;
+        border-radius: var(--radius-lg);
+        background: rgba(12, 18, 40, 0.82);
+        border: 1px solid rgba(99, 102, 241, 0.28);
+        box-shadow:
+          0 12px 40px rgba(0, 0, 0, 0.4),
+          0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+          0 0 30px rgba(34, 211, 238, 0.12);
+        backdrop-filter: blur(12px);
+        font-size: 0.72rem;
+        animation: bob 6s ease-in-out infinite 0.8s;
+      }
+      .task-card h4 {
+        margin: 0 0 0.5rem;
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: #a5b4fc;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .task-row {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.28rem 0;
+        color: var(--text);
+        font-weight: 500;
+      }
+      .task-row svg {
+        flex-shrink: 0;
+        color: #34d399;
+        filter: drop-shadow(0 0 6px rgba(52, 211, 153, 0.5));
+      }
+
+      .robot-wrap {
+        position: relative;
+        width: min(100%, 420px);
+        margin: 0 auto;
+      }
+      .robot-wrap svg {
+        display: block;
+        width: 100%;
+        height: auto;
+        filter: drop-shadow(0 24px 48px rgba(0, 0, 0, 0.45));
+      }
+
+      .wave {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: clamp(48px, 8vh, 80px);
+        pointer-events: none;
+        opacity: 0.45;
+      }
+      .wave svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .features {
+        position: relative;
+        z-index: 2;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: clamp(0.75rem, 2vw, 1.25rem);
+        margin-top: clamp(1.5rem, 4vh, 2.5rem);
+      }
+      @media (max-width: 900px) {
+        .features {
+          grid-template-columns: 1fr;
+        }
+      }
+      .feat {
+        padding: 1rem 1.1rem;
+        border-radius: var(--radius-lg);
+        background: linear-gradient(145deg, rgba(25, 33, 62, 0.9), rgba(12, 18, 36, 0.65));
+        border: 1px solid rgba(99, 102, 241, 0.15);
+        box-shadow:
+          0 4px 24px rgba(0, 0, 0, 0.25),
+          0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+          inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      }
+      .feat-icon {
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 0.65rem;
+        display: grid;
+        place-items: center;
+        margin-bottom: 0.65rem;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.35), rgba(34, 211, 238, 0.15));
+        color: #c7d2fe;
+        box-shadow: 0 4px 16px rgba(79, 70, 229, 0.2);
+      }
+      .feat h3 {
+        margin: 0 0 0.35rem;
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+      .feat p {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+
+      /* ——— Auth column (40%) ——— */
+      .auth-col {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: clamp(1.5rem, 4vw, 2.5rem);
+        background:
+          radial-gradient(ellipse 80% 60% at 80% 20%, rgba(99, 102, 241, 0.2), transparent 50%),
+          linear-gradient(180deg, #070b18 0%, var(--navy-0) 100%);
+      }
+      .auth-col::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 30% 80%, rgba(168, 85, 247, 0.12), transparent 40%);
+        pointer-events: none;
+      }
+
+      .glass {
+        position: relative;
+        z-index: 1;
+        width: min(100%, 400px);
+        padding: clamp(1.5rem, 4vw, 2.25rem);
+        border-radius: var(--radius-xl);
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        box-shadow:
+          0 24px 64px rgba(0, 0, 0, 0.45),
+          0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+          0 0 80px rgba(99, 102, 241, 0.12);
+        backdrop-filter: blur(20px) saturate(1.3);
+      }
+
+      .glass h2 {
+        margin: 0 0 0.35rem;
+        font-size: 1.55rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+      .glass .lead {
+        margin: 0 0 1.35rem;
+        font-size: 0.9rem;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+
+      .btn-synthiq {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.85rem 1rem;
+        margin-bottom: 1.25rem;
+        border: none;
+        border-radius: 999px;
+        font-family: inherit;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #fff;
+        cursor: pointer;
+        background: linear-gradient(105deg, #7c3aed 0%, #6366f1 45%, #2563eb 100%);
+        background-size: 150% 150%;
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.12) inset,
+          0 8px 32px rgba(99, 102, 241, 0.45),
+          0 0 40px rgba(124, 58, 237, 0.35);
+        transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.2s ease;
+      }
+      .btn-synthiq:hover {
+        filter: brightness(1.08);
+        transform: translateY(-1px);
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.15) inset,
+          0 12px 40px rgba(99, 102, 241, 0.55),
+          0 0 50px rgba(168, 85, 247, 0.4);
+      }
+      .btn-synthiq:active {
+        transform: translateY(0);
+      }
+      .btn-synthiq:focus-visible {
+        outline: 2px solid var(--cyan);
+        outline-offset: 3px;
+      }
+
+      .field {
+        margin-bottom: 1rem;
+      }
+      .field label {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #a5b4fc;
+        margin-bottom: 0.4rem;
+      }
+      .input-shell {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.65rem 0.85rem;
+        border-radius: 0.85rem;
+        background: rgba(8, 12, 28, 0.65);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.25);
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      .input-shell:focus-within {
+        border-color: rgba(34, 211, 238, 0.45);
+        box-shadow:
+          inset 0 2px 8px rgba(0, 0, 0, 0.25),
+          0 0 0 3px rgba(99, 102, 241, 0.2);
+      }
+      .input-shell svg {
+        flex-shrink: 0;
+        color: #818cf8;
+        opacity: 0.9;
+      }
+      .input-shell input {
+        flex: 1;
+        min-width: 0;
+        border: none;
+        background: transparent;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.95rem;
+        outline: none;
+      }
+      .input-shell input::placeholder {
+        color: #64748b;
+      }
+      .toggle-pass {
+        flex-shrink: 0;
+        display: grid;
+        place-items: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        border: none;
+        border-radius: 0.55rem;
+        background: rgba(255, 255, 255, 0.06);
+        color: #a5b4fc;
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .toggle-pass:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #e8ecff;
+      }
+
+      .row-between {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 0.25rem 0 1.1rem;
+      }
+      .forgot {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #a78bfa;
+        text-decoration: none;
+        transition: color 0.15s ease;
+      }
+      .forgot:hover {
+        color: var(--cyan);
+      }
+
+      .btn-signin {
+        width: 100%;
+        padding: 0.95rem 1rem;
+        border: none;
+        border-radius: 0.95rem;
+        font-family: inherit;
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        color: #fff;
+        cursor: pointer;
+        background: linear-gradient(100deg, #a855f7 0%, #6366f1 40%, #0ea5e9 100%);
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+          0 10px 36px rgba(99, 102, 241, 0.45),
+          0 0 48px rgba(14, 165, 233, 0.2);
+        transition: transform 0.15s ease, filter 0.15s ease;
+      }
+      .btn-signin:hover {
+        filter: brightness(1.06);
+        transform: translateY(-1px);
+      }
+      .btn-signin:active {
+        transform: translateY(0);
+      }
+      .btn-signin:focus-visible {
+        outline: 2px solid var(--cyan);
+        outline-offset: 3px;
+      }
+
+      .signup-foot {
+        text-align: center;
+        margin-top: 1.25rem;
+        font-size: 0.88rem;
+        color: var(--muted);
+      }
+      .signup-foot a {
+        color: #c4b5fd;
+        font-weight: 700;
+        text-decoration: none;
+      }
+      .signup-foot a:hover {
+        text-decoration: underline;
+        color: var(--cyan);
+      }
+
+      .trust {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.65rem 1rem;
+        margin-top: 1.35rem;
+        padding-top: 1.15rem;
+        border-top: 1px solid rgba(99, 102, 241, 0.15);
+      }
+      .trust span {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: #7c8cb0;
+        letter-spacing: 0.02em;
+      }
+      .trust span svg {
+        flex-shrink: 0;
+        opacity: 0.85;
+      }
+
+      /* Modals */
+      .modal {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.25rem;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.22s ease, visibility 0.22s ease;
+      }
+      .modal[hidden] {
+        display: none !important;
+      }
+      .modal.is-open {
+        opacity: 1;
+        visibility: visible;
+      }
+      .modal-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(3, 5, 14, 0.75);
+        backdrop-filter: blur(8px);
+      }
+      .modal-panel {
+        position: relative;
+        width: min(100%, 24rem);
+        padding: 1.5rem;
+        border-radius: var(--radius-xl);
+        background: rgba(18, 24, 48, 0.92);
+        border: 1px solid rgba(129, 140, 248, 0.28);
+        box-shadow: 0 32px 64px rgba(0, 0, 0, 0.5);
+        transform: translateY(12px) scale(0.98);
+        transition: transform 0.22s ease;
+      }
+      .modal.is-open .modal-panel {
+        transform: translateY(0) scale(1);
+      }
+      .modal-close {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        width: 2.25rem;
+        height: 2.25rem;
+        border: none;
+        border-radius: 0.55rem;
+        background: rgba(255, 255, 255, 0.06);
+        color: #94a3b8;
+        font-size: 1.25rem;
+        line-height: 1;
+        cursor: pointer;
+      }
+      .modal-close:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+      .modal-panel h3 {
+        margin: 0 0 0.5rem;
+        font-size: 1.15rem;
+        font-weight: 800;
+      }
+      .modal-panel p {
+        margin: 0 0 1rem;
+        font-size: 0.88rem;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+      .modal-actions {
+        display: flex;
+        gap: 0.65rem;
+        margin-top: 1rem;
+      }
+      .btn-ghost {
+        flex: 1;
+        padding: 0.65rem;
+        border-radius: 0.75rem;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: transparent;
+        color: var(--text);
+        font-family: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .btn-ghost:hover {
+        background: rgba(255, 255, 255, 0.06);
+      }
+      .success-msg {
+        padding: 0.85rem 1rem;
+        border-radius: 0.75rem;
+        background: rgba(34, 197, 94, 0.12);
+        border: 1px solid rgba(52, 211, 153, 0.35);
+        color: #6ee7b7;
+        font-size: 0.88rem;
+        font-weight: 600;
+        line-height: 1.45;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="particles" aria-hidden="true">
+          <span class="particle"></span>
+          <span class="particle"></span>
+          <span class="particle"></span>
+          <span class="particle"></span>
+          <span class="particle"></span>
+          <span class="particle"></span>
+        </div>
+        <div class="streak" aria-hidden="true"></div>
+        <div class="streak streak-2" aria-hidden="true"></div>
+
+        <div class="logo-row">
+          <div class="logo-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+              <path
+                d="M12 5a3 3 0 0 1 3 3v1h1a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v2a3 3 0 1 1-6 0v-2H8a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h1V8a3 3 0 0 1 3-3Z"
+              />
+              <path d="M9 14h6" stroke-linecap="round" />
+            </svg>
+          </div>
+          <span class="logo-text">AI for Student</span>
+        </div>
+
+        <div class="hero-copy">
+          <h1 id="hero-title" class="headline">
+            <span class="grad">Smarter Learning. Better Futures.</span>
+          </h1>
+          <p class="sub">
+            Your AI study companion that helps you learn, understand, and succeed—faster.
+          </p>
+        </div>
+
+        <div class="hero-visual">
+          <div class="bubble bubble--1" role="note">Explain this topic simply</div>
+          <div class="bubble bubble--2" role="note">Summarize this paragraph</div>
+
+          <div class="task-card" aria-hidden="true">
+            <h4>Today</h4>
+            <div class="task-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              Read Chapter 4
+            </div>
+            <div class="task-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              Practice quiz
+            </div>
+            <div class="task-row" style="opacity: 0.55">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+              </svg>
+              Essay outline
+            </div>
+          </div>
+
+          <div class="robot-wrap" aria-hidden="true">
+            <svg viewBox="0 0 400 280" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="metal" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#94a3d4" />
+                  <stop offset="45%" stop-color="#4c5d9a" />
+                  <stop offset="100%" stop-color="#2a3558" />
+                </linearGradient>
+                <linearGradient id="metalLight" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#c7d2fe" />
+                  <stop offset="100%" stop-color="#6366f1" />
+                </linearGradient>
+                <linearGradient id="desk" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#1e293b" />
+                  <stop offset="50%" stop-color="#334155" />
+                  <stop offset="100%" stop-color="#1e293b" />
+                </linearGradient>
+                <radialGradient id="eyeGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#22d3ee" stop-opacity="1" />
+                  <stop offset="70%" stop-color="#3b82f6" stop-opacity="0.6" />
+                  <stop offset="100%" stop-color="#6366f1" stop-opacity="0" />
+                </radialGradient>
+                <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="4" result="b" />
+                  <feMerge>
+                    <feMergeNode in="b" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+                <filter id="eyeBlur" x="-100%" y="-100%" width="300%" height="300%">
+                  <feGaussianBlur stdDeviation="2.5" />
+                </filter>
+              </defs>
+              <!-- Desk -->
+              <rect x="40" y="210" width="320" height="14" rx="4" fill="url(#desk)" opacity="0.95" />
+              <rect x="50" y="224" width="300" height="8" rx="2" fill="#0f172a" opacity="0.6" />
+              <!-- Books -->
+              <rect x="52" y="168" width="22" height="42" rx="2" fill="#6366f1" opacity="0.9" />
+              <rect x="76" y="158" width="22" height="52" rx="2" fill="#7c3aed" opacity="0.92" />
+              <rect x="100" y="175" width="20" height="35" rx="2" fill="#22d3ee" opacity="0.75" />
+              <!-- Laptop -->
+              <rect x="210" y="175" width="100" height="62" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1" />
+              <rect x="216" y="181" width="88" height="48" rx="3" fill="#0f172a" />
+              <rect x="220" y="185" width="80" height="38" rx="2" fill="url(#metalLight)" opacity="0.15" />
+              <path d="M200 237h120l-8 8H208z" fill="#334155" />
+              <!-- Robot body -->
+              <ellipse cx="200" cy="248" rx="42" ry="10" fill="#000" opacity="0.35" />
+              <rect x="158" y="175" width="84" height="72" rx="28" fill="url(#metal)" filter="url(#softGlow)" />
+              <rect x="168" y="188" width="64" height="36" rx="14" fill="#0f172a" opacity="0.35" />
+              <!-- Arms -->
+              <path
+                d="M158 195c-18 8-28 28-32 48"
+                fill="none"
+                stroke="#5b6b9a"
+                stroke-width="14"
+                stroke-linecap="round"
+              />
+              <circle cx="124" cy="248" r="12" fill="url(#metal)" />
+              <path
+                d="M242 195c18 10 26 32 28 50"
+                fill="none"
+                stroke="#5b6b9a"
+                stroke-width="14"
+                stroke-linecap="round"
+              />
+              <circle cx="278" cy="248" r="12" fill="url(#metal)" />
+              <!-- Head -->
+              <circle cx="200" cy="125" r="52" fill="url(#metal)" filter="url(#softGlow)" />
+              <ellipse cx="200" cy="118" rx="44" ry="38" fill="url(#metalLight)" opacity="0.25" />
+              <!-- Eyes glow -->
+              <circle cx="178" cy="120" r="14" fill="url(#eyeGlow)" filter="url(#eyeBlur)" opacity="0.9" />
+              <circle cx="222" cy="120" r="14" fill="url(#eyeGlow)" filter="url(#eyeBlur)" opacity="0.9" />
+              <circle cx="178" cy="120" r="7" fill="#22d3ee" />
+              <circle cx="222" cy="120" r="7" fill="#22d3ee" />
+              <circle cx="180" cy="118" r="2.5" fill="#fff" opacity="0.85" />
+              <circle cx="224" cy="118" r="2.5" fill="#fff" opacity="0.85" />
+              <!-- Antenna -->
+              <line x1="200" y1="73" x2="200" y2="48" stroke="#818cf8" stroke-width="4" stroke-linecap="round" />
+              <circle cx="200" cy="42" r="7" fill="#a855f7" filter="url(#softGlow)" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="wave" aria-hidden="true">
+          <svg viewBox="0 0 1200 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              fill="none"
+              stroke="url(#waveGrad)"
+              stroke-width="2"
+              d="M0,45 Q300,10 600,45 T1200,45"
+            />
+            <defs>
+              <linearGradient id="waveGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#6366f1" stop-opacity="0" />
+                <stop offset="40%" stop-color="#a855f7" stop-opacity="0.6" />
+                <stop offset="100%" stop-color="#22d3ee" stop-opacity="0.3" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="features">
+          <article class="feat">
+            <div class="feat-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                <path d="M12 3a7 7 0 0 0-9 9c0 5 9 12 9 12s9-7 9-12a7 7 0 0 0-9-9Z" />
+                <circle cx="12" cy="10" r="2" fill="currentColor" stroke="none" />
+              </svg>
+            </div>
+            <h3>Study Smarter</h3>
+            <p>Get explanations, summaries, and answers tailored to your needs.</p>
+          </article>
+          <article class="feat">
+            <div class="feat-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                <rect x="4" y="4" width="16" height="16" rx="2" />
+                <path d="M8 2v4M16 2v4M4 10h16" />
+              </svg>
+            </div>
+            <h3>Stay Organized</h3>
+            <p>Keep your notes, tasks, and progress all in one place.</p>
+          </article>
+          <article class="feat">
+            <div class="feat-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                <path d="M4 22h16M8 22V12M16 22V12M12 22V9" />
+              </svg>
+            </div>
+            <h3>Achieve More</h3>
+            <p>Boost your productivity and reach your academic goals.</p>
+          </article>
+        </div>
+      </section>
+
+      <aside class="auth-col" aria-label="Sign in">
+        <div class="glass">
+          <h2>Welcome Back! 👋</h2>
+          <p class="lead">Sign in to continue your learning journey.</p>
+
+          <form id="loginForm" novalidate>
+            <button type="button" class="btn-synthiq" id="btnSynthiq">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+              </svg>
+              Sign in with SynthIQ
+            </button>
+
+            <div class="field">
+              <label for="email">Email</label>
+              <div class="input-shell">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="5" width="18" height="14" rx="2" />
+                  <path d="M3 7l9 6 9-6" stroke-linecap="round" />
+                </svg>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  placeholder="you@university.edu"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="password">Password</label>
+              <div class="input-shell">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="5" y="11" width="14" height="10" rx="2" />
+                  <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round" />
+                </svg>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autocomplete="current-password"
+                  placeholder="••••••••"
+                  required
+                  minlength="1"
+                />
+                <button type="button" class="toggle-pass" id="togglePass" aria-label="Show password">
+                  <svg class="icon-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                  <svg class="icon-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none">
+                    <path d="M3 3l18 18M10.6 10.6a3 3 0 0 0 4.8 4.8M9.9 5.1A10.4 10.4 0 0 1 12 5c7 0 11 7 11 7a18.4 18.4 0 0 1-3.5 4M6.2 6.2C3.8 8.1 2 11 1 12c0 0 4 7 11 7 1.7 0 3.2-.3 4.6-.8" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="row-between">
+              <span></span>
+              <a href="#" class="forgot" id="openForgot">Forgot password?</a>
+            </div>
+
+            <p id="loginErr" style="display: none; margin: 0.5rem 0 0; font-size: 0.875rem; color: #fca5a5"></p>
+
+            <button type="submit" class="btn-signin" id="loginSubmitBtn">Sign In</button>
+          </form>
+
+          <p class="signup-foot">
+            Don’t have an account? <a href="/signup/synthiq-1.html">Sign up</a>
+          </p>
+
+          <div class="trust" aria-hidden="true">
+            <span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
+              </svg>
+              Safe &amp; Secure
+            </span>
+            <span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="5" y="11" width="14" height="10" rx="2" />
+                <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+              </svg>
+              Your Data is Private
+            </span>
+            <span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+              Trusted by Students
+            </span>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Forgot password -->
+    <div class="modal" id="forgotModal" role="dialog" aria-modal="true" aria-labelledby="forgotTitle" hidden>
+      <div class="modal-backdrop" data-close tabindex="-1"></div>
+      <div class="modal-panel" role="document">
+        <button type="button" class="modal-close" id="closeForgot" aria-label="Close">×</button>
+        <h3 id="forgotTitle">Reset your password</h3>
+        <p>Enter the email associated with your account. We’ll send you a secure reset link.</p>
+        <div id="forgotFormWrap">
+          <div class="field" style="margin-bottom: 0">
+            <label for="resetEmail">Email</label>
+            <div class="input-shell">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <path d="M3 7l9 6 9-6" stroke-linecap="round" />
+              </svg>
+              <input id="resetEmail" type="email" autocomplete="email" placeholder="you@university.edu" required />
+            </div>
+          </div>
+          <p id="forgotErr" style="display: none; margin: 0.5rem 0 0; font-size: 0.85rem; color: #fca5a5"></p>
+          <div class="modal-actions">
+            <button type="button" class="btn-ghost" data-close>Cancel</button>
+            <button type="button" class="btn-signin" id="sendReset" style="flex: 1.2">Send reset link</button>
+          </div>
+        </div>
+        <div id="forgotSuccess" hidden>
+          <div class="success-msg" role="status">
+            A password reset link has been sent to your email.
+          </div>
+          <div class="modal-actions" style="margin-top: 1rem">
+            <button type="button" class="btn-signin" data-close style="width: 100%">Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        var pass = document.getElementById("password");
+        var toggle = document.getElementById("togglePass");
+        var eye = toggle.querySelector(".icon-eye");
+        var eyeOff = toggle.querySelector(".icon-eye-off");
+        toggle.addEventListener("click", function () {
+          var show = pass.type === "password";
+          pass.type = show ? "text" : "password";
+          eye.style.display = show ? "none" : "block";
+          eyeOff.style.display = show ? "block" : "none";
+          toggle.setAttribute("aria-label", show ? "Hide password" : "Show password");
+        });
+
+        document.getElementById("btnSynthiq").addEventListener("click", function () {
+          document.getElementById("email").focus();
+        });
+
+        var forgotModal = document.getElementById("forgotModal");
+        var openForgot = document.getElementById("openForgot");
+        var closeForgot = document.getElementById("closeForgot");
+        var wrap = document.getElementById("forgotFormWrap");
+        var success = document.getElementById("forgotSuccess");
+
+        function openForgotModal(ev) {
+          ev.preventDefault();
+          var fe = document.getElementById("forgotErr");
+          if (fe) {
+            fe.style.display = "none";
+            fe.textContent = "";
+          }
+          wrap.hidden = false;
+          success.hidden = true;
+          forgotModal.hidden = false;
+          requestAnimationFrame(function () {
+            forgotModal.classList.add("is-open");
+          });
+          document.body.classList.add("modal-open");
+          document.getElementById("resetEmail").focus();
+        }
+        function closeForgotModal() {
+          forgotModal.classList.remove("is-open");
+          document.body.classList.remove("modal-open");
+          forgotModal.hidden = true;
+        }
+
+        openForgot.addEventListener("click", openForgotModal);
+        closeForgot.addEventListener("click", closeForgotModal);
+        forgotModal.querySelectorAll("[data-close]").forEach(function (el) {
+          el.addEventListener("click", closeForgotModal);
+        });
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && forgotModal.classList.contains("is-open")) closeForgotModal();
+        });
+
+      })();
+    </script>
+    <script type="module">
+      import { signInSynthIQ, authErrorMessage } from "/signup/signup-firebase.js";
+
+      var loginForm = document.getElementById("loginForm");
+      var loginErr = document.getElementById("loginErr");
+      var loginBtn = document.getElementById("loginSubmitBtn");
+
+      loginForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        loginErr.style.display = "none";
+        var em = document.getElementById("email").value.trim();
+        var pw = document.getElementById("password").value;
+        if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
+          loginErr.textContent = "Enter a valid email address.";
+          loginErr.style.display = "block";
+          document.getElementById("email").focus();
+          return;
+        }
+        if (!pw) {
+          loginErr.textContent = "Enter your password.";
+          loginErr.style.display = "block";
+          document.getElementById("password").focus();
+          return;
+        }
+        var prev = loginBtn.textContent;
+        loginBtn.disabled = true;
+        loginBtn.textContent = "Signing in…";
+        try {
+          await signInSynthIQ(em, pw);
+          window.location.href = "/homepage.html";
+        } catch (err) {
+          loginErr.textContent = authErrorMessage(err && err.code ? err.code : "");
+          loginErr.style.display = "block";
+        } finally {
+          loginBtn.disabled = false;
+          loginBtn.textContent = prev;
+        }
+      });
+
+      var wrap = document.getElementById("forgotFormWrap");
+      var success = document.getElementById("forgotSuccess");
+      var forgotErr = document.getElementById("forgotErr");
+
+      document.getElementById("sendReset").addEventListener("click", async function () {
+        forgotErr.style.display = "none";
+        var re = document.getElementById("resetEmail").value.trim();
+        if (!re || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(re)) {
+          document.getElementById("resetEmail").focus();
+          return;
+        }
+        var btn = document.getElementById("sendReset");
+        var prev = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "Sending…";
+        try {
+          var api = await fetch("/api/send-reset-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: re }),
+          });
+          var data = await api.json().catch(function () {
+            return {};
+          });
+          if (!api.ok) {
+            throw new Error(data.error || data.detail || "Request failed");
+          }
+          wrap.hidden = true;
+          success.hidden = false;
+        } catch (err) {
+          forgotErr.textContent =
+            err && err.message ? err.message : "Could not send reset email. Try again later.";
+          forgotErr.style.display = "block";
+        } finally {
+          btn.disabled = false;
+          btn.textContent = prev;
+        }
+      });
+    </script>
+    <footer class="synthiq-legal-footer" role="contentinfo">
+      <a href="./terms-and-services.html">Terms and services</a>
+    </footer>
+  </body>
+</html>

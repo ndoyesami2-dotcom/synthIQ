@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz mode — SynthIQ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/synthiq-legal-footer.css" />
+    <style>
+      :root {
+        --bg: #050814;
+        --card: rgba(18, 24, 48, 0.92);
+        --border: rgba(129, 140, 248, 0.28);
+        --text: #e8ecff;
+        --muted: #94a3b8;
+        --good: #34d399;
+        --bad: #f87171;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Outfit", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        padding: 1rem 1rem 2rem;
+      }
+      a.home {
+        color: #a5b4fc;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 1rem;
+      }
+      .wrap {
+        max-width: 560px;
+        margin: 0 auto;
+      }
+      h1 {
+        margin: 0 0 0.35rem;
+        font-size: 1.45rem;
+        font-weight: 800;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 0.88rem;
+        margin: 0 0 1.25rem;
+        line-height: 1.45;
+      }
+      .panel {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        padding: 1.15rem 1.2rem;
+        margin-bottom: 1rem;
+      }
+      .deck-pick {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .deck-pick button {
+        text-align: left;
+        padding: 0.65rem 0.75rem;
+        border-radius: 0.65rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(0, 0, 0, 0.28);
+        color: var(--text);
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 0.88rem;
+        cursor: pointer;
+      }
+      .deck-pick button:hover {
+        border-color: rgba(129, 140, 248, 0.45);
+        background: rgba(99, 102, 241, 0.18);
+      }
+      .deck-pick button small {
+        display: block;
+        font-weight: 600;
+        font-size: 0.68rem;
+        color: var(--muted);
+        margin-top: 0.2rem;
+      }
+      .btn-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.85rem;
+      }
+      .btn {
+        padding: 0.5rem 0.95rem;
+        border-radius: 0.55rem;
+        border: none;
+        font-family: inherit;
+        font-weight: 700;
+        cursor: pointer;
+        background: linear-gradient(105deg, #7c3aed, #6366f1);
+        color: #fff;
+      }
+      .btn-ghost {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        color: var(--text);
+      }
+      .quiz-q {
+        font-size: 1.05rem;
+        font-weight: 700;
+        line-height: 1.45;
+        margin-bottom: 1rem;
+      }
+      .quiz-meta {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-bottom: 1rem;
+      }
+      .choices {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+      }
+      .choices button {
+        text-align: left;
+        padding: 0.65rem 0.75rem;
+        border-radius: 0.6rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(8, 12, 28, 0.85);
+        color: #cbd5e1;
+        font-family: inherit;
+        font-size: 0.86rem;
+        cursor: pointer;
+        line-height: 1.35;
+      }
+      .choices button:hover:not(:disabled) {
+        border-color: rgba(167, 139, 250, 0.45);
+      }
+      .choices button:disabled {
+        opacity: 0.85;
+        cursor: default;
+      }
+      .choices button.correct {
+        border-color: rgba(52, 211, 153, 0.65);
+        background: rgba(6, 78, 59, 0.35);
+      }
+      .choices button.wrong {
+        border-color: rgba(248, 113, 113, 0.55);
+        background: rgba(127, 29, 29, 0.28);
+      }
+      .feedback {
+        margin-top: 0.75rem;
+        font-size: 0.82rem;
+        min-height: 1.25em;
+      }
+      .feedback.ok {
+        color: var(--good);
+      }
+      .feedback.bad {
+        color: var(--bad);
+      }
+      .hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="home" href="./homepage.html">← Dashboard</a>
+    <div class="wrap">
+      <h1>Quiz mode</h1>
+      <p class="sub">Multiple-choice questions built from your flashcard decks. Exit anytime — unfinished quizzes appear under Continue learning on your dashboard.</p>
+
+      <div id="screenPick" class="panel">
+        <p style="margin: 0 0 0.65rem; font-weight: 700">Choose a deck</p>
+        <div class="deck-pick" id="deckPickList"></div>
+        <p class="sub" id="deckPickEmpty" style="margin: 0.5rem 0 0">Loading decks…</p>
+      </div>
+
+      <div id="screenResume" class="panel hidden">
+        <p style="margin: 0 0 0.5rem; font-weight: 800" id="resumeTitle">Resume?</p>
+        <p class="sub" id="resumeDetail" style="margin-bottom: 0.75rem"></p>
+        <div class="btn-row">
+          <button type="button" class="btn" id="btnResume">Resume quiz</button>
+          <button type="button" class="btn btn-ghost" id="btnRestart">Start over</button>
+          <button type="button" class="btn btn-ghost" id="btnPickOther">Pick another deck</button>
+        </div>
+      </div>
+
+      <div id="screenQuiz" class="panel hidden">
+        <div class="quiz-meta" id="quizProgressText"></div>
+        <div class="quiz-q" id="quizQuestion"></div>
+        <div class="choices" id="quizChoices"></div>
+        <p class="feedback" id="quizFeedback" aria-live="polite"></p>
+        <div class="btn-row">
+          <button type="button" class="btn btn-ghost" id="quizExit">Exit & save progress</button>
+          <button type="button" class="btn hidden" id="quizNext">Next question</button>
+        </div>
+      </div>
+
+      <div id="screenDone" class="panel hidden">
+        <p style="margin: 0 0 0.5rem; font-weight: 800">Quiz complete</p>
+        <p class="sub" id="doneDetail"></p>
+        <div class="btn-row">
+          <a class="btn" href="./homepage.html" style="text-decoration: none; display: inline-block">Back to dashboard</a>
+          <button type="button" class="btn btn-ghost" id="doneAgain">Quiz another deck</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { auth, authPersistenceReady, db } from "./signup/signup-firebase.js";
+      import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+      import {
+        collection,
+        doc,
+        getDoc,
+        getDocs,
+        deleteDoc,
+        setDoc,
+        query,
+        orderBy,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+      import { buildQuizPrompt } from "./js/synthiq-quiz-prompt.js";
+
+      /** @type {string | null} */
+      let uid = null;
+      /** @type {string | null} */
+      let activeDeckId = null;
+      let activeDeckName = "";
+      let activeSubject = "General";
+      /** @type {{ id: string, front: string, back: string }[]} */
+      let loadedCards = [];
+      /** @type {string[]} */
+      let cardOrder = [];
+      let currentIndex = 0;
+      let quizComplete = false;
+      /** @type {null | { front: string, correct: string, choices: string[], picked: string | null }} */
+      let currentRound = null;
+
+      function shuffle(arr) {
+        var a = arr.slice();
+        for (var i = a.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = a[i];
+          a[i] = a[j];
+          a[j] = t;
+        }
+        return a;
+      }
+
+      function parseDeckFromUrl() {
+        try {
+          var p = new URLSearchParams(window.location.search).get("deck");
+          return p && p.trim() ? p.trim() : null;
+        } catch (_) {
+          return null;
+        }
+      }
+
+      function showScreen(id) {
+        ["screenPick", "screenResume", "screenQuiz", "screenDone"].forEach(function (sid) {
+          document.getElementById(sid).classList.toggle("hidden", sid !== id);
+        });
+      }
+
+      async function persistProgress() {
+        if (!uid || !activeDeckId || quizComplete) return;
+        if (currentIndex >= cardOrder.length) return;
+        try {
+          await setDoc(
+            doc(db, "users", uid, "deckQuizProgress", activeDeckId),
+            {
+              deckId: activeDeckId,
+              deckName: activeDeckName,
+              subject: activeSubject,
+              cardOrder: cardOrder,
+              currentIndex: currentIndex,
+              totalQuestions: cardOrder.length,
+              updatedAt: serverTimestamp(),
+            },
+            { merge: true }
+          );
+        } catch (e) {
+          console.warn("SynthIQ quiz progress save", e);
+        }
+      }
+
+      async function clearProgressDoc(deckId) {
+        if (!uid || !deckId) return;
+        try {
+          await deleteDoc(doc(db, "users", uid, "deckQuizProgress", deckId));
+        } catch (_) {}
+      }
+
+      function buildChoicesForQuestion(card, pool) {
+        var correct = (card.back || "").trim() || "—";
+        var wrongSrc = pool.filter(function (c) {
+          return c.id !== card.id && (c.back || "").trim() && (c.back || "").trim() !== correct;
+        });
+        var wrongBacks = [];
+        var seen = {};
+        for (var i = 0; i < wrongSrc.length && wrongBacks.length < 5; i++) {
+          var b = (wrongSrc[i].back || "").trim();
+          if (!seen[b]) {
+            seen[b] = true;
+            wrongBacks.push(b);
+          }
+        }
+        var need = Math.min(3, wrongBacks.length);
+        var wrongPick = shuffle(wrongBacks).slice(0, need);
+        var choices = shuffle([correct].concat(wrongPick));
+        return { correct: correct, choices: choices };
+      }
+
+      function renderQuestion() {
+        var fid = cardOrder[currentIndex];
+        var card = loadedCards.find(function (c) {
+          return c.id === fid;
+        });
+        document.getElementById("quizFeedback").textContent = "";
+        document.getElementById("quizFeedback").className = "feedback";
+        document.getElementById("quizNext").classList.add("hidden");
+        if (!card) {
+          document.getElementById("quizQuestion").textContent = "Card missing — skipping.";
+          currentIndex++;
+          persistProgress();
+          if (currentIndex >= cardOrder.length) finishQuiz();
+          else renderQuestion();
+          return;
+        }
+        var built = buildChoicesForQuestion(card, loadedCards);
+        var promptEl = buildQuizPrompt(card.front, card.back);
+        currentRound = {
+          front: promptEl.prompt,
+          correct: built.correct,
+          choices: built.choices,
+          picked: null,
+        };
+        document.getElementById("quizProgressText").textContent =
+          "Question " + (currentIndex + 1) + " of " + cardOrder.length + " · " + activeSubject;
+        document.getElementById("quizQuestion").textContent = promptEl.prompt;
+        var box = document.getElementById("quizChoices");
+        box.innerHTML = "";
+        built.choices.forEach(function (label) {
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = label;
+          btn.addEventListener("click", function () {
+            if (!currentRound || currentRound.picked) return;
+            currentRound.picked = label;
+            var ok = label === built.correct;
+            Array.prototype.forEach.call(box.children, function (ch) {
+              ch.disabled = true;
+              if (ch.textContent === built.correct) ch.classList.add("correct");
+              else if (ch === btn && !ok) ch.classList.add("wrong");
+            });
+            var fb = document.getElementById("quizFeedback");
+            fb.textContent = ok ? "Correct." : "Correct answer: " + built.correct;
+            fb.className = "feedback " + (ok ? "ok" : "bad");
+            document.getElementById("quizNext").classList.remove("hidden");
+          });
+          box.appendChild(btn);
+        });
+      }
+
+      function advanceAfterAnswer() {
+        currentIndex++;
+        persistProgress();
+        if (currentIndex >= cardOrder.length) {
+          finishQuiz();
+        } else {
+          renderQuestion();
+        }
+      }
+
+      async function finishQuiz() {
+        quizComplete = true;
+        await clearProgressDoc(activeDeckId);
+        document.getElementById("doneDetail").textContent =
+          "You finished all " + cardOrder.length + " questions from “" + activeDeckName + "”.";
+        showScreen("screenDone");
+      }
+
+      async function loadCardsForDeck(deckId) {
+        var cq = query(collection(db, "users", uid, "flashcardDecks", deckId, "cards"), orderBy("createdAt", "asc"));
+        var snap = await getDocs(cq);
+        var list = [];
+        snap.forEach(function (d) {
+          var x = d.data();
+          list.push({ id: d.id, front: x.front || "", back: x.back || "" });
+        });
+        return list;
+      }
+
+      async function tryResumeOrOffer(deckId, deckMeta) {
+        activeDeckId = deckId;
+        activeDeckName = deckMeta.name || "Deck";
+        activeSubject = deckMeta.subject || "General";
+        loadedCards = await loadCardsForDeck(deckId);
+        if (loadedCards.length < 2) {
+          alert("Add at least two cards with different backs to run a quiz.");
+          showScreen("screenPick");
+          return;
+        }
+        var progSnap = await getDoc(doc(db, "users", uid, "deckQuizProgress", deckId));
+        if (progSnap.exists()) {
+          var p = progSnap.data();
+          var order = Array.isArray(p.cardOrder) ? p.cardOrder.filter(Boolean) : [];
+          var idx = typeof p.currentIndex === "number" ? p.currentIndex : 0;
+          if (order.length && idx < order.length) {
+            document.getElementById("resumeTitle").textContent = "Resume quiz?";
+            document.getElementById("resumeDetail").textContent =
+              "“" +
+              activeDeckName +
+              "” — question " +
+              (idx + 1) +
+              " of " +
+              order.length +
+              ". Continue where you left off or start over.";
+            showScreen("screenResume");
+            document.getElementById("btnResume").onclick = function () {
+              cardOrder = order;
+              currentIndex = idx;
+              quizComplete = false;
+              showScreen("screenQuiz");
+              renderQuestion();
+            };
+            document.getElementById("btnRestart").onclick = async function () {
+              await clearProgressDoc(deckId);
+              startFreshQuiz();
+            };
+            document.getElementById("btnPickOther").onclick = function () {
+              window.history.replaceState({}, "", "./quiz-mode.html");
+              showScreen("screenPick");
+              activeDeckId = null;
+            };
+            return;
+          }
+        }
+        startFreshQuiz();
+      }
+
+      async function startFreshQuiz() {
+        quizComplete = false;
+        cardOrder = shuffle(loadedCards.map(function (c) {
+          return c.id;
+        }));
+        currentIndex = 0;
+        await persistProgress();
+        showScreen("screenQuiz");
+        renderQuestion();
+      }
+
+      async function openDeckQuiz(deckId, deckMeta) {
+        window.history.replaceState({}, "", "./quiz-mode.html?deck=" + encodeURIComponent(deckId));
+        await tryResumeOrOffer(deckId, deckMeta);
+      }
+
+      document.getElementById("quizNext").addEventListener("click", advanceAfterAnswer);
+      document.getElementById("quizExit").addEventListener("click", async function () {
+        await persistProgress();
+        alert("Progress saved. Finish later from Continue learning on your dashboard.");
+        window.location.href = "./homepage.html";
+      });
+      document.getElementById("doneAgain").addEventListener("click", function () {
+        window.history.replaceState({}, "", "./quiz-mode.html");
+        quizComplete = false;
+        activeDeckId = null;
+        showScreen("screenPick");
+      });
+
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "hidden") persistProgress();
+      });
+
+      await authPersistenceReady;
+
+      onAuthStateChanged(auth, async function (user) {
+        if (!user) {
+          window.location.replace("./signup/synthiq-signin.html");
+          return;
+        }
+        uid = user.uid;
+
+        var pick = document.getElementById("deckPickList");
+        var emptyEl = document.getElementById("deckPickEmpty");
+        emptyEl.textContent = "Loading decks…";
+
+        try {
+          var dq = query(collection(db, "users", uid, "flashcardDecks"), orderBy("updatedAt", "desc"));
+          var dsnap = await getDocs(dq);
+          pick.innerHTML = "";
+          if (dsnap.empty) {
+            emptyEl.textContent = "No decks yet. Create flashcards first.";
+            showScreen("screenPick");
+            return;
+          }
+          emptyEl.textContent = "";
+          dsnap.forEach(function (d) {
+            var data = d.data();
+            var btn = document.createElement("button");
+            btn.type = "button";
+            var t = document.createElement("span");
+            t.textContent = data.name || "Untitled deck";
+            var sm = document.createElement("small");
+            sm.textContent = data.subject || "General";
+            btn.appendChild(t);
+            btn.appendChild(sm);
+            btn.addEventListener("click", function () {
+              openDeckQuiz(d.id, data);
+            });
+            pick.appendChild(btn);
+          });
+
+          var urlDeck = parseDeckFromUrl();
+          if (urlDeck) {
+            var found = null;
+            dsnap.forEach(function (d) {
+              if (d.id === urlDeck) found = { id: d.id, data: d.data() };
+            });
+            if (found) await tryResumeOrOffer(found.id, found.data);
+          }
+        } catch (e) {
+          console.warn(e);
+          emptyEl.textContent = e.message || "Could not load decks.";
+        }
+      });
+    </script>
+    <footer class="synthiq-legal-footer" role="contentinfo">
+      <a href="./terms-and-services.html">Terms and services</a>
+    </footer>
+  </body>
+</html>

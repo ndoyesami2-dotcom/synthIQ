@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="synthiq-api-base" content="https://test-api.example.com" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Split hosting: add a meta tag (name synthiq-api-base, content = your API origin) if this page is not served with server.cjs. -->
+    <title>SynthIQ AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/synthiq-legal-footer.css" />
+    <style>
+      :root {
+        --bg: #050814;
+        --bg-elev: rgba(10, 14, 32, 0.92);
+        --text: #e8ecff;
+        --muted: #94a3b8;
+        --accent: #a78bfa;
+        --accent2: #6366f1;
+        --neon-violet: rgba(124, 58, 237, 0.45);
+        --neon-blue: rgba(59, 130, 246, 0.35);
+        --stroke: rgba(129, 140, 248, 0.22);
+        --sidebar-w: 260px;
+        --glass: rgba(14, 18, 42, 0.52);
+        --glass-border: rgba(139, 92, 246, 0.28);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: "Outfit", system-ui, sans-serif;
+        background-color: var(--bg);
+        background-image:
+          radial-gradient(ellipse 100% 70% at 50% -25%, var(--neon-violet), transparent 55%),
+          radial-gradient(ellipse 55% 45% at 100% 20%, var(--neon-blue), transparent 50%),
+          radial-gradient(ellipse 50% 40% at 0% 80%, rgba(99, 102, 241, 0.2), transparent 45%),
+          linear-gradient(180deg, #050814 0%, #080d1f 40%, #050814 100%);
+        background-attachment: fixed;
+        color: var(--text);
+      }
+      .hidden {
+        display: none !important;
+      }
+      #gateErr {
+        padding: 2rem;
+        text-align: center;
+        color: #fca5a5;
+        font-weight: 600;
+      }
+      .topbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 40;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.65rem 1rem;
+        background: rgba(6, 10, 24, 0.75);
+        border-bottom: 1px solid var(--stroke);
+        backdrop-filter: blur(16px) saturate(1.2);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      }
+      .topbar a.home {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.88rem;
+      }
+      .quota-pill {
+        font-size: 0.78rem;
+        font-weight: 700;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.35), rgba(124, 58, 237, 0.22));
+        border: 1px solid rgba(167, 139, 250, 0.4);
+        box-shadow: 0 0 24px rgba(124, 58, 237, 0.25);
+      }
+      .shell {
+        min-height: 100vh;
+        padding-top: 52px;
+        padding-bottom: 0;
+      }
+      .shell:not(.layout-started) {
+        display: block;
+      }
+      .shell.layout-started {
+        display: grid;
+        grid-template-areas: "side main" "side comp";
+        grid-template-columns: var(--sidebar-w) 1fr;
+        grid-template-rows: 1fr auto;
+        height: 100vh;
+        padding-bottom: 0;
+        align-items: stretch;
+        justify-content: stretch;
+      }
+      .chat-sidebar {
+        display: none;
+        grid-area: side;
+        flex-direction: column;
+        border-right: 1px solid var(--stroke);
+        background: rgba(12, 16, 32, 0.95);
+        overflow: hidden;
+      }
+      .shell.layout-started .chat-sidebar {
+        display: flex;
+      }
+      .chat-sidebar-head {
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--stroke);
+      }
+      .chat-sidebar-head button {
+        width: 100%;
+        padding: 0.5rem;
+        border-radius: 0.55rem;
+        border: 1px solid var(--stroke);
+        background: rgba(99, 102, 241, 0.2);
+        color: var(--text);
+        font-family: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .chat-sidebar-head button:hover {
+        background: rgba(99, 102, 241, 0.32);
+      }
+      #chatList {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0.35rem;
+      }
+      .chat-item {
+        padding: 0.55rem 0.6rem;
+        border-radius: 0.5rem;
+        margin-bottom: 0.25rem;
+        cursor: pointer;
+        font-size: 0.82rem;
+        border: 1px solid transparent;
+      }
+      .chat-item:hover {
+        background: rgba(99, 102, 241, 0.12);
+      }
+      .chat-item.is-active {
+        background: rgba(99, 102, 241, 0.22);
+        border-color: rgba(129, 140, 248, 0.35);
+      }
+      .chat-item-title {
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .chat-item-meta {
+        font-size: 0.68rem;
+        color: var(--muted);
+        margin-top: 0.15rem;
+      }
+      /* —— Futuristic welcome workspace (before first message) —— */
+      .welcome-frame {
+        display: grid;
+        grid-template-columns: 210px minmax(0, 1fr) 252px;
+        gap: 1.1rem;
+        padding: 1.1rem 1.35rem 1.75rem;
+        max-width: 1480px;
+        margin: 0 auto;
+        min-height: calc(100vh - 52px);
+        align-items: start;
+        box-sizing: border-box;
+      }
+      .shell.layout-started .welcome-frame {
+        display: none !important;
+      }
+      .welcome-nav {
+        position: sticky;
+        top: 64px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        padding: 1rem 0.65rem;
+        border-radius: 1.1rem;
+        background: var(--glass);
+        backdrop-filter: blur(20px) saturate(1.3);
+        border: 1px solid var(--glass-border);
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.2),
+          0 12px 40px rgba(0, 0, 0, 0.35),
+          0 0 60px rgba(124, 58, 237, 0.08);
+      }
+      .welcome-nav a,
+      .welcome-nav .nav-label-row {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.55rem 0.65rem;
+        border-radius: 0.65rem;
+        font-size: 0.84rem;
+        font-weight: 600;
+        color: var(--muted);
+        text-decoration: none;
+        border: 1px solid transparent;
+        transition:
+          color 0.15s,
+          background 0.15s,
+          border-color 0.15s,
+          box-shadow 0.15s;
+      }
+      .welcome-nav a:hover {
+        color: var(--text);
+        background: rgba(99, 102, 241, 0.12);
+        border-color: rgba(129, 140, 248, 0.2);
+      }
+      .welcome-nav a[aria-current="page"] {
+        color: var(--text);
+        background: linear-gradient(105deg, rgba(124, 58, 237, 0.22), rgba(59, 130, 246, 0.12));
+        border-color: rgba(167, 139, 250, 0.35);
+        box-shadow: 0 0 20px rgba(124, 58, 237, 0.15);
+      }
+      .welcome-nav button.welcome-nav-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.55rem 0.65rem;
+        border-radius: 0.65rem;
+        font-size: 0.84rem;
+        font-weight: 600;
+        color: var(--muted);
+        border: 1px solid transparent;
+        background: transparent;
+        font-family: inherit;
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+        transition:
+          color 0.15s,
+          background 0.15s,
+          border-color 0.15s,
+          box-shadow 0.15s;
+      }
+      .welcome-nav button.welcome-nav-btn:hover {
+        color: var(--text);
+        background: rgba(99, 102, 241, 0.12);
+        border-color: rgba(129, 140, 248, 0.2);
+      }
+      .welcome-nav svg {
+        flex-shrink: 0;
+        opacity: 0.85;
+      }
+      .welcome-center {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        min-width: 0;
+      }
+      .welcome-glass-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 320px;
+        padding: 1.35rem 1.4rem 1.25rem;
+        border-radius: 1.25rem;
+        background: var(--glass);
+        backdrop-filter: blur(24px) saturate(1.35);
+        border: 1px solid var(--glass-border);
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.25),
+          0 20px 50px rgba(0, 0, 0, 0.4),
+          inset 0 1px 0 rgba(255, 255, 255, 0.07),
+          0 0 100px rgba(124, 58, 237, 0.06);
+      }
+      .welcome-greeting {
+        margin: 0 0 1rem;
+        font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.35;
+        background: linear-gradient(110deg, #f8fafc 0%, #c4b5fd 45%, #7dd3fc 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 0 0 40px rgba(167, 139, 250, 0.35);
+      }
+      .welcome-greeting span {
+        color: inherit;
+      }
+      .welcome-chat-canvas {
+        flex: 1;
+        min-height: 140px;
+        margin-bottom: 1rem;
+        border-radius: 0.9rem;
+        background: rgba(4, 8, 22, 0.55);
+        border: 1px dashed rgba(129, 140, 248, 0.22);
+        box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.25);
+      }
+      .welcome-study-tools {
+        position: sticky;
+        top: 64px;
+        padding: 1rem 0.85rem;
+        border-radius: 1.1rem;
+        background: var(--glass);
+        backdrop-filter: blur(20px) saturate(1.3);
+        border: 1px solid var(--glass-border);
+        box-shadow:
+          0 12px 40px rgba(0, 0, 0, 0.35),
+          0 0 50px rgba(59, 130, 246, 0.06);
+      }
+      .welcome-study-tools h2 {
+        margin: 0 0 0.85rem;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .study-tool-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+      }
+      .study-tool-chip {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        width: 100%;
+        padding: 0.65rem 0.7rem;
+        border-radius: 0.7rem;
+        border: 1px solid rgba(129, 140, 248, 0.2);
+        background: rgba(8, 12, 28, 0.5);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: left;
+        transition:
+          background 0.15s,
+          border-color 0.15s,
+          box-shadow 0.15s,
+          transform 0.12s;
+      }
+      .study-tool-chip:hover {
+        background: rgba(99, 102, 241, 0.18);
+        border-color: rgba(167, 139, 250, 0.4);
+        box-shadow: 0 0 24px rgba(124, 58, 237, 0.2);
+        transform: translateY(-1px);
+      }
+      .study-tool-chip .chip-icon {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.55rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.35), rgba(59, 130, 246, 0.25));
+        font-size: 1rem;
+        line-height: 1;
+        flex-shrink: 0;
+      }
+      .main-stage {
+        grid-area: main;
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        min-height: 0;
+      }
+      .shell.layout-started .main-stage {
+        display: flex;
+      }
+      #messageScroll {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem 1.25rem 5.5rem;
+      }
+      .bubble {
+        max-width: min(720px, 100%);
+        margin-bottom: 1rem;
+        padding: 0.75rem 0.95rem;
+        border-radius: 0.85rem;
+        font-size: 0.9rem;
+        line-height: 1.45;
+      }
+      .bubble.user {
+        margin-left: auto;
+        background: rgba(99, 102, 241, 0.25);
+        border: 1px solid rgba(129, 140, 248, 0.3);
+      }
+      .bubble.assistant {
+        background: rgba(18, 24, 48, 0.85);
+        border: 1px solid var(--stroke);
+        white-space: pre-wrap;
+      }
+      .bubble .who {
+        font-size: 0.62rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin-bottom: 0.35rem;
+      }
+      /* WhatsApp / Instagram–style “AI is typing” */
+      .bubble.typing-indicator-bubble .typing-dots {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.42rem;
+        padding: 0.2rem 0 0.1rem;
+        min-height: 1.35rem;
+        vertical-align: middle;
+      }
+      .bubble.typing-indicator-bubble .typing-dot {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 50%;
+        background: linear-gradient(180deg, #a5b4fc, #64748b);
+        box-shadow: 0 0 8px rgba(129, 140, 248, 0.45);
+        animation: synthiqTypingWiggle 1.05s ease-in-out infinite;
+        transform-origin: center bottom;
+      }
+      .bubble.typing-indicator-bubble .typing-dot:nth-child(1) {
+        animation-delay: 0ms;
+      }
+      .bubble.typing-indicator-bubble .typing-dot:nth-child(2) {
+        animation-delay: 120ms;
+      }
+      .bubble.typing-indicator-bubble .typing-dot:nth-child(3) {
+        animation-delay: 240ms;
+      }
+      @keyframes synthiqTypingWiggle {
+        0%,
+        70%,
+        100% {
+          transform: translateY(0) scaleY(1);
+          opacity: 0.55;
+        }
+        35% {
+          transform: translateY(-7px) scaleY(1.12);
+          opacity: 1;
+        }
+      }
+      .composer-initial {
+        width: 100%;
+        max-width: none;
+        padding: 0;
+      }
+      .welcome-glass-panel .composer-inner {
+        max-width: none;
+        margin: 0;
+      }
+      .welcome-glass-panel .composer-inner textarea {
+        background: rgba(5, 9, 24, 0.85);
+        box-shadow:
+          inset 0 2px 12px rgba(0, 0, 0, 0.35),
+          0 0 0 1px rgba(129, 140, 248, 0.12);
+      }
+      .welcome-glass-panel .err-line {
+        max-width: none;
+        margin-left: 0;
+        margin-right: 0;
+      }
+      .composer-dock {
+        grid-area: comp;
+        display: none;
+        padding: 0.75rem 1rem;
+        background: rgba(8, 12, 28, 0.96);
+        border-top: 1px solid var(--stroke);
+      }
+      .shell.layout-started .composer-initial {
+        display: none;
+      }
+      .shell.layout-started .composer-dock {
+        display: block;
+      }
+      .composer-inner {
+        display: flex;
+        gap: 0.5rem;
+        max-width: 900px;
+        margin: 0 auto;
+        align-items: flex-end;
+      }
+      .composer-inner textarea {
+        flex: 1;
+        min-height: 44px;
+        max-height: 160px;
+        resize: vertical;
+        padding: 0.65rem 0.75rem;
+        border-radius: 0.65rem;
+        border: 1px solid var(--stroke);
+        background: rgba(6, 10, 26, 0.95);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.9rem;
+      }
+      .composer-inner button.send {
+        padding: 0.65rem 1.1rem;
+        border-radius: 0.65rem;
+        border: none;
+        font-family: inherit;
+        font-weight: 800;
+        cursor: pointer;
+        background: linear-gradient(105deg, #7c3aed, #6366f1);
+        color: #fff;
+      }
+      .composer-inner button.send:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+      .err-line {
+        color: #fca5a5;
+        font-size: 0.82rem;
+        margin-top: 0.35rem;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .upgrade-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: rgba(4, 6, 15, 0.82);
+        backdrop-filter: blur(8px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      }
+      .upgrade-overlay.is-open {
+        display: flex;
+      }
+      .upgrade-box {
+        background: rgba(16, 20, 40, 0.98);
+        border: 1px solid var(--stroke);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        max-width: 420px;
+        text-align: center;
+      }
+      .upgrade-box h2 {
+        margin: 0 0 0.5rem;
+        font-size: 1.25rem;
+      }
+      .upgrade-overlay-body {
+        margin: 0 0 1rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.55;
+        text-align: left;
+      }
+      .synthiq-upgrade-pro-link {
+        color: #c4b5fd !important;
+        font-weight: 800 !important;
+        text-decoration: underline !important;
+        text-underline-offset: 3px;
+        background: none !important;
+        padding: 0 !important;
+        display: inline !important;
+        border-radius: 0 !important;
+      }
+      .synthiq-upgrade-pro-link:hover {
+        color: #e9d5ff !important;
+      }
+      .upgrade-countdown {
+        display: inline-block;
+        margin-top: 0.35rem;
+        font-variant-numeric: tabular-nums;
+        font-weight: 800;
+        color: #7dd3fc;
+        letter-spacing: 0.04em;
+      }
+      @media (max-width: 1024px) {
+        .welcome-frame {
+          grid-template-columns: 1fr;
+        }
+        .welcome-nav {
+          position: static;
+          flex-direction: row;
+          flex-wrap: wrap;
+          justify-content: flex-start;
+        }
+        .welcome-nav a {
+          flex: 1 1 auto;
+          min-width: 6.5rem;
+          justify-content: center;
+        }
+        .welcome-study-tools {
+          position: static;
+        }
+      }
+      @media (max-width: 720px) {
+        :root {
+          --sidebar-w: 200px;
+        }
+        .shell.layout-started {
+          grid-template-columns: minmax(0, 1fr);
+          grid-template-areas: "main" "comp";
+        }
+        .shell.layout-started .chat-sidebar {
+          display: none;
+        }
+        .shell.layout-started.chat-sidebar-open .chat-sidebar {
+          display: flex !important;
+          position: fixed;
+          left: 0;
+          top: 52px;
+          bottom: 0;
+          width: min(300px, 90vw);
+          z-index: 36;
+          border-right: 1px solid var(--stroke);
+          box-shadow: 12px 0 40px rgba(0, 0, 0, 0.45);
+        }
+      }
+      .chat-sidebar-backdrop {
+        display: none;
+        position: fixed;
+        top: 52px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 35;
+        background: rgba(4, 6, 15, 0.52);
+        backdrop-filter: blur(4px);
+        border: none;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+      }
+      .chat-sidebar-backdrop.is-visible {
+        display: block;
+      }
+      @media (min-width: 721px) {
+        .chat-sidebar-backdrop {
+          display: none !important;
+        }
+      }
+      .history-empty-hint {
+        margin: 1.5rem 1.25rem;
+        padding: 1rem 1.1rem;
+        border-radius: 0.85rem;
+        border: 1px dashed rgba(129, 140, 248, 0.28);
+        background: rgba(12, 16, 36, 0.45);
+        color: var(--muted);
+        font-size: 0.88rem;
+        line-height: 1.45;
+        max-width: 520px;
+      }
+    </style>
+  </head>
+  <body>
+    <p id="gateErr" class="hidden"></p>
+    <div id="app" class="hidden">
+      <header class="topbar">
+        <a class="home" href="./homepage.html">← Home</a>
+        <span class="quota-pill" id="aiQuotaDisplay">8 AI messages left</span>
+      </header>
+      <button
+        type="button"
+        class="chat-sidebar-backdrop"
+        id="chatSidebarBackdrop"
+        aria-label="Close chat list"
+        tabindex="-1"
+      ></button>
+
+      <div class="shell" id="shell">
+        <aside class="chat-sidebar" aria-label="Your chats">
+          <div class="chat-sidebar-head">
+            <button type="button" id="btnNewChat">＋ New chat</button>
+          </div>
+          <div id="chatList"></div>
+        </aside>
+
+        <div class="welcome-frame" id="welcomeFrame">
+          <nav class="welcome-nav" aria-label="Workspace">
+            <a href="./homepage.html">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                <path d="M9 22V12h6v10" />
+              </svg>
+              Home
+            </a>
+            <a href="./flashcards.html">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M3 9h18M9 21V9" />
+              </svg>
+              Study Tools
+            </a>
+            <a href="./work-files.html">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" />
+              </svg>
+              Notes
+            </a>
+            <button type="button" class="welcome-nav-btn" id="btnWelcomeHistory" title="Open your saved chats">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+              History
+            </button>
+          </nav>
+
+          <div class="welcome-center">
+            <section class="welcome-glass-panel" aria-label="AI chat">
+              <h1 class="welcome-greeting">Hi, <span id="welcomeUserName">there</span>. How can I help you today?</h1>
+              <div class="welcome-chat-canvas" aria-hidden="true"></div>
+              <div class="composer-initial" id="composerInitial">
+                <div class="composer-inner">
+                  <textarea id="inputInitial" rows="2" placeholder="Ask me anything…" autocomplete="off"></textarea>
+                  <button type="button" class="send" id="btnSendInitial">Send</button>
+                </div>
+                <p id="errInitial" class="err-line hidden"></p>
+              </div>
+            </section>
+          </div>
+
+          <aside class="welcome-study-tools" aria-label="Quick study actions">
+            <h2>Study Tools</h2>
+            <div class="study-tool-grid">
+              <button type="button" class="study-tool-chip" data-prefill="Explain this in simple terms: ">
+                <span class="chip-icon" aria-hidden="true">💡</span>
+                <span>Explain</span>
+              </button>
+              <button type="button" class="study-tool-chip" data-prefill="Summarize the following: ">
+                <span class="chip-icon" aria-hidden="true">✂️</span>
+                <span>Summarize</span>
+              </button>
+              <button type="button" class="study-tool-chip" data-prefill="Give me 5 practice questions about ">
+                <span class="chip-icon" aria-hidden="true">⌛</span>
+                <span>Practice</span>
+              </button>
+              <button type="button" class="study-tool-chip" data-prefill="Help me write ">
+                <span class="chip-icon" aria-hidden="true">✍️</span>
+                <span>Write</span>
+              </button>
+            </div>
+          </aside>
+        </div>
+
+        <main class="main-stage" id="mainStage">
+          <div id="messageScroll"></div>
+        </main>
+
+        <div class="composer-dock" id="composerDock">
+          <div class="composer-inner">
+            <textarea id="inputDock" rows="2" placeholder="Message SynthIQ AI…" autocomplete="off"></textarea>
+            <button type="button" class="send" id="btnSendDock">Send</button>
+          </div>
+          <p id="errDock" class="err-line hidden"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="upgrade-overlay" id="upgradeOverlay" aria-hidden="true">
+      <div class="upgrade-box">
+        <h2>Chat limit</h2>
+        <div id="upgradeOverlayBody" class="upgrade-overlay-body"></div>
+        <p style="margin: 1rem 0 0">
+          <button type="button" id="upgradeClose" style="background: none; border: none; color: var(--muted); cursor: pointer; font: inherit">
+            Close
+          </button>
+        </p>
+      </div>
+    </div>
+
+    <script type="module">
+      import {
+        auth,
+        authPersistenceReady,
+        db,
+        refreshIdTokenForFirestore,
+      } from "./signup/signup-firebase.js";
+      import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+      import {
+        doc,
+        getDoc,
+        setDoc,
+        collection,
+        query,
+        orderBy,
+        onSnapshot,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+      const AI_SYSTEM_TEXT =
+        "You are a helpful learning assistant for SynthIQ students. Give clear, concise, accurate answers.";
+
+      function quotaLabel(n) {
+        if (n === 1) return "1 AI message left";
+        return n + " AI messages left";
+      }
+
+      /** Firestore field aiMessagesRemaining */
+      function parseAiMessagesRemaining(raw) {
+        if (raw === null || raw === undefined) return null;
+        if (typeof raw === "bigint") {
+          const n = Number(raw);
+          if (!Number.isFinite(n)) return null;
+          return Math.max(0, Math.floor(n));
+        }
+        if (typeof raw === "number") {
+          if (!Number.isFinite(raw)) return null;
+          return Math.max(0, Math.floor(raw));
+        }
+        if (typeof raw === "string" && String(raw).trim() !== "") {
+          const n = Number(raw);
+          if (!Number.isFinite(n)) return null;
+          return Math.max(0, Math.floor(n));
+        }
+        return null;
+      }
+
+      /** Firestore field aiMessagesResetAt (Timestamp) */
+      function parseAiMessagesResetAtMs(raw) {
+        if (raw == null) return null;
+        try {
+          if (typeof raw.toMillis === "function") {
+            const ms = raw.toMillis();
+            return Number.isFinite(ms) ? ms : null;
+          }
+        } catch (_) {}
+        return null;
+      }
+
+      function applyQuotaDisplay(raw) {
+        const n = parseAiMessagesRemaining(raw);
+        if (n === null) return;
+        messagesRemaining = n;
+        if (aiQuotaDisplay) aiQuotaDisplay.textContent = quotaLabel(n);
+      }
+
+      function synthiqApiBaseCandidates() {
+        const bases = [];
+        if (typeof document !== "undefined") {
+          const m = document.querySelector('meta[name="synthiq-api-base"]');
+          const mc = m && m.getAttribute("content");
+          if (mc != null && String(mc).trim()) {
+            bases.push(String(mc).trim().replace(/\/$/, ""));
+          }
+        }
+        if (typeof window !== "undefined" && window.__SYNTHIQ_API_BASE__) {
+          const custom = String(window.__SYNTHIQ_API_BASE__).replace(/\/$/, "");
+          if (custom) bases.push(custom);
+        }
+        const loc = typeof window !== "undefined" ? window.location : null;
+        const fromHttps = loc && loc.protocol === "https:";
+        if (!fromHttps) {
+          bases.push("http://127.0.0.1:3000");
+          bases.push("http://localhost:3000");
+        }
+        if (loc) {
+          const proto = loc.protocol;
+          const origin = loc.origin;
+          if (origin && origin !== "null" && proto !== "file:" && proto !== "blob:") {
+            bases.push(String(origin).replace(/\/$/, ""));
+          }
+        }
+        const seen = {};
+        return bases.filter(function (b) {
+          if (!b || seen[b]) return false;
+          seen[b] = true;
+          return true;
+        });
+      }
+
+      function synthiqShouldRetryApiBase(path, r) {
+        if (!path || path.indexOf("/api/") !== 0) return false;
+        const s = r.status;
+        if (s === 404 || s === 405 || s === 501) return true;
+        const ct = (r.headers.get("content-type") || "").toLowerCase();
+        if (ct.indexOf("application/json") === -1 && ct.indexOf("text/json") === -1) return true;
+        return false;
+      }
+
+      async function synthiqPostJson(path, payload) {
+        const bases = synthiqApiBaseCandidates();
+        let lastRes = null;
+        let lastErr = null;
+        for (let i = 0; i < bases.length; i++) {
+          try {
+            const r = await fetch(bases[i] + path, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+            lastRes = r;
+            if (synthiqShouldRetryApiBase(path, r)) continue;
+            return r;
+          } catch (e) {
+            lastErr = e;
+          }
+        }
+        if (lastRes) return lastRes;
+        throw lastErr || new Error("SynthIQ API unreachable");
+      }
+
+      function synthiqNetworkErrorMessage(e) {
+        const raw = e && e.message ? String(e.message) : "";
+        const isFetchFailure =
+          raw === "Failed to fetch" ||
+          raw.indexOf("NetworkError when attempting to fetch") === 0 ||
+          (e && e.name === "TypeError" && raw.indexOf("fetch") !== -1);
+        if (isFetchFailure) {
+          const https =
+            typeof window !== "undefined" &&
+            window.location &&
+            window.location.protocol === "https:";
+          let hint;
+          if (https) {
+            hint =
+              " Browsers block calling http://localhost from an HTTPS page. Use the same https origin as this page for the API, or set meta synthiq-api-base to your API URL.";
+          } else {
+            hint =
+              " Start the API in this project folder: node server.cjs (listening on port 3000 by default). If you use another port, set window.__SYNTHIQ_API_BASE__ or meta synthiq-api-base.";
+          }
+          return "Could not reach the SynthIQ API." + hint;
+        }
+        return raw || "Network error.";
+      }
+
+      async function ensureProfileAiQuotaViaServer(user) {
+        try {
+          await refreshIdTokenForFirestore(user.uid);
+          const idToken = await user.getIdToken();
+          const res = await synthiqPostJson("/api/sync-user-profile", { idToken, profile: {} });
+          await res.text();
+          return res.ok;
+        } catch (_) {
+          return false;
+        }
+      }
+
+      const shell = document.getElementById("shell");
+      const gateErr = document.getElementById("gateErr");
+      const app = document.getElementById("app");
+      const aiQuotaDisplay = document.getElementById("aiQuotaDisplay");
+      const chatListEl = document.getElementById("chatList");
+      const messageScroll = document.getElementById("messageScroll");
+      const upgradeOverlay = document.getElementById("upgradeOverlay");
+      const chatSidebarBackdrop = document.getElementById("chatSidebarBackdrop");
+      let myUid = "";
+      let activeChatId = null;
+      let chatsMap = {};
+      let messagesRemaining = 8;
+      let aiReplyInFlight = false;
+      let quotaResetAtMs = null;
+      let upgradeCountdownTimer = null;
+
+      function showGate(msg) {
+        gateErr.textContent = msg;
+        gateErr.classList.remove("hidden");
+        app.classList.add("hidden");
+      }
+
+      function formatCountdownMs(ms) {
+        if (ms <= 0) return "0:00:00";
+        const s = Math.floor(ms / 1000);
+        const h = Math.floor(s / 3600);
+        const m = Math.floor((s % 3600) / 60);
+        const sec = s % 60;
+        return h + ":" + String(m).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
+      }
+
+      function buildUpgradeOverlayContent(resetAtMillis) {
+        const body = document.getElementById("upgradeOverlayBody");
+        if (!body) return;
+        const end =
+          typeof resetAtMillis === "number" && resetAtMillis > Date.now()
+            ? resetAtMillis
+            : Date.now() + 86400000;
+        body.innerHTML = "";
+        const line1 = document.createElement("span");
+        line1.textContent = "You have reached your chat limit for today. ";
+        body.appendChild(line1);
+        const proA = document.createElement("a");
+        proA.href = "./pricing.html";
+        proA.target = "_blank";
+        proA.rel = "noopener noreferrer";
+        proA.className = "synthiq-upgrade-pro-link";
+        proA.textContent = "Upgrade to Pro";
+        body.appendChild(proA);
+        const line2 = document.createElement("span");
+        line2.textContent = " or wait for ";
+        body.appendChild(line2);
+        const cd = document.createElement("span");
+        cd.className = "upgrade-countdown";
+        cd.id = "upgradeCountdownDisplay";
+        body.appendChild(cd);
+
+        function tick() {
+          const left = end - Date.now();
+          const el = document.getElementById("upgradeCountdownDisplay");
+          if (el) el.textContent = formatCountdownMs(left);
+          if (left <= 0 && upgradeCountdownTimer) {
+            clearInterval(upgradeCountdownTimer);
+            upgradeCountdownTimer = null;
+          }
+        }
+        tick();
+        if (upgradeCountdownTimer) clearInterval(upgradeCountdownTimer);
+        upgradeCountdownTimer = setInterval(tick, 1000);
+      }
+
+      function showUpgrade(resetAtMillis) {
+        buildUpgradeOverlayContent(resetAtMillis);
+        upgradeOverlay.classList.add("is-open");
+        upgradeOverlay.setAttribute("aria-hidden", "false");
+      }
+      function hideUpgrade() {
+        if (upgradeCountdownTimer) {
+          clearInterval(upgradeCountdownTimer);
+          upgradeCountdownTimer = null;
+        }
+        upgradeOverlay.classList.remove("is-open");
+        upgradeOverlay.setAttribute("aria-hidden", "true");
+      }
+
+      document.getElementById("upgradeClose").addEventListener("click", hideUpgrade);
+
+      document.querySelectorAll(".study-tool-chip").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const pre = btn.getAttribute("data-prefill") || "";
+          const input = document.getElementById("inputInitial");
+          if (!input || !pre) return;
+          input.value = pre;
+          input.focus();
+        });
+      });
+
+      function setWelcomeUserNameFromAuth(user) {
+        const el = document.getElementById("welcomeUserName");
+        if (!el) return;
+        var n = "there";
+        if (user) {
+          var dn = user.displayName && String(user.displayName).trim();
+          if (dn) n = dn.split(/\s+/)[0];
+          else if (user.email) n = String(user.email).split("@")[0];
+        }
+        el.textContent = n;
+      }
+
+      function layoutStart() {
+        shell.classList.add("layout-started");
+      }
+
+      function isMobileChatListNarrow() {
+        return (
+          typeof window !== "undefined" &&
+          window.matchMedia &&
+          window.matchMedia("(max-width: 720px)").matches
+        );
+      }
+
+      function sortChatIdsDesc() {
+        return Object.keys(chatsMap).sort(function (a, b) {
+          const ta = chatsMap[a].updatedAt?.toMillis?.() ?? 0;
+          const tb = chatsMap[b].updatedAt?.toMillis?.() ?? 0;
+          return tb - ta;
+        });
+      }
+
+      function mobileChatListSetOpen(open) {
+        if (!shell || !chatSidebarBackdrop) return;
+        if (!isMobileChatListNarrow()) {
+          shell.classList.remove("chat-sidebar-open");
+          chatSidebarBackdrop.classList.remove("is-visible");
+          return;
+        }
+        shell.classList.toggle("chat-sidebar-open", !!open);
+        chatSidebarBackdrop.classList.toggle("is-visible", !!open);
+      }
+
+      function closeMobileChatList() {
+        mobileChatListSetOpen(false);
+      }
+
+      function openChatHistoryView() {
+        layoutStart();
+        const ids = sortChatIdsDesc();
+
+        if (isMobileChatListNarrow()) {
+          mobileChatListSetOpen(true);
+          renderChatList();
+          if (!ids.length) {
+            activeChatId = null;
+            renderMessages([]);
+            const hint = document.createElement("p");
+            hint.className = "history-empty-hint";
+            hint.textContent =
+              "No saved chats yet. Tap “＋ New chat” in the list, or close this panel and send a message to start.";
+            messageScroll.appendChild(hint);
+          } else if (activeChatId && chatsMap[activeChatId]) {
+            renderMessages(chatsMap[activeChatId].messages || []);
+          } else {
+            activeChatId = null;
+            renderMessages([]);
+            const hint = document.createElement("p");
+            hint.className = "history-empty-hint";
+            hint.textContent = "Select a conversation from the list.";
+            messageScroll.appendChild(hint);
+          }
+          return;
+        }
+
+        mobileChatListSetOpen(false);
+        if (ids.length) {
+          selectChat(ids[0]);
+        } else {
+          activeChatId = null;
+          renderMessages([]);
+          const hint = document.createElement("p");
+          hint.className = "history-empty-hint";
+          hint.textContent =
+            "No saved chats yet. Use “＋ New chat” in the sidebar or send a message below to start.";
+          messageScroll.appendChild(hint);
+          renderChatList();
+        }
+      }
+
+      function errShow(which, msg) {
+        const el = which === "dock" ? document.getElementById("errDock") : document.getElementById("errInitial");
+        if (!msg) {
+          el.classList.add("hidden");
+          el.textContent = "";
+          return;
+        }
+        el.textContent = msg;
+        el.classList.remove("hidden");
+      }
+
+      const AI_TYPING_ID = "synthiqAiTypingIndicator";
+
+      function removeAiTypingIndicator() {
+        const el = document.getElementById(AI_TYPING_ID);
+        if (el) el.remove();
+      }
+
+      function appendAiTypingIndicator() {
+        if (!messageScroll) return;
+        removeAiTypingIndicator();
+        const wrap = document.createElement("div");
+        wrap.id = AI_TYPING_ID;
+        wrap.className = "bubble assistant typing-indicator-bubble";
+        wrap.setAttribute("aria-hidden", "true");
+        const who = document.createElement("div");
+        who.className = "who";
+        who.textContent = "SynthIQ AI";
+        const row = document.createElement("div");
+        row.className = "typing-dots";
+        for (var i = 0; i < 3; i++) {
+          const d = document.createElement("span");
+          d.className = "typing-dot";
+          row.appendChild(d);
+        }
+        wrap.appendChild(who);
+        wrap.appendChild(row);
+        messageScroll.appendChild(wrap);
+        messageScroll.scrollTop = messageScroll.scrollHeight;
+      }
+
+      function renderMessages(messages) {
+        messageScroll.innerHTML = "";
+        (messages || []).forEach(function (m) {
+          if (!m || (m.role !== "user" && m.role !== "assistant")) return;
+          const div = document.createElement("div");
+          div.className = "bubble " + m.role;
+          const who = document.createElement("div");
+          who.className = "who";
+          who.textContent = m.role === "user" ? "You" : "SynthIQ AI";
+          const body = document.createElement("div");
+          body.textContent = m.content || "";
+          div.appendChild(who);
+          div.appendChild(body);
+          messageScroll.appendChild(div);
+        });
+        messageScroll.scrollTop = messageScroll.scrollHeight;
+      }
+
+      function renderChatList() {
+        chatListEl.innerHTML = "";
+        const ids = Object.keys(chatsMap).sort(function (a, b) {
+          const ta = chatsMap[a].updatedAt?.toMillis?.() ?? 0;
+          const tb = chatsMap[b].updatedAt?.toMillis?.() ?? 0;
+          return tb - ta;
+        });
+        ids.forEach(function (id) {
+          const c = chatsMap[id];
+          const row = document.createElement("div");
+          row.className = "chat-item" + (id === activeChatId ? " is-active" : "");
+          row.innerHTML =
+            '<div class="chat-item-title"></div><div class="chat-item-meta"></div>';
+          row.querySelector(".chat-item-title").textContent = c.title || "Chat";
+          const n = (c.messages && c.messages.length) || 0;
+          row.querySelector(".chat-item-meta").textContent = n + " message" + (n === 1 ? "" : "s");
+          row.addEventListener("click", function () {
+            selectChat(id);
+          });
+          chatListEl.appendChild(row);
+        });
+      }
+
+      function selectChat(id) {
+        activeChatId = id;
+        const c = chatsMap[id];
+        if (c && Array.isArray(c.messages)) renderMessages(c.messages);
+        renderChatList();
+        closeMobileChatList();
+      }
+
+      async function createNewChat() {
+        if (!myUid) return;
+        const id =
+          typeof crypto !== "undefined" && crypto.randomUUID
+            ? crypto.randomUUID()
+            : "c-" + Date.now();
+        const ref = doc(db, "users", myUid, "aiChats", id);
+        await setDoc(ref, {
+          title: "New chat",
+          messages: [],
+          updatedAt: serverTimestamp(),
+        });
+        activeChatId = id;
+        chatsMap[id] = { title: "New chat", messages: [], updatedAt: null };
+        renderMessages([]);
+        renderChatList();
+        closeMobileChatList();
+      }
+
+      function buildApiMessages(messages) {
+        const out = [{ role: "system", content: AI_SYSTEM_TEXT }];
+        (messages || []).forEach(function (m) {
+          if (m.role === "user" || m.role === "assistant") {
+            out.push({ role: m.role, content: String(m.content || "") });
+          }
+        });
+        return out;
+      }
+
+      async function persistChat(chatId, messages, titleGuess) {
+        if (!myUid || !chatId) return;
+        const ref = doc(db, "users", myUid, "aiChats", chatId);
+        const snap = await getDoc(ref);
+        const prev = snap.exists() ? snap.data() : {};
+        let title = prev.title || "New chat";
+        if (title === "New chat" && titleGuess) title = titleGuess.slice(0, 80);
+        const trimmed = messages.slice(-80);
+        await setDoc(
+          ref,
+          {
+            title: title,
+            messages: trimmed,
+            updatedAt: serverTimestamp(),
+          },
+          { merge: true }
+        );
+      }
+
+      async function sendFromInput(text, fromDock) {
+        const t = String(text || "").trim();
+        if (!t) return;
+        errShow(fromDock ? "dock" : "initial", "");
+
+        if (typeof messagesRemaining === "number" && messagesRemaining <= 0) {
+          showUpgrade(quotaResetAtMs);
+          return;
+        }
+
+        if (!shell.classList.contains("layout-started")) layoutStart();
+        const errUi = "dock";
+
+        let chatId = activeChatId;
+        if (!chatId) {
+          chatId =
+            typeof crypto !== "undefined" && crypto.randomUUID
+              ? crypto.randomUUID()
+              : "c-" + Date.now();
+          activeChatId = chatId;
+          chatsMap[chatId] = { title: "New chat", messages: [], updatedAt: null };
+          renderChatList();
+        }
+
+        const c = chatsMap[chatId] || { messages: [] };
+        const messages = (c.messages || []).concat([{ role: "user", content: t, at: Date.now() }]);
+        chatsMap[chatId] = Object.assign({}, c, { messages: messages });
+        renderMessages(messages);
+        renderChatList();
+        await persistChat(chatId, messages, t);
+
+        const btn = fromDock ? document.getElementById("btnSendDock") : document.getElementById("btnSendInitial");
+        const prev = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "…";
+        aiReplyInFlight = true;
+        appendAiTypingIndicator();
+        try {
+          await refreshIdTokenForFirestore(myUid);
+          const idToken = await auth.currentUser.getIdToken();
+          const apiMsgs = buildApiMessages(messages);
+          const res = await synthiqPostJson("/api/anthropic-chat", {
+            idToken,
+            messages: apiMsgs,
+          });
+          const rawText = await res.text();
+          let data = null;
+          try {
+            data = rawText ? JSON.parse(rawText) : null;
+          } catch (_) {}
+          if (res.status === 402 || (data && data.upgrade)) {
+            const ra =
+              data && typeof data.resetAtMillis === "number" && Number.isFinite(data.resetAtMillis)
+                ? data.resetAtMillis
+                : quotaResetAtMs;
+            showUpgrade(ra);
+            if (data) applyQuotaDisplay(data.messagesLeft);
+            messages.pop();
+            chatsMap[chatId].messages = messages;
+            renderMessages(messages);
+            await persistChat(chatId, messages);
+            return;
+          }
+          if (!data || data.ok === false || !res.ok) {
+            let msg = (data && (data.error || data.message)) || "";
+            if (!msg && (res.status === 404 || res.status === 405)) {
+              msg =
+                "No AI API on this host. Run node server.cjs on the same origin as this page, or set meta synthiq-api-base / window.__SYNTHIQ_API_BASE__ to your API URL.";
+            }
+            if (!msg) msg = "Request failed.";
+            errShow(errUi, msg);
+            messages.pop();
+            chatsMap[chatId].messages = messages;
+            renderMessages(messages);
+            await persistChat(chatId, messages);
+            return;
+          }
+          const reply = String(data.reply || "").trim() || "(No reply.)";
+          const next = messages.concat([{ role: "assistant", content: reply, at: Date.now() }]);
+          chatsMap[chatId].messages = next;
+          applyQuotaDisplay(data.messagesLeft);
+          renderMessages(next);
+          await persistChat(chatId, next, t);
+        } catch (e) {
+          errShow(errUi, synthiqNetworkErrorMessage(e));
+          messages.pop();
+          chatsMap[chatId].messages = messages;
+          renderMessages(messages);
+          await persistChat(chatId, messages);
+        } finally {
+          aiReplyInFlight = false;
+          removeAiTypingIndicator();
+          btn.disabled = false;
+          btn.textContent = prev;
+        }
+      }
+
+      document.getElementById("btnSendInitial").addEventListener("click", function () {
+        const v = document.getElementById("inputInitial").value;
+        document.getElementById("inputInitial").value = "";
+        sendFromInput(v, false);
+      });
+      document.getElementById("btnSendDock").addEventListener("click", function () {
+        const v = document.getElementById("inputDock").value;
+        document.getElementById("inputDock").value = "";
+        sendFromInput(v, true);
+      });
+      document.getElementById("inputInitial").addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          document.getElementById("btnSendInitial").click();
+        }
+      });
+      document.getElementById("inputDock").addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          document.getElementById("btnSendDock").click();
+        }
+      });
+      document.getElementById("btnNewChat").addEventListener("click", function () {
+        layoutStart();
+        createNewChat();
+      });
+
+      const btnWelcomeHistory = document.getElementById("btnWelcomeHistory");
+      if (btnWelcomeHistory) {
+        btnWelcomeHistory.addEventListener("click", function (e) {
+          e.preventDefault();
+          openChatHistoryView();
+        });
+      }
+      if (chatSidebarBackdrop) {
+        chatSidebarBackdrop.addEventListener("click", function () {
+          closeMobileChatList();
+        });
+      }
+      window.addEventListener("resize", function () {
+        if (!isMobileChatListNarrow()) closeMobileChatList();
+      });
+
+      await authPersistenceReady;
+
+      onAuthStateChanged(auth, async function (user) {
+        if (!user) {
+          showGate("Please sign in first. Redirecting…");
+          setTimeout(function () {
+            window.location.href = "./signup/synthiq-signin.html";
+          }, 600);
+          return;
+        }
+        myUid = user.uid;
+        gateErr.classList.add("hidden");
+        app.classList.remove("hidden");
+        setWelcomeUserNameFromAuth(user);
+        await ensureProfileAiQuotaViaServer(user);
+
+        onSnapshot(doc(db, "users", myUid), function (snap) {
+          const d = snap.data() || {};
+          const ra = parseAiMessagesResetAtMs(d.aiMessagesResetAt);
+          quotaResetAtMs = ra != null ? ra : null;
+          if (parseAiMessagesRemaining(d.aiMessagesRemaining) !== null) {
+            applyQuotaDisplay(d.aiMessagesRemaining);
+          } else if (aiQuotaDisplay) {
+            aiQuotaDisplay.textContent = "—";
+          }
+          const fn = typeof d.fullName === "string" ? d.fullName.trim() : "";
+          const wel = document.getElementById("welcomeUserName");
+          if (wel && fn) wel.textContent = fn.split(/\s+/)[0];
+        });
+
+        onSnapshot(
+          query(collection(db, "users", myUid, "aiChats"), orderBy("updatedAt", "desc")),
+          function (snap) {
+            chatsMap = {};
+            snap.forEach(function (d) {
+              chatsMap[d.id] = Object.assign({ id: d.id }, d.data());
+            });
+            renderChatList();
+            if (activeChatId && chatsMap[activeChatId]) {
+              renderMessages(chatsMap[activeChatId].messages || []);
+              if (aiReplyInFlight) appendAiTypingIndicator();
+            }
+          }
+        );
+
+        const q = new URLSearchParams(window.location.search).get("q");
+        if (q && q.trim()) {
+          layoutStart();
+          await createNewChat();
+          document.getElementById("inputDock").value = q.trim();
+          await sendFromInput(q.trim(), true);
+          window.history.replaceState({}, "", "./ai-chat.html");
+        }
+      });
+    </script>
+    <footer class="synthiq-legal-footer" role="contentinfo">
+      <a href="./terms-and-services.html">Terms and services</a>
+    </footer>
+  </body>
+</html>

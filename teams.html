@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teams — SynthIQ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/synthiq-legal-footer.css" />
+    <style>
+      :root {
+        --bg: #050814;
+        --surface: rgba(18, 24, 48, 0.92);
+        --border: rgba(129, 140, 248, 0.22);
+        --text: #e8ecff;
+        --muted: #94a3b8;
+        --accent: #818cf8;
+        --radius: 1.25rem;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Outfit", system-ui, sans-serif;
+        background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.25), transparent),
+          var(--bg);
+        color: var(--text);
+        padding: clamp(1rem, 4vw, 2rem);
+      }
+      a.back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 1.25rem;
+      }
+      a.back:hover {
+        text-decoration: underline;
+      }
+      .hidden {
+        display: none !important;
+      }
+      .center-stage {
+        max-width: 520px;
+        margin: 0 auto;
+        text-align: center;
+        padding: clamp(2rem, 8vh, 4rem) 1rem;
+      }
+      .center-stage h1 {
+        margin: 0 0 2rem;
+        font-size: clamp(1.55rem, 4.5vw, 2rem);
+        font-weight: 800;
+        line-height: 1.25;
+        letter-spacing: -0.03em;
+      }
+      .btn-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: center;
+      }
+      .btn {
+        padding: 0.85rem 1.5rem;
+        border-radius: 0.75rem;
+        border: none;
+        font-family: inherit;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.12s ease, filter 0.15s ease;
+      }
+      .btn:hover {
+        filter: brightness(1.06);
+        transform: translateY(-1px);
+      }
+      .btn-primary {
+        background: linear-gradient(105deg, #7c3aed, #6366f1);
+        color: #fff;
+        box-shadow: 0 8px 28px rgba(99, 102, 241, 0.35);
+      }
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+      .wizard {
+        max-width: 480px;
+        margin: 0 auto;
+        padding: 1rem 0 3rem;
+      }
+      .wizard h2 {
+        margin: 0 0 0.35rem;
+        font-size: 1.35rem;
+        font-weight: 800;
+      }
+      .wizard .hint {
+        color: var(--muted);
+        font-size: 0.88rem;
+        margin: 0 0 1.25rem;
+        line-height: 1.5;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.35rem;
+        backdrop-filter: blur(14px);
+      }
+      label.lbl {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--accent);
+        margin-bottom: 0.4rem;
+      }
+      input[type="text"],
+      input[type="url"],
+      textarea {
+        width: 100%;
+        padding: 0.65rem 0.75rem;
+        border-radius: 0.65rem;
+        border: 1px solid var(--border);
+        background: rgba(6, 10, 26, 0.95);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+      }
+      textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+      .wizard-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+      .team-id-box {
+        font-family: ui-monospace, monospace;
+        font-size: 1.1rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.35);
+        border-radius: 0.75rem;
+        border: 1px dashed rgba(129, 140, 248, 0.45);
+        word-break: break-all;
+        margin-bottom: 1rem;
+      }
+      .preview-wrap {
+        max-width: 920px;
+        margin: 0 auto;
+        padding-bottom: 3rem;
+      }
+      .preview-head {
+        margin-bottom: 1.5rem;
+      }
+      .preview-head h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 800;
+      }
+      .preview-head p {
+        margin: 0.35rem 0 0;
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+      .preview-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+      @media (max-width: 640px) {
+        .preview-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .rounded-tile {
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        background: var(--surface);
+        padding: 1.5rem 1.25rem;
+        text-align: center;
+        font-weight: 700;
+        font-size: 1.05rem;
+        cursor: pointer;
+        transition: box-shadow 0.2s ease, border-color 0.2s ease;
+      }
+      .rounded-tile:hover {
+        border-color: rgba(167, 139, 250, 0.45);
+        box-shadow: 0 12px 40px rgba(79, 70, 229, 0.15);
+      }
+      .rounded-tile a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .wide-tile {
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        background: var(--surface);
+        padding: 1.25rem 1.35rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 1rem;
+      }
+      .wide-tile:hover {
+        border-color: rgba(167, 139, 250, 0.4);
+      }
+      .project-drawer {
+        display: none;
+        margin-top: 0.75rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .project-drawer.is-open {
+        display: block;
+      }
+      .doc-area textarea {
+        min-height: 220px;
+        margin-bottom: 0;
+      }
+      .pres-options {
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+        margin: 1rem 0;
+      }
+      .pres-link {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        padding: 0.85rem 1rem;
+        border-radius: 0.85rem;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.25);
+        text-decoration: none;
+        color: var(--text);
+        font-weight: 600;
+        transition: background 0.15s ease;
+      }
+      .pres-link:hover {
+        background: rgba(99, 102, 241, 0.15);
+      }
+      .pres-link img {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        object-fit: contain;
+        background: #fff;
+        padding: 4px;
+      }
+      .muted-link {
+        display: block;
+        margin-top: 0.75rem;
+        font-size: 0.85rem;
+        color: var(--accent);
+        cursor: pointer;
+        text-decoration: underline;
+        font-weight: 600;
+      }
+      .presentation-list {
+        margin-top: 1.25rem;
+      }
+      .presentation-card {
+        border-radius: 0.85rem;
+        border: 1px solid var(--border);
+        padding: 0.85rem 1rem;
+        margin-bottom: 0.5rem;
+        background: rgba(0, 0, 0, 0.2);
+      }
+      .presentation-card a {
+        color: #a5b4fc;
+        font-weight: 700;
+      }
+      .file-list {
+        margin-top: 0.75rem;
+        font-size: 0.82rem;
+        color: var(--muted);
+        text-align: left;
+      }
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        z-index: 100;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+      }
+      .modal-overlay.is-open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .modal-box {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        max-width: 420px;
+        width: 100%;
+      }
+      .modal-box h3 {
+        margin: 0 0 0.75rem;
+        font-size: 1.15rem;
+      }
+      .invite-search-row {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        align-items: stretch;
+        margin-bottom: 0.75rem;
+      }
+      .invite-search-row input {
+        flex: 1 1 160px;
+        margin-bottom: 0;
+      }
+      .invite-search-row .btn {
+        margin-bottom: 0;
+        padding: 0.65rem 1rem;
+      }
+      .invite-result {
+        border-radius: 0.75rem;
+        border: 1px solid var(--border);
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.75rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        background: rgba(0, 0, 0, 0.22);
+      }
+      .invite-result .who {
+        font-weight: 700;
+      }
+      .invite-result .btn-sm {
+        padding: 0.45rem 0.85rem;
+        font-size: 0.88rem;
+      }
+      .invite-sent-list {
+        margin: 1rem 0 0;
+        padding: 0;
+        list-style: none;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+      .invite-sent-list li {
+        padding: 0.35rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .invite-msg {
+        font-size: 0.85rem;
+        margin: 0 0 0.75rem;
+        min-height: 1.25rem;
+      }
+      .invite-msg.err {
+        color: #fca5a5;
+      }
+      .invite-msg.ok {
+        color: #6ee7b7;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="back" href="./homepage.html">← Back to dashboard</a>
+
+    <div id="appRoot">
+      <!-- Inbox (team invites) -->
+      <section id="viewInbox" class="wizard hidden">
+        <div class="card">
+          <h2>Team invites</h2>
+          <p class="hint">People who invited you to their team show up here. Accept joins the group in Firebase.</p>
+          <p class="invite-msg" id="inboxMsg" aria-live="polite"></p>
+          <div id="inboxList"></div>
+          <div class="wizard-actions">
+            <button type="button" class="btn btn-secondary" id="btnInboxBack">← Teams home</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Landing -->
+      <section id="viewLanding" class="center-stage">
+        <h1>Build a team with your class or friends</h1>
+        <div class="btn-row">
+          <button type="button" class="btn btn-primary" id="btnLandingCreate">Create team</button>
+          <button type="button" class="btn btn-secondary" id="btnLandingJoin">Join team</button>
+        </div>
+      </section>
+
+      <!-- Create: step 1 name -->
+      <section id="viewCreate1" class="wizard hidden">
+        <div class="card">
+          <h2>Name your team</h2>
+          <p class="hint">Choose something your group will recognize.</p>
+          <label class="lbl" for="inputTeamName">Team name</label>
+          <input id="inputTeamName" type="text" maxlength="80" placeholder="e.g. Biology study crew" autocomplete="off" />
+          <div class="wizard-actions">
+            <button type="button" class="btn btn-secondary" id="btnCreate1Back">Back</button>
+            <button type="button" class="btn btn-primary" id="btnCreate1Next">Next</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Create: step 2 invites -->
+      <section id="viewCreate2" class="wizard hidden">
+        <div class="card">
+          <h2>Invite people</h2>
+          <p class="hint">Search by SynthIQ username (same one they picked at sign-up).</p>
+          <label class="lbl" for="inputInviteSearch">Find a user</label>
+          <div class="invite-search-row">
+            <input
+              id="inputInviteSearch"
+              type="text"
+              placeholder="username"
+              autocomplete="off"
+              maxlength="64"
+            />
+            <button type="button" class="btn btn-secondary" id="btnInviteSearch">Search</button>
+          </div>
+          <p class="invite-msg" id="inviteSearchMsg" aria-live="polite"></p>
+          <div id="inviteSearchResult"></div>
+          <p class="lbl" style="margin-top: 1rem">Invite requests sent</p>
+          <ul class="invite-sent-list" id="inviteSentList"></ul>
+          <div class="wizard-actions">
+            <button type="button" class="btn btn-secondary" id="btnCreate2Back">Back</button>
+            <button type="button" class="btn btn-primary" id="btnCreate2Next">Next</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Create: step 3 team ID -->
+      <section id="viewCreate3" class="wizard hidden">
+        <div class="card">
+          <h2>Your team ID</h2>
+          <p class="hint">Share this ID so classmates can tap “Join team” and paste it.</p>
+          <div class="team-id-box" id="displayTeamId">—</div>
+          <button type="button" class="btn btn-secondary" id="btnCopyTeamId">Copy team ID</button>
+          <div class="wizard-actions" style="margin-top: 1.25rem">
+            <button type="button" class="btn btn-secondary" id="btnCreate3Back">Back</button>
+            <button type="button" class="btn btn-primary" id="btnCreate3Finish">Finish — open team room</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Join -->
+      <section id="viewJoin" class="wizard hidden">
+        <div class="card">
+          <h2>Join a team</h2>
+          <p class="hint">Paste the team ID you received from your teammate.</p>
+          <label class="lbl" for="inputJoinId">Team ID</label>
+          <input id="inputJoinId" type="text" placeholder="e.g. SYN-A1B2C3D4" autocomplete="off" />
+          <p class="err hidden" id="joinErr"></p>
+          <div class="wizard-actions">
+            <button type="button" class="btn btn-secondary" id="btnJoinBack">Back</button>
+            <button type="button" class="btn btn-primary" id="btnJoinGo">Join</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Preview -->
+      <section id="viewPreview" class="preview-wrap hidden">
+        <div class="preview-head">
+          <h1 id="previewTeamName">Team</h1>
+          <p>Team ID: <strong id="previewTeamId"></strong></p>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.85rem; align-items: center">
+            <a
+              class="btn btn-primary"
+              id="linkTeamRoom"
+              href="./team-room.html"
+              style="display: inline-block; text-decoration: none"
+              >Open team room</a
+            >
+            <a
+              class="btn btn-secondary"
+              id="linkOpenProject"
+              href="./team-open-project.html"
+              style="display: inline-block; text-decoration: none"
+              >Open project</a
+            >
+          </div>
+        </div>
+
+        <div class="preview-grid">
+          <div class="rounded-tile" id="tileImportFiles">
+            Import files
+            <input id="hiddenFileInput" type="file" multiple class="hidden" />
+            <div class="file-list" id="importedFilesList"></div>
+          </div>
+          <div class="rounded-tile"><a href="./flashcards.html">Import flashcard</a></div>
+        </div>
+
+        <div class="wide-tile" id="toggleGroupProject" role="button" tabindex="0">
+          Group project ▾
+        </div>
+        <div class="card project-drawer" id="projectDrawer">
+          <h3 style="margin: 0 0 0.75rem; font-size: 1rem">Docs</h3>
+          <p class="hint" style="margin-top: 0">Shared notes — saved on this device.</p>
+          <div class="doc-area">
+            <textarea id="teamDocsBody" placeholder="Type here like Google Docs…"></textarea>
+          </div>
+
+          <h3 style="margin: 1.5rem 0 0.5rem; font-size: 1rem">Presentation</h3>
+          <div class="pres-options">
+            <a class="pres-link" href="https://www.canva.com/" target="_blank" rel="noopener noreferrer">
+              <img src="https://www.canva.com/favicon.ico" alt="" width="36" height="36" />
+              Create presentation on Canva
+            </a>
+            <a
+              class="pres-link"
+              href="https://www.microsoft365.com/launch/powerpoint"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                src="https://res.cdn.office.net/files/fabric-cdn-prod_20230815.002/assets/brand-icons/product/png/powerpoint_48x1.png"
+                alt=""
+                width="36"
+                height="36"
+                onerror="this.style.display='none'"
+              />
+              Presentation on PowerPoint
+            </a>
+          </div>
+          <span class="muted-link" id="openPresLinkModal">Already have a presentation — click here</span>
+        </div>
+
+        <div class="presentation-list" id="presentationList"></div>
+
+        <div style="margin-top: 2rem">
+          <button type="button" class="btn btn-secondary" id="btnLeavePreview">← Teams home</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- Modal: paste presentation URL -->
+    <div class="modal-overlay" id="presModal" aria-hidden="true">
+      <div class="modal-box" role="dialog" aria-labelledby="presModalTitle">
+        <h3 id="presModalTitle">Add presentation link</h3>
+        <p class="hint">Paste a link to Slides, Canva, PowerPoint Online, etc.</p>
+        <label class="lbl" for="presUrlInput">Link</label>
+        <input id="presUrlInput" type="url" placeholder="https://…" />
+        <div class="wizard-actions" style="margin-top: 1rem">
+          <button type="button" class="btn btn-secondary" id="presModalCancel">Cancel</button>
+          <button type="button" class="btn btn-primary" id="presModalNext">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="teamsProModal" aria-hidden="true">
+      <div
+        class="modal-box"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="teamsProModalTitle"
+        style="border-radius: 1.35rem; text-align: center; max-width: 420px"
+      >
+        <h3 id="teamsProModalTitle">Upgrade to Pro</h3>
+        <p class="hint" style="margin-bottom: 1.15rem">
+          You’ve already created a team on the free plan. Upgrade to create unlimited teams, or go back to manage invites and join flows.
+        </p>
+        <div class="wizard-actions" style="justify-content: center; flex-direction: column; gap: 0.5rem; margin-top: 0">
+          <button type="button" class="btn btn-primary" id="teamsProModalUpgrade">Upgrade to Pro</button>
+          <button type="button" class="btn btn-secondary" id="teamsProModalBack">Back</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { tabStorageGetJson, tabStorageSetJson } from "./js/synthiq-tab-storage.js";
+      import {
+        auth,
+        authPersistenceReady,
+        db,
+        ensureUsernameIndexFromProfile,
+        normalizeSynthIQUsername,
+        refreshIdTokenForFirestore,
+      } from "./signup/signup-firebase.js";
+      import { logTeamActivity } from "./js/team-activity.js";
+      import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+      import {
+        doc,
+        getDoc,
+        setDoc,
+        deleteDoc,
+        updateDoc,
+        serverTimestamp,
+        collection,
+        query,
+        where,
+        getDocs,
+        arrayUnion,
+        addDoc,
+      } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+      const STORAGE_KEY = "synthiq_team_workspace_v1";
+
+      /** @type {string | null} */
+      let myUid = null;
+      /** Who we last looked up for invite (username key + uid) */
+      let lookupHit = null;
+      /** @type {{ usernameKey: string, uid: string }[]} */
+      let draftPendingInvites = [];
+
+      /** @returns {{ teamId: string, teamName: string, invites: string[], docs: string, presentations: { url: string, author: string }[], importedFiles: string[] }} */
+      function loadWorkspace() {
+        return tabStorageGetJson(STORAGE_KEY, null);
+      }
+
+      function saveWorkspace(data) {
+        tabStorageSetJson(STORAGE_KEY, data);
+      }
+
+      function generateTeamId() {
+        const part = () =>
+          Math.random().toString(36).slice(2, 6).toUpperCase();
+        return "SYN-" + part() + part();
+      }
+
+      function showOnly(id) {
+        ["viewLanding", "viewInbox", "viewCreate1", "viewCreate2", "viewCreate3", "viewJoin", "viewPreview"].forEach((v) => {
+          const el = document.getElementById(v);
+          if (el) el.classList.toggle("hidden", v !== id);
+        });
+      }
+
+      function wantsInboxFromUrl() {
+        try {
+          return new URLSearchParams(window.location.search).get("inbox") === "1";
+        } catch (_) {
+          return false;
+        }
+      }
+
+      function wantsInboxFromHash() {
+        try {
+          return window.location.hash.replace(/^#/, "") === "invites";
+        } catch (_) {
+          return false;
+        }
+      }
+
+      function wantsInboxEntry() {
+        return wantsInboxFromUrl() || wantsInboxFromHash();
+      }
+
+      function stripInboxQueryFromUrl() {
+        try {
+          const u = new URL(window.location.href);
+          u.searchParams.delete("inbox");
+          const qs = u.searchParams.toString();
+          window.history.replaceState({}, "", u.pathname + (qs ? "?" + qs : "") + u.hash);
+        } catch (_) {}
+      }
+
+      function stripInboxHashFromUrl() {
+        try {
+          if (window.location.hash.replace(/^#/, "") === "invites") {
+            const u = new URL(window.location.href);
+            u.hash = "";
+            window.history.replaceState({}, "", u.pathname + (u.search ? u.search : ""));
+          }
+        } catch (_) {}
+      }
+
+      function stripInboxEntryFromUrl() {
+        stripInboxQueryFromUrl();
+        stripInboxHashFromUrl();
+      }
+
+      async function loadUserPlanIsPro(uid) {
+        try {
+          const snap = await getDoc(doc(db, "users", uid));
+          if (!snap.exists()) return false;
+          return String(snap.data().plan || "").trim().toLowerCase() === "pro";
+        } catch (_) {
+          return false;
+        }
+      }
+
+      async function countTeamsCreatedBy(uid) {
+        await refreshIdTokenForFirestore(uid);
+        const q = query(collection(db, "teams"), where("createdByUid", "==", uid));
+        const snap = await getDocs(q);
+        return snap.size;
+      }
+
+      let draftName = "";
+      let draftTeamId = "";
+
+      function escapeHtml(s) {
+        const d = document.createElement("div");
+        d.textContent = s ?? "";
+        return d.innerHTML;
+      }
+
+      function renderPresentations(listEl, presentations, displayName) {
+        listEl.innerHTML = "";
+        presentations.forEach(function (p, i) {
+          const author = p.author || displayName || "Member";
+          const card = document.createElement("div");
+          card.className = "presentation-card";
+          const safeUrl = String(p.url || "").trim();
+          if (!safeUrl) return;
+          card.innerHTML =
+            '<a href="' +
+            escapeHtml(safeUrl) +
+            '" target="_blank" rel="noopener noreferrer">See ' +
+            escapeHtml(author) +
+            " presentation</a>";
+          listEl.appendChild(card);
+        });
+      }
+
+      function syncPreviewFromStorage(displayName) {
+        const w = loadWorkspace();
+        if (!w || !w.teamId) return;
+        document.getElementById("previewTeamName").textContent = w.teamName || "Team";
+        document.getElementById("previewTeamId").textContent = w.teamId;
+        const lr = document.getElementById("linkTeamRoom");
+        if (lr && w.teamId) lr.href = "./team-room.html?id=" + encodeURIComponent(w.teamId);
+        const lop = document.getElementById("linkOpenProject");
+        if (lop && w.teamId) lop.href = "./team-open-project.html?id=" + encodeURIComponent(w.teamId);
+        document.getElementById("teamDocsBody").value = w.docs || "";
+        const fl = document.getElementById("importedFilesList");
+        fl.innerHTML = "";
+        if (w.importedFiles && w.importedFiles.length) {
+          fl.innerHTML =
+            "<strong style=color:#e8ecff>Selected:</strong><br>" + w.importedFiles.map(escapeHtml).join("<br>");
+        }
+        renderPresentations(document.getElementById("presentationList"), w.presentations || [], displayName);
+      }
+
+      function inviteDocId(teamId, toUid) {
+        return teamId + "__invite__" + toUid;
+      }
+
+      function renderInviteSentList() {
+        const ul = document.getElementById("inviteSentList");
+        ul.innerHTML = "";
+        draftPendingInvites.forEach(function (row) {
+          const li = document.createElement("li");
+          li.textContent = "@" + row.usernameKey + " — invite sent";
+          ul.appendChild(li);
+        });
+        if (!draftPendingInvites.length) {
+          const li = document.createElement("li");
+          li.style.opacity = "0.75";
+          li.textContent = "No invites yet (you can skip and invite later).";
+          ul.appendChild(li);
+        }
+      }
+
+      function setInviteMsg(text, kind) {
+        const el = document.getElementById("inviteSearchMsg");
+        el.textContent = text || "";
+        el.classList.remove("err", "ok");
+        if (kind === "err") el.classList.add("err");
+        if (kind === "ok") el.classList.add("ok");
+      }
+
+      function clearInviteSearchResult() {
+        lookupHit = null;
+        document.getElementById("inviteSearchResult").innerHTML = "";
+      }
+
+      async function ensureFirestoreTeam() {
+        const user = auth.currentUser;
+        if (!user) throw new Error("Sign in required.");
+        await refreshIdTokenForFirestore(user.uid);
+        myUid = user.uid;
+        const teamRef = doc(db, "teams", draftTeamId);
+        const snap = await getDoc(teamRef);
+        if (!snap.exists()) {
+          await setDoc(teamRef, {
+            name: draftName,
+            createdByUid: myUid,
+            memberUids: [myUid],
+            createdAt: serverTimestamp(),
+          });
+        }
+        await setDoc(doc(db, "users", myUid), { joinedTeamIds: arrayUnion(draftTeamId) }, { merge: true });
+      }
+
+      async function runInviteSearch() {
+        clearInviteSearchResult();
+        setInviteMsg("", "");
+        const raw = document.getElementById("inputInviteSearch").value;
+        const key = normalizeSynthIQUsername(raw);
+        if (!key || !/^[a-z0-9._-]+$/.test(key)) {
+          setInviteMsg("Enter a valid username (letters, numbers, . _ -).", "err");
+          return;
+        }
+        if (!myUid) {
+          setInviteMsg("Sign in again.", "err");
+          return;
+        }
+        try {
+          const us = await getDoc(doc(db, "usernames", key));
+          if (!us.exists()) {
+            setInviteMsg("No account uses that username yet.", "err");
+            return;
+          }
+          const toUid = us.data().uid;
+          if (toUid === myUid) {
+            setInviteMsg("That’s you — pick someone else.", "err");
+            return;
+          }
+          let alreadyMember = false;
+          try {
+            const tr = await getDoc(doc(db, "teams", draftTeamId));
+            const mu = tr.exists() ? tr.data().memberUids : null;
+            if (Array.isArray(mu) && mu.indexOf(toUid) !== -1) alreadyMember = true;
+          } catch (_) {}
+          lookupHit = { uid: toUid, usernameKey: key };
+          const box = document.getElementById("inviteSearchResult");
+          box.innerHTML = "";
+          const row = document.createElement("div");
+          row.className = "invite-result";
+          row.innerHTML =
+            '<span class="who">@' + escapeHtml(key) + '</span>';
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "btn btn-primary btn-sm";
+          btn.textContent = "Invite";
+          const already = draftPendingInvites.some(function (x) {
+            return x.uid === toUid;
+          });
+          if (alreadyMember) {
+            btn.disabled = true;
+            btn.textContent = "Member";
+          } else if (already) {
+            btn.disabled = true;
+            btn.textContent = "Invited";
+          }
+          btn.addEventListener("click", async function () {
+            await sendFirestoreInvite(toUid, key, btn);
+          });
+          row.appendChild(btn);
+          box.appendChild(row);
+          setInviteMsg(alreadyMember ? "Already on this team." : "User found.", "ok");
+        } catch (e) {
+          console.warn(e);
+          setInviteMsg(e.message || "Search failed.", "err");
+        }
+      }
+
+      async function sendFirestoreInvite(toUid, usernameKey, btnEl) {
+        if (!myUid || !draftTeamId || !draftName) return;
+        try {
+          await refreshIdTokenForFirestore(myUid);
+          if (btnEl) {
+            btnEl.disabled = true;
+            btnEl.textContent = "Sending…";
+          }
+          const teamSnapEarly = await getDoc(doc(db, "teams", draftTeamId));
+          const membersEarly = teamSnapEarly.exists() ? teamSnapEarly.data().memberUids : null;
+          if (Array.isArray(membersEarly) && membersEarly.indexOf(toUid) !== -1) {
+            setInviteMsg("That user is already in this team.", "ok");
+            if (btnEl) {
+              btnEl.disabled = true;
+              btnEl.textContent = "Member";
+            }
+            return;
+          }
+          const meDoc = await getDoc(doc(db, "users", myUid));
+          const fromUsername =
+            meDoc.exists() && meDoc.data().username ? String(meDoc.data().username) : myUid.slice(0, 8);
+
+          const inviteRef = doc(db, "teamInvites", inviteDocId(draftTeamId, toUid));
+          const existing = await getDoc(inviteRef);
+          if (existing.exists()) {
+            const st = existing.data().status;
+            if (st === "pending") {
+              setInviteMsg("You already invited this user.", "ok");
+              if (!draftPendingInvites.some(function (x) {
+                return x.uid === toUid;
+              })) {
+                draftPendingInvites.push({ usernameKey: usernameKey, uid: toUid });
+                renderInviteSentList();
+              }
+              if (btnEl) {
+                btnEl.disabled = true;
+                btnEl.textContent = "Invited";
+              }
+              return;
+            }
+            if (st === "declined") {
+              await deleteDoc(inviteRef);
+            }
+            if (st === "accepted") {
+              setInviteMsg("That user is already in this team.", "ok");
+              if (btnEl) {
+                btnEl.disabled = true;
+                btnEl.textContent = "Member";
+              }
+              return;
+            }
+          }
+
+          await setDoc(inviteRef, {
+            teamId: draftTeamId,
+            teamName: draftName,
+            fromUid: myUid,
+            fromUsername: fromUsername,
+            toUid: toUid,
+            status: "pending",
+            createdAt: serverTimestamp(),
+          });
+
+          const inviteActorLabel =
+            auth.currentUser?.displayName?.trim() ||
+            auth.currentUser?.email?.split("@")[0] ||
+            "Member";
+          try {
+            await logTeamActivity(
+              db,
+              draftTeamId,
+              myUid,
+              inviteActorLabel,
+              "invite_sent",
+              "Invited @" + usernameKey + " to the team."
+            );
+          } catch (logErr) {
+            console.warn(logErr);
+          }
+
+          if (!draftPendingInvites.some(function (x) {
+            return x.uid === toUid;
+          })) {
+            draftPendingInvites.push({ usernameKey: usernameKey, uid: toUid });
+          }
+          renderInviteSentList();
+          setInviteMsg("Invite sent.", "ok");
+          clearInviteSearchResult();
+          document.getElementById("inputInviteSearch").value = "";
+          if (btnEl) {
+            btnEl.textContent = "Invited";
+          }
+        } catch (e) {
+          console.warn(e);
+          setInviteMsg(
+            e.code === "permission-denied"
+              ? "Could not send invite (check Firestore rules / team created)."
+              : e.message || "Invite failed.",
+            "err"
+          );
+          if (btnEl) {
+            btnEl.disabled = false;
+            btnEl.textContent = "Invite";
+          }
+        }
+      }
+
+      function setInboxMsg(text, kind) {
+        const el = document.getElementById("inboxMsg");
+        if (!el) return;
+        el.textContent = text || "";
+        el.classList.remove("err", "ok");
+        if (kind === "err") el.classList.add("err");
+        if (kind === "ok") el.classList.add("ok");
+      }
+
+      async function loadInboxInvites() {
+        const listEl = document.getElementById("inboxList");
+        if (!listEl || !myUid) return;
+        listEl.innerHTML = "";
+        setInboxMsg("Loading…", "");
+        try {
+          await refreshIdTokenForFirestore(myUid);
+          const q = query(collection(db, "teamInvites"), where("toUid", "==", myUid));
+          const snap = await getDocs(q);
+          const pending = [];
+          snap.forEach(function (d) {
+            const data = d.data();
+            if (data.status === "pending") pending.push({ id: d.id, ref: d.ref, data: data });
+          });
+          setInboxMsg("", "");
+          if (!pending.length) {
+            listEl.innerHTML =
+              '<p class="hint" style="margin:0">No team invites yet. When a teammate invites you by SynthIQ username, it appears here.</p>';
+            return;
+          }
+          pending.forEach(function (row) {
+            const data = row.data;
+            const teamId = data.teamId || "";
+            const teamName = escapeHtml(data.teamName || "Team");
+            const fromU = escapeHtml(data.fromUsername || data.fromUid || "Someone");
+            const wrap = document.createElement("div");
+            wrap.className = "invite-result";
+            wrap.innerHTML =
+              '<div><span class="who">' +
+              teamName +
+              '</span><br><span style="font-size:0.8rem;color:var(--muted)">Team ID ' +
+              escapeHtml(teamId) +
+              " · From @" +
+              fromU +
+              "</span></div>";
+            const actions = document.createElement("div");
+            actions.style.display = "flex";
+            actions.style.gap = "0.5rem";
+            actions.style.flexWrap = "wrap";
+            const acc = document.createElement("button");
+            acc.type = "button";
+            acc.className = "btn btn-primary btn-sm";
+            acc.textContent = "Accept";
+            acc.addEventListener("click", async function () {
+              acc.disabled = true;
+              dec.disabled = true;
+              await acceptTeamInvite(teamId, row.ref);
+              await loadInboxInvites();
+            });
+            const dec = document.createElement("button");
+            dec.type = "button";
+            dec.className = "btn btn-secondary btn-sm";
+            dec.textContent = "Decline";
+            dec.addEventListener("click", async function () {
+              acc.disabled = true;
+              dec.disabled = true;
+              await declineTeamInvite(row.ref);
+              await loadInboxInvites();
+            });
+            actions.appendChild(acc);
+            actions.appendChild(dec);
+            wrap.appendChild(actions);
+            listEl.appendChild(wrap);
+          });
+        } catch (e) {
+          console.warn(e);
+          setInboxMsg(
+            e.code === "permission-denied"
+              ? "Could not load inbox (check Firestore rules)."
+              : e.message || "Could not load invites.",
+            "err"
+          );
+          listEl.innerHTML = "";
+        }
+      }
+
+      async function acceptTeamInvite(teamId, inviteRef) {
+        if (!myUid || !teamId) return;
+        try {
+          await refreshIdTokenForFirestore(myUid);
+          const teamRef = doc(db, "teams", teamId);
+          await updateDoc(teamRef, { memberUids: arrayUnion(myUid) });
+          await updateDoc(inviteRef, {
+            status: "accepted",
+            respondedAt: serverTimestamp(),
+          });
+          const joinLabel =
+            auth.currentUser?.displayName?.trim() ||
+            auth.currentUser?.email?.split("@")[0] ||
+            "Member";
+          try {
+            await logTeamActivity(db, teamId, myUid, joinLabel, "member_joined", "Joined the team.");
+          } catch (logErr) {
+            console.warn(logErr);
+          }
+          try {
+            await setDoc(doc(db, "users", myUid), { joinedTeamIds: arrayUnion(teamId) }, { merge: true });
+          } catch (idxErr) {
+            console.warn("SynthIQ: could not index joined team on profile", idxErr);
+          }
+          setInboxMsg("You joined the team.", "ok");
+        } catch (e) {
+          console.warn(e);
+          setInboxMsg(e.code === "permission-denied" ? "Could not accept (rules or invite expired)." : e.message || "Accept failed.", "err");
+        }
+      }
+
+      async function declineTeamInvite(inviteRef) {
+        if (!myUid) return;
+        try {
+          await refreshIdTokenForFirestore(myUid);
+          await updateDoc(inviteRef, {
+            status: "declined",
+            respondedAt: serverTimestamp(),
+          });
+          setInboxMsg("Invite declined.", "ok");
+        } catch (e) {
+          console.warn(e);
+          setInboxMsg(e.code === "permission-denied" ? "Could not decline invite." : e.message || "Decline failed.", "err");
+        }
+      }
+
+      /** --- Views --- */
+      document.getElementById("btnInboxBack").addEventListener("click", function () {
+        stripInboxEntryFromUrl();
+        showOnly("viewLanding");
+      });
+
+      document.getElementById("btnLandingCreate").addEventListener("click", async function () {
+        if (!myUid && auth.currentUser) myUid = auth.currentUser.uid;
+        if (!myUid) {
+          alert("Please sign in.");
+          return;
+        }
+        try {
+          const pro = await loadUserPlanIsPro(myUid);
+          if (!pro && (await countTeamsCreatedBy(myUid)) >= 1) {
+            openTeamsProModal();
+            return;
+          }
+        } catch (e) {
+          console.warn(e);
+        }
+        draftName = "";
+        draftPendingInvites = [];
+        draftTeamId = generateTeamId();
+        lookupHit = null;
+        document.getElementById("inputTeamName").value = "";
+        showOnly("viewCreate1");
+      });
+
+      document.getElementById("btnLandingJoin").addEventListener("click", function () {
+        document.getElementById("inputJoinId").value = "";
+        document.getElementById("joinErr").classList.add("hidden");
+        showOnly("viewJoin");
+      });
+
+      document.getElementById("btnCreate1Back").addEventListener("click", function () {
+        showOnly("viewLanding");
+      });
+      document.getElementById("btnCreate1Next").addEventListener("click", async function () {
+        const nm = document.getElementById("inputTeamName").value.trim();
+        if (!nm) {
+          alert("Please enter a team name.");
+          return;
+        }
+        if (!auth.currentUser) {
+          alert("Please sign in.");
+          return;
+        }
+        myUid = auth.currentUser.uid;
+        draftName = nm;
+        const btn = document.getElementById("btnCreate1Next");
+        btn.disabled = true;
+        try {
+          await ensureFirestoreTeam();
+        } catch (e) {
+          console.warn(e);
+          alert(e.message || "Could not create team in Firebase. Check Firestore rules and network.");
+          btn.disabled = false;
+          return;
+        }
+        btn.disabled = false;
+        document.getElementById("inputInviteSearch").value = "";
+        clearInviteSearchResult();
+        setInviteMsg("", "");
+        renderInviteSentList();
+        showOnly("viewCreate2");
+      });
+
+      document.getElementById("btnCreate2Back").addEventListener("click", function () {
+        showOnly("viewCreate1");
+      });
+
+      document.getElementById("btnInviteSearch").addEventListener("click", function () {
+        runInviteSearch();
+      });
+      document.getElementById("inputInviteSearch").addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          runInviteSearch();
+        }
+      });
+
+      document.getElementById("btnCreate2Next").addEventListener("click", function () {
+        document.getElementById("displayTeamId").textContent = draftTeamId;
+        showOnly("viewCreate3");
+      });
+
+      document.getElementById("btnCreate3Back").addEventListener("click", function () {
+        renderInviteSentList();
+        showOnly("viewCreate2");
+      });
+
+      document.getElementById("btnCopyTeamId").addEventListener("click", async function () {
+        try {
+          await navigator.clipboard.writeText(draftTeamId);
+          const b = document.getElementById("btnCopyTeamId");
+          const prev = b.textContent;
+          b.textContent = "Copied!";
+          setTimeout(function () {
+            b.textContent = prev;
+          }, 1600);
+        } catch {
+          alert("Copy manually: " + draftTeamId);
+        }
+      });
+
+      document.getElementById("btnCreate3Finish").addEventListener("click", function () {
+        const inviteLabels = draftPendingInvites.map(function (x) {
+          return x.usernameKey;
+        });
+        let w = loadWorkspace() || {};
+        w.teamId = draftTeamId;
+        w.teamName = draftName;
+        w.invites = inviteLabels;
+        w.docs = w.docs || "";
+        w.presentations = w.presentations || [];
+        w.importedFiles = w.importedFiles || [];
+        saveWorkspace(w);
+        try {
+          sessionStorage.removeItem("synthiq_teams_ui");
+        } catch (_) {}
+        window.location.href = "./team-room.html?id=" + encodeURIComponent(draftTeamId);
+      });
+
+      document.getElementById("btnJoinBack").addEventListener("click", function () {
+        showOnly("viewLanding");
+      });
+
+      document.getElementById("btnJoinGo").addEventListener("click", async function () {
+        const raw = document.getElementById("inputJoinId").value.trim().toUpperCase();
+        const err = document.getElementById("joinErr");
+        err.classList.add("hidden");
+        if (!raw) {
+          err.textContent = "Enter a team ID.";
+          err.classList.remove("hidden");
+          return;
+        }
+        if (!auth.currentUser) {
+          err.textContent = "Please sign in.";
+          err.classList.remove("hidden");
+          return;
+        }
+        let normalized = raw.replace(/\s+/g, "");
+        if (!normalized.startsWith("SYN-")) normalized = "SYN-" + normalized.replace(/^SYN-?/, "");
+        let teamSnapForName = null;
+        try {
+          await refreshIdTokenForFirestore(auth.currentUser.uid);
+          const teamSnap = await getDoc(doc(db, "teams", normalized));
+          teamSnapForName = teamSnap;
+          if (!teamSnap.exists()) {
+            err.textContent = "That team ID does not exist.";
+            err.classList.remove("hidden");
+            return;
+          }
+          const mu = teamSnap.data().memberUids;
+          if (!Array.isArray(mu) || mu.indexOf(auth.currentUser.uid) === -1) {
+            err.textContent =
+              "You are not a member yet. Ask the owner to invite your SynthIQ username, then accept from Team invites.";
+            err.classList.remove("hidden");
+            return;
+          }
+        } catch (e) {
+          console.warn(e);
+          err.textContent = e.message || "Could not verify team.";
+          err.classList.remove("hidden");
+          return;
+        }
+        const tn = teamSnapForName && teamSnapForName.exists() ? teamSnapForName.data().name || "Joined team" : "Joined team";
+        let w = loadWorkspace();
+        if (!w || w.teamId !== normalized) {
+          w = {
+            teamId: normalized,
+            teamName: tn,
+            invites: [],
+            docs: "",
+            presentations: [],
+            importedFiles: [],
+          };
+          saveWorkspace(w);
+        } else {
+          w.teamName = tn;
+          saveWorkspace(w);
+        }
+        try {
+          sessionStorage.removeItem("synthiq_teams_ui");
+        } catch (_) {}
+        window.location.href = "./team-room.html?id=" + encodeURIComponent(normalized);
+      });
+
+      document.getElementById("btnLeavePreview").addEventListener("click", function () {
+        try {
+          sessionStorage.setItem("synthiq_teams_ui", "landing");
+        } catch (_) {}
+        showOnly("viewLanding");
+      });
+
+      /* Group project drawer */
+      const drawer = document.getElementById("projectDrawer");
+      document.getElementById("toggleGroupProject").addEventListener("click", function () {
+        drawer.classList.toggle("is-open");
+        const open = drawer.classList.contains("is-open");
+        document.getElementById("toggleGroupProject").textContent = open ? "Group project ▴" : "Group project ▾";
+      });
+
+      /* Docs autosave */
+      let docsTimer = null;
+      document.getElementById("teamDocsBody").addEventListener("input", function () {
+        clearTimeout(docsTimer);
+        docsTimer = setTimeout(function () {
+          const w = loadWorkspace();
+          if (!w) return;
+          w.docs = document.getElementById("teamDocsBody").value;
+          saveWorkspace(w);
+        }, 400);
+      });
+
+      /* Import files */
+      document.getElementById("tileImportFiles").addEventListener("click", function (e) {
+        if (e.target.closest("a")) return;
+        document.getElementById("hiddenFileInput").click();
+      });
+      document.getElementById("hiddenFileInput").addEventListener("change", function () {
+        const w = loadWorkspace();
+        if (!w) return;
+        const names = Array.from(this.files || []).map(function (f) {
+          return f.name;
+        });
+        w.importedFiles = names;
+        saveWorkspace(w);
+        syncPreviewFromStorage(auth.currentUser?.displayName || auth.currentUser?.email?.split("@")[0] || "You");
+        this.value = "";
+      });
+
+      const teamsProModal = document.getElementById("teamsProModal");
+
+      function openTeamsProModal() {
+        if (!teamsProModal) return;
+        teamsProModal.classList.add("is-open");
+        teamsProModal.setAttribute("aria-hidden", "false");
+      }
+
+      function closeTeamsProModal() {
+        if (!teamsProModal) return;
+        teamsProModal.classList.remove("is-open");
+        teamsProModal.setAttribute("aria-hidden", "true");
+      }
+
+      document.getElementById("teamsProModalUpgrade").addEventListener("click", function () {
+        closeTeamsProModal();
+        const u = "./pricing.html";
+        const w = window.open(u, "_blank", "noopener,noreferrer");
+        if (!w) window.location.href = u;
+      });
+      document.getElementById("teamsProModalBack").addEventListener("click", closeTeamsProModal);
+      teamsProModal.addEventListener("click", function (e) {
+        if (e.target === teamsProModal) closeTeamsProModal();
+      });
+
+      /* Presentation modal */
+      const presModal = document.getElementById("presModal");
+      document.getElementById("openPresLinkModal").addEventListener("click", function () {
+        document.getElementById("presUrlInput").value = "";
+        presModal.classList.add("is-open");
+        presModal.setAttribute("aria-hidden", "false");
+      });
+      document.getElementById("presModalCancel").addEventListener("click", function () {
+        presModal.classList.remove("is-open");
+        presModal.setAttribute("aria-hidden", "true");
+      });
+      presModal.addEventListener("click", function (e) {
+        if (e.target === presModal) {
+          presModal.classList.remove("is-open");
+          presModal.setAttribute("aria-hidden", "true");
+        }
+      });
+
+      document.getElementById("presModalNext").addEventListener("click", async function () {
+        let url = document.getElementById("presUrlInput").value.trim();
+        if (!url) {
+          alert("Paste a link first.");
+          return;
+        }
+        if (!/^https?:\/\//i.test(url)) url = "https://" + url;
+        let author =
+          auth.currentUser?.displayName?.trim() ||
+          auth.currentUser?.email?.split("@")[0] ||
+          "Member";
+        const w = loadWorkspace();
+        if (!w || !w.teamId) {
+          alert("Create or join a team first.");
+          return;
+        }
+        w.presentations = w.presentations || [];
+        w.presentations.push({ url: url, author: author });
+        saveWorkspace(w);
+        try {
+          await refreshIdTokenForFirestore(auth.currentUser.uid);
+          await addDoc(collection(db, "teams", w.teamId, "presentations"), {
+            url: url,
+            authorUid: auth.currentUser.uid,
+            authorLabel: author,
+            createdAt: serverTimestamp(),
+          });
+          try {
+            await logTeamActivity(
+              db,
+              w.teamId,
+              auth.currentUser.uid,
+              author,
+              "presentation",
+              "Shared a presentation link."
+            );
+          } catch (logErr) {
+            console.warn(logErr);
+          }
+        } catch (e) {
+          console.warn(e);
+        }
+        presModal.classList.remove("is-open");
+        presModal.setAttribute("aria-hidden", "true");
+        syncPreviewFromStorage(author);
+      });
+
+      /* Auth */
+      await authPersistenceReady;
+      onAuthStateChanged(auth, async function (user) {
+        if (!user) {
+          await new Promise(function (r) {
+            setTimeout(r, 120);
+          });
+          if (auth.currentUser) return;
+          window.location.replace("./signup/synthiq-signin.html");
+          return;
+        }
+        await ensureUsernameIndexFromProfile(user.uid);
+        myUid = user.uid;
+
+        const w = loadWorkspace();
+        let preferLanding = false;
+        try {
+          preferLanding = sessionStorage.getItem("synthiq_teams_ui") === "landing";
+        } catch (_) {}
+
+        if (wantsInboxEntry()) {
+          showOnly("viewInbox");
+          await loadInboxInvites();
+          return;
+        }
+
+        if (w && w.teamId && !preferLanding) {
+          showOnly("viewPreview");
+          syncPreviewFromStorage(user.displayName || user.email?.split("@")[0] || "You");
+        } else {
+          showOnly("viewLanding");
+        }
+      });
+    </script>
+    <footer class="synthiq-legal-footer" role="contentinfo">
+      <a href="./terms-and-services.html">Terms and services</a>
+    </footer>
+  </body>
+</html>

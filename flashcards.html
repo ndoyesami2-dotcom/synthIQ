@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flashcards — SynthIQ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/synthiq-legal-footer.css" />
+    <style>
+      :root {
+        --bg: #050814;
+        --card: rgba(18, 24, 48, 0.88);
+        --border: rgba(129, 140, 248, 0.22);
+        --text: #e8ecff;
+        --muted: #94a3b8;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Outfit", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        padding: 1rem 1rem 2rem;
+      }
+      a.home {
+        color: #a5b4fc;
+        font-weight: 600;
+        text-decoration: none;
+        margin-bottom: 1rem;
+        display: inline-block;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(200px, 260px) 1fr;
+        gap: 1.25rem;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+      @media (max-width: 840px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+      .panel {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        padding: 1rem 1.1rem;
+        backdrop-filter: blur(12px);
+      }
+      h1 {
+        margin: 0 0 0.35rem;
+        font-size: 1.5rem;
+        font-weight: 800;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 0.88rem;
+        margin: 0 0 1rem;
+      }
+      .deck-list button {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 0.55rem 0.65rem;
+        margin-bottom: 0.35rem;
+        border-radius: 0.55rem;
+        border: 1px solid transparent;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+      }
+      .deck-list button:hover {
+        background: rgba(99, 102, 241, 0.15);
+      }
+      .deck-list button.is-active {
+        border-color: rgba(129, 140, 248, 0.45);
+        background: rgba(99, 102, 241, 0.2);
+      }
+      label {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #a5b4fc;
+        margin-bottom: 0.35rem;
+      }
+      input,
+      textarea {
+        width: 100%;
+        padding: 0.5rem 0.65rem;
+        border-radius: 0.55rem;
+        border: 1px solid var(--border);
+        background: rgba(8, 12, 28, 0.9);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.88rem;
+        margin-bottom: 0.65rem;
+      }
+      textarea {
+        min-height: 4rem;
+        resize: vertical;
+      }
+      .btn {
+        padding: 0.5rem 0.95rem;
+        border-radius: 0.55rem;
+        border: none;
+        font-family: inherit;
+        font-weight: 700;
+        cursor: pointer;
+        background: linear-gradient(105deg, #7c3aed, #6366f1);
+        color: #fff;
+        margin-right: 0.4rem;
+        margin-bottom: 0.35rem;
+      }
+      .btn-ghost {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: var(--text);
+      }
+      .btn-danger {
+        background: rgba(248, 113, 113, 0.15);
+        border: 1px solid rgba(248, 113, 113, 0.35);
+        color: #fecaca;
+      }
+      .card-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        gap: 0.5rem;
+        align-items: start;
+        padding: 0.65rem;
+        margin-bottom: 0.45rem;
+        border-radius: 0.65rem;
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        font-size: 0.82rem;
+      }
+      @media (max-width: 640px) {
+        .card-row {
+          grid-template-columns: 1fr;
+        }
+      }
+      .card-row .body {
+        color: #cbd5e1;
+        line-height: 1.4;
+        word-break: break-word;
+      }
+      .card-row .body strong {
+        color: #c7d2fe;
+        display: block;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 0.2rem;
+      }
+      .study-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        background: rgba(4, 6, 15, 0.92);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      }
+      .study-overlay.is-open {
+        display: flex;
+      }
+      .study-card {
+        width: min(100%, 420px);
+        min-height: 220px;
+        perspective: 1000px;
+        cursor: pointer;
+      }
+      .study-inner {
+        position: relative;
+        width: 100%;
+        min-height: 220px;
+        transition: transform 0.45s ease;
+        transform-style: preserve-3d;
+        border-radius: 1rem;
+      }
+      .study-card.is-flipped .study-inner {
+        transform: rotateY(180deg);
+      }
+      .study-face {
+        position: absolute;
+        inset: 0;
+        backface-visibility: hidden;
+        border-radius: 1rem;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-size: 1.05rem;
+        line-height: 1.45;
+        border: 1px solid var(--border);
+      }
+      .study-front {
+        background: linear-gradient(145deg, rgba(88, 28, 135, 0.35), rgba(30, 27, 75, 0.95));
+      }
+      .study-back {
+        background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95));
+        transform: rotateY(180deg);
+      }
+      .study-tools {
+        margin-top: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+      }
+      .hint {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 0.5rem;
+        text-align: center;
+      }
+
+      .fc-modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 250;
+        background: rgba(4, 6, 15, 0.82);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        backdrop-filter: blur(8px);
+      }
+      .fc-modal-overlay.is-open {
+        display: flex;
+      }
+      .fc-modal {
+        width: min(100%, 420px);
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 1.25rem;
+        padding: 1.35rem 1.25rem;
+        box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+      }
+      .fc-modal h2 {
+        margin: 0 0 0.75rem;
+        font-size: 1.2rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      .fc-modal-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: flex-end;
+        margin-top: 1.15rem;
+      }
+      .deck-list button small {
+        display: block;
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: var(--muted);
+        margin-top: 0.15rem;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="home" href="./homepage.html">← Back to dashboard</a>
+    <div class="layout">
+      <aside class="panel">
+        <h1 style="font-size: 1.1rem">Decks</h1>
+        <p class="sub" style="margin-bottom: 0.65rem">Stored in your Firestore profile.</p>
+        <button type="button" class="btn" id="btnNewDeck">+ New deck</button>
+        <div class="deck-list" id="deckList" style="margin-top: 0.75rem"></div>
+      </aside>
+
+      <main class="panel" id="mainPanel">
+        <h1 id="deckTitle">Pick or create a deck</h1>
+        <p class="sub" id="deckSub">Add front / back text and study with flip cards.</p>
+
+        <div id="editor" hidden>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 0.75rem">
+            <button type="button" class="btn" id="btnStudy">Study this deck</button>
+            <button type="button" class="btn btn-ghost" id="btnQuizDeck">Quiz this deck</button>
+            <button type="button" class="btn btn-danger" id="btnDeleteDeck">Delete deck</button>
+          </div>
+          <label for="editorDeckSubject">Subject</label>
+          <select id="editorDeckSubject" style="margin-bottom: 0.45rem"></select>
+          <div id="editorDeckSubjectCustomWrap" hidden style="margin-bottom: 0.65rem">
+            <label for="inpEditorDeckSubjectCustom">Custom subject</label>
+            <input id="inpEditorDeckSubjectCustom" type="text" maxlength="80" placeholder="e.g. Calculus" autocomplete="off" />
+          </div>
+          <label for="inpFront">Front</label>
+          <textarea id="inpFront" placeholder="Question / term"></textarea>
+          <label for="inpBack">Back</label>
+          <textarea id="inpBack" placeholder="Answer / definition"></textarea>
+          <button type="button" class="btn" id="btnAddCard">Add card</button>
+
+          <h2 style="margin: 1.25rem 0 0.5rem; font-size: 0.95rem; font-weight: 800">Cards in deck</h2>
+          <div id="cardsList"></div>
+        </div>
+      </main>
+    </div>
+
+    <div class="study-overlay" id="studyOverlay" aria-hidden="true">
+      <div>
+        <div class="study-card" id="studyCard" role="button" tabindex="0" aria-label="Tap to flip">
+          <div class="study-inner">
+            <div class="study-face study-front" id="studyFrontText">Front</div>
+            <div class="study-face study-back" id="studyBackText">Back</div>
+          </div>
+        </div>
+        <p class="hint" id="studyProgress">1 / 1 · tap card to flip</p>
+        <div class="study-tools">
+          <button type="button" class="btn btn-ghost" id="studyPrev">Previous</button>
+          <button type="button" class="btn btn-ghost" id="studyNext">Next</button>
+          <button type="button" class="btn" id="studyClose">Exit study</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- New deck -->
+    <div class="fc-modal-overlay" id="deckNameModal" aria-hidden="true">
+      <div class="fc-modal" role="dialog" aria-modal="true" aria-labelledby="deckNameModalTitle">
+        <h2 id="deckNameModalTitle">Deck name</h2>
+        <label for="inpDeckName">Name your deck</label>
+        <input id="inpDeckName" type="text" maxlength="120" placeholder="e.g. Biology — Chapter 4" autocomplete="off" />
+        <label for="deckSubjectSelect">Subject</label>
+        <select id="deckSubjectSelect" style="margin-bottom: 0.45rem"></select>
+        <div id="deckSubjectCustomWrap" hidden>
+          <label for="inpDeckSubjectCustom">Your subject</label>
+          <input id="inpDeckSubjectCustom" type="text" maxlength="80" placeholder="e.g. Organic chemistry" autocomplete="off" />
+        </div>
+        <div class="fc-modal-actions">
+          <button type="button" class="btn btn-ghost" id="deckNameModalCancel">Cancel</button>
+          <button type="button" class="btn" id="deckNameModalCreate">Create deck</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete deck -->
+    <div class="fc-modal-overlay" id="deleteDeckModal" aria-hidden="true">
+      <div class="fc-modal" role="dialog" aria-modal="true" aria-labelledby="deleteDeckModalTitle">
+        <h2 id="deleteDeckModalTitle">Delete deck</h2>
+        <p class="sub" style="margin-bottom: 0">
+          This permanently deletes this deck and every card inside it. You can’t undo this.
+        </p>
+        <div class="fc-modal-actions">
+          <button type="button" class="btn btn-ghost" id="deleteDeckModalCancel">Cancel</button>
+          <button type="button" class="btn btn-danger" id="deleteDeckModalConfirm">Delete deck</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { auth, authPersistenceReady, db } from "./signup/signup-firebase.js";
+      import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+      import {
+        collection,
+        doc,
+        addDoc,
+        deleteDoc,
+        updateDoc,
+        query,
+        orderBy,
+        onSnapshot,
+        serverTimestamp,
+        writeBatch,
+        getDocs,
+      } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+      /** @type {string | null} */
+      let uid = null;
+      /** @type {string | null} */
+      let activeDeckId = null;
+      /** @type {{ id: string, front: string, back: string }[]} */
+      let studyCards = [];
+      let studyIndex = 0;
+
+      const deckList = document.getElementById("deckList");
+      const deckTitle = document.getElementById("deckTitle");
+      const deckSub = document.getElementById("deckSub");
+      const editor = document.getElementById("editor");
+      const cardsList = document.getElementById("cardsList");
+      const studyOverlay = document.getElementById("studyOverlay");
+      const studyCard = document.getElementById("studyCard");
+      const studyFrontText = document.getElementById("studyFrontText");
+      const studyBackText = document.getElementById("studyBackText");
+      const studyProgress = document.getElementById("studyProgress");
+
+      const deckNameModal = document.getElementById("deckNameModal");
+      const inpDeckName = document.getElementById("inpDeckName");
+      const deckSubjectSelect = document.getElementById("deckSubjectSelect");
+      const deckSubjectCustomWrap = document.getElementById("deckSubjectCustomWrap");
+      const inpDeckSubjectCustom = document.getElementById("inpDeckSubjectCustom");
+      const editorDeckSubject = document.getElementById("editorDeckSubject");
+      const editorDeckSubjectCustomWrap = document.getElementById("editorDeckSubjectCustomWrap");
+      const inpEditorDeckSubjectCustom = document.getElementById("inpEditorDeckSubjectCustom");
+      const deleteDeckModal = document.getElementById("deleteDeckModal");
+
+      var SUBJECT_PRESETS = [
+        "General",
+        "Math",
+        "Algebra",
+        "Geometry",
+        "Science",
+        "Biology",
+        "Chemistry",
+        "Physics",
+        "English",
+        "History",
+        "Geography",
+        "Social Studies",
+        "Computer Science",
+        "Foreign Language",
+        "Economics",
+        "Psychology",
+        "Arts",
+        "Health",
+        "Physical Education",
+        "Other",
+      ];
+
+      function populateSubjectSelect(selectEl) {
+        selectEl.innerHTML = "";
+        SUBJECT_PRESETS.forEach(function (label) {
+          var opt = document.createElement("option");
+          opt.value = label === "Other" ? "__custom__" : label;
+          opt.textContent = label;
+          selectEl.appendChild(opt);
+        });
+      }
+
+      populateSubjectSelect(deckSubjectSelect);
+      populateSubjectSelect(editorDeckSubject);
+
+      function readSubjectFromModal() {
+        if (deckSubjectSelect.value === "__custom__") {
+          var c = (inpDeckSubjectCustom.value || "").trim();
+          return c || "General";
+        }
+        return deckSubjectSelect.value || "General";
+      }
+
+      function applyStoredSubjectToEditor(stored) {
+        var s = (stored || "General").trim() || "General";
+        var matchPreset = SUBJECT_PRESETS.some(function (p) {
+          return p !== "Other" && p === s;
+        });
+        if (matchPreset) {
+          editorDeckSubject.value = s;
+          editorDeckSubjectCustomWrap.hidden = true;
+          inpEditorDeckSubjectCustom.value = "";
+          return;
+        }
+        editorDeckSubject.value = "__custom__";
+        editorDeckSubjectCustomWrap.hidden = false;
+        inpEditorDeckSubjectCustom.value = s;
+      }
+
+      function readSubjectFromEditor() {
+        if (editorDeckSubject.value === "__custom__") {
+          return (inpEditorDeckSubjectCustom.value || "").trim() || "General";
+        }
+        return editorDeckSubject.value || "General";
+      }
+
+      deckSubjectSelect.addEventListener("change", function () {
+        deckSubjectCustomWrap.hidden = deckSubjectSelect.value !== "__custom__";
+      });
+
+      async function saveDeckSubjectFromEditor() {
+        if (!uid || !activeDeckId) return;
+        var subject = readSubjectFromEditor();
+        try {
+          await updateDoc(doc(db, "users", uid, "flashcardDecks", activeDeckId), {
+            subject: subject,
+            updatedAt: serverTimestamp(),
+          });
+        } catch (e) {
+          console.warn(e);
+          alert(e.message || "Could not save subject.");
+        }
+      }
+
+      editorDeckSubject.addEventListener("change", function () {
+        editorDeckSubjectCustomWrap.hidden = editorDeckSubject.value !== "__custom__";
+        saveDeckSubjectFromEditor();
+      });
+      inpEditorDeckSubjectCustom.addEventListener("change", saveDeckSubjectFromEditor);
+
+      function openDeckNameModal() {
+        inpDeckName.value = "My deck";
+        deckSubjectSelect.value = "General";
+        deckSubjectCustomWrap.hidden = true;
+        inpDeckSubjectCustom.value = "";
+        deckNameModal.classList.add("is-open");
+        deckNameModal.setAttribute("aria-hidden", "false");
+        setTimeout(function () {
+          inpDeckName.focus();
+          inpDeckName.select();
+        }, 30);
+      }
+
+      function closeDeckNameModal() {
+        deckNameModal.classList.remove("is-open");
+        deckNameModal.setAttribute("aria-hidden", "true");
+      }
+
+      function openDeleteDeckModal() {
+        deleteDeckModal.classList.add("is-open");
+        deleteDeckModal.setAttribute("aria-hidden", "false");
+      }
+
+      function closeDeleteDeckModal() {
+        deleteDeckModal.classList.remove("is-open");
+        deleteDeckModal.setAttribute("aria-hidden", "true");
+      }
+
+      async function createDeckFromModal() {
+        if (!uid) return;
+        var nm = (inpDeckName.value || "").trim() || "My deck";
+        var subject = readSubjectFromModal();
+        try {
+          await addDoc(collection(db, "users", uid, "flashcardDecks"), {
+            name: nm,
+            subject: subject,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          });
+          closeDeckNameModal();
+        } catch (e) {
+          alert(e.message || "Could not create deck. Publish flashcard Firestore rules if needed.");
+        }
+      }
+
+      async function performDeleteDeck() {
+        if (!uid || !activeDeckId) return;
+        try {
+          var cq = collection(db, "users", uid, "flashcardDecks", activeDeckId, "cards");
+          var snap = await getDocs(cq);
+          var batch = writeBatch(db);
+          snap.forEach(function (d) {
+            batch.delete(d.ref);
+          });
+          batch.delete(doc(db, "users", uid, "flashcardDecks", activeDeckId));
+          await batch.commit();
+          if (typeof unsubCards === "function") {
+            unsubCards();
+            unsubCards = null;
+          }
+          editor.hidden = true;
+          activeDeckId = null;
+          deckTitle.textContent = "Pick or create a deck";
+          deckSub.textContent = "Add front / back text and study with flip cards.";
+          document.querySelectorAll(".deck-list button[data-deck-id]").forEach(function (b) {
+            b.classList.remove("is-active");
+          });
+          cardsList.innerHTML = "";
+          closeDeleteDeckModal();
+        } catch (e) {
+          alert(e.message || "Could not delete deck.");
+        }
+      }
+
+      function escapeHtml(s) {
+        var d = document.createElement("div");
+        d.textContent = s;
+        return d.innerHTML;
+      }
+
+      /** @type {null | function} */
+      let unsubCards = null;
+
+      function bindCardsListener(deckId) {
+        if (typeof unsubCards === "function") {
+          unsubCards();
+          unsubCards = null;
+        }
+        if (!uid || !deckId) return;
+        var q = query(collection(db, "users", uid, "flashcardDecks", deckId, "cards"), orderBy("createdAt", "asc"));
+        unsubCards = onSnapshot(q, function (snap) {
+          cardsList.innerHTML = "";
+          studyCards = [];
+          if (snap.empty) {
+            cardsList.innerHTML = '<p class="sub" style="margin:0">No cards yet. Add your first above.</p>';
+            return;
+          }
+          snap.forEach(function (d) {
+            var c = d.data();
+            studyCards.push({ id: d.id, front: c.front || "", back: c.back || "" });
+            var row = document.createElement("div");
+            row.className = "card-row";
+            row.innerHTML =
+              '<div class="body"><strong>Front</strong>' +
+              escapeHtml(c.front || "") +
+              '</div><div class="body"><strong>Back</strong>' +
+              escapeHtml(c.back || "") +
+              "</div>";
+            var del = document.createElement("button");
+            del.type = "button";
+            del.className = "btn btn-danger";
+            del.textContent = "Remove";
+            del.addEventListener("click", function () {
+              deleteDoc(doc(db, "users", uid, "flashcardDecks", deckId, "cards", d.id));
+            });
+            row.appendChild(del);
+            cardsList.appendChild(row);
+          });
+        });
+      }
+
+      function selectDeck(id, name, deckData) {
+        activeDeckId = id;
+        deckTitle.textContent = name || "Deck";
+        var sub = (deckData && deckData.subject) || "General";
+        deckSub.textContent = sub + " · Cards save to Firestore for this account.";
+        applyStoredSubjectToEditor(sub);
+        editor.hidden = false;
+        document.querySelectorAll(".deck-list button[data-deck-id]").forEach(function (b) {
+          b.classList.toggle("is-active", b.getAttribute("data-deck-id") === id);
+        });
+        bindCardsListener(id);
+      }
+
+      function renderStudySlide() {
+        if (!studyCards.length) return;
+        var c = studyCards[studyIndex];
+        studyFrontText.textContent = c.front || "—";
+        studyBackText.textContent = c.back || "—";
+        studyCard.classList.remove("is-flipped");
+        studyProgress.textContent =
+          studyIndex + 1 + " / " + studyCards.length + " · tap card to flip · ← / → ";
+      }
+
+      function openStudy() {
+        if (!studyCards.length) {
+          alert("Add at least one card first.");
+          return;
+        }
+        studyIndex = 0;
+        renderStudySlide();
+        studyOverlay.classList.add("is-open");
+        studyOverlay.setAttribute("aria-hidden", "false");
+      }
+
+      function closeStudy() {
+        studyOverlay.classList.remove("is-open");
+        studyOverlay.setAttribute("aria-hidden", "true");
+        studyCard.classList.remove("is-flipped");
+      }
+
+      await authPersistenceReady;
+
+      onAuthStateChanged(auth, function (user) {
+        if (!user) {
+          window.location.replace("./signup/synthiq-signin.html");
+          return;
+        }
+        uid = user.uid;
+
+        var qDecks = query(collection(db, "users", uid, "flashcardDecks"), orderBy("updatedAt", "desc"));
+        onSnapshot(qDecks, function (snap) {
+          deckList.innerHTML = "";
+          if (snap.empty) {
+            deckList.innerHTML = '<p class="sub" style="margin:0">No decks yet.</p>';
+            return;
+          }
+          snap.forEach(function (d) {
+            var data = d.data();
+            var btn = document.createElement("button");
+            btn.type = "button";
+            btn.setAttribute("data-deck-id", d.id);
+            btn.addEventListener("click", function () {
+              selectDeck(d.id, data.name, data);
+            });
+            var main = document.createElement("span");
+            main.textContent = data.name || "Untitled deck";
+            var sm = document.createElement("small");
+            sm.textContent = data.subject || "General";
+            btn.appendChild(main);
+            btn.appendChild(sm);
+            deckList.appendChild(btn);
+          });
+        });
+      });
+
+      document.getElementById("btnNewDeck").addEventListener("click", function () {
+        if (!uid) return;
+        openDeckNameModal();
+      });
+
+      document.getElementById("deckNameModalCancel").addEventListener("click", closeDeckNameModal);
+      deckNameModal.addEventListener("click", function (e) {
+        if (e.target === deckNameModal) closeDeckNameModal();
+      });
+      document.getElementById("deckNameModalCreate").addEventListener("click", function () {
+        createDeckFromModal();
+      });
+      inpDeckName.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          createDeckFromModal();
+        }
+      });
+
+      document.getElementById("btnAddCard").addEventListener("click", async function () {
+        if (!uid || !activeDeckId) return;
+        var front = document.getElementById("inpFront").value.trim();
+        var back = document.getElementById("inpBack").value.trim();
+        if (!front || !back) {
+          alert("Add both front and back text.");
+          return;
+        }
+        try {
+          await addDoc(collection(db, "users", uid, "flashcardDecks", activeDeckId, "cards"), {
+            front: front,
+            back: back,
+            createdAt: serverTimestamp(),
+          });
+          await updateDoc(doc(db, "users", uid, "flashcardDecks", activeDeckId), {
+            updatedAt: serverTimestamp(),
+          });
+          document.getElementById("inpFront").value = "";
+          document.getElementById("inpBack").value = "";
+        } catch (e) {
+          alert(e.message || "Could not add card.");
+        }
+      });
+
+      document.getElementById("btnQuizDeck").addEventListener("click", function () {
+        if (!activeDeckId) return;
+        window.location.href = "./quiz-mode.html?deck=" + encodeURIComponent(activeDeckId);
+      });
+      document.getElementById("btnStudy").addEventListener("click", openStudy);
+      studyCard.addEventListener("click", function () {
+        studyCard.classList.toggle("is-flipped");
+      });
+      studyCard.addEventListener("keydown", function (e) {
+        if (e.key === " " || e.key === "Enter") {
+          e.preventDefault();
+          studyCard.classList.toggle("is-flipped");
+        }
+      });
+      document.getElementById("studyClose").addEventListener("click", closeStudy);
+      document.getElementById("studyPrev").addEventListener("click", function () {
+        if (!studyCards.length) return;
+        studyIndex = studyIndex <= 0 ? studyCards.length - 1 : studyIndex - 1;
+        renderStudySlide();
+      });
+      document.getElementById("studyNext").addEventListener("click", function () {
+        if (!studyCards.length) return;
+        studyIndex = studyIndex >= studyCards.length - 1 ? 0 : studyIndex + 1;
+        renderStudySlide();
+      });
+      window.addEventListener("keydown", function (e) {
+        if (e.key !== "Escape") return;
+        if (deckNameModal.classList.contains("is-open")) {
+          e.preventDefault();
+          closeDeckNameModal();
+          return;
+        }
+        if (deleteDeckModal.classList.contains("is-open")) {
+          e.preventDefault();
+          closeDeleteDeckModal();
+          return;
+        }
+        if (!studyOverlay.classList.contains("is-open")) return;
+        closeStudy();
+      });
+
+      document.getElementById("btnDeleteDeck").addEventListener("click", function () {
+        if (!uid || !activeDeckId) return;
+        openDeleteDeckModal();
+      });
+
+      document.getElementById("deleteDeckModalCancel").addEventListener("click", closeDeleteDeckModal);
+      deleteDeckModal.addEventListener("click", function (e) {
+        if (e.target === deleteDeckModal) closeDeleteDeckModal();
+      });
+      document.getElementById("deleteDeckModalConfirm").addEventListener("click", function () {
+        performDeleteDeck();
+      });
+    </script>
+    <footer class="synthiq-legal-footer" role="contentinfo">
+      <a href="./terms-and-services.html">Terms and services</a>
+    </footer>
+  </body>
+</html>

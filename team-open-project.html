@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Open project — SynthIQ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/synthiq-legal-footer.css" />
+    <style>
+      :root {
+        --bg: #050814;
+        --surface: rgba(18, 24, 48, 0.92);
+        --border: rgba(129, 140, 248, 0.22);
+        --text: #e8ecff;
+        --muted: #94a3b8;
+        --accent: #818cf8;
+        --radius: 1.25rem;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Outfit", system-ui, sans-serif;
+        background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.25), transparent),
+          var(--bg);
+        color: var(--text);
+        padding: clamp(1rem, 4vw, 2rem);
+      }
+      .hidden {
+        display: none !important;
+      }
+      .wrap {
+        max-width: 560px;
+        margin: 0 auto;
+      }
+      .top-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+      }
+      .top-row h1 {
+        margin: 0;
+        font-size: 1.45rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+      .sub {
+        margin: 0.35rem 0 0;
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+      .top-row a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.88rem;
+        white-space: nowrap;
+      }
+      .top-row a:hover {
+        text-decoration: underline;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.35rem 1.5rem;
+        backdrop-filter: blur(14px);
+      }
+      .hint {
+        color: var(--muted);
+        font-size: 0.88rem;
+        margin: 0 0 1rem;
+        line-height: 1.5;
+      }
+      label.lbl {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--accent);
+        margin-bottom: 0.4rem;
+      }
+      input[type="text"],
+      textarea {
+        width: 100%;
+        padding: 0.65rem 0.75rem;
+        border-radius: 0.65rem;
+        border: 1px solid var(--border);
+        background: rgba(6, 10, 26, 0.95);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+      }
+      textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+      .pw-step.hidden {
+        display: none !important;
+      }
+      .invite-msg {
+        font-size: 0.85rem;
+        margin: 0 0 0.75rem;
+        min-height: 1.25rem;
+      }
+      .invite-msg.err {
+        color: #fca5a5;
+      }
+      .wizard-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+      .wizard-actions .right-btns {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      .btn {
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.75rem;
+        border: none;
+        font-family: inherit;
+        font-size: 0.95rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .btn-primary {
+        background: linear-gradient(105deg, #7c3aed, #6366f1);
+        color: #fff;
+        box-shadow: 0 8px 28px rgba(99, 102, 241, 0.35);
+      }
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+      .btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+      #gateErr {
+        color: #fca5a5;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+      .pw-preview-area {
+        margin-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .att-preview-block {
+        border-radius: 1rem;
+        border: 1px solid var(--border);
+        padding: 0.85rem;
+        background: rgba(0, 0, 0, 0.22);
+      }
+      .att-preview-name {
+        font-weight: 700;
+        font-size: 0.82rem;
+        margin-bottom: 0.5rem;
+      }
+      .att-preview-img {
+        max-width: 100%;
+        max-height: 240px;
+        border-radius: 0.5rem;
+        object-fit: contain;
+        display: block;
+      }
+      .att-preview-frame {
+        width: 100%;
+        height: min(42vh, 300px);
+        border: none;
+        border-radius: 0.5rem;
+        background: #0a0f22;
+      }
+      .att-preview-video {
+        max-width: 100%;
+        max-height: 220px;
+        border-radius: 0.5rem;
+      }
+      .att-preview-text {
+        margin: 0;
+        max-height: 180px;
+        overflow: auto;
+        font-size: 0.76rem;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .att-preview-download {
+        margin-top: 0.5rem;
+      }
+      .pw-drop-zone {
+        border: 2px dashed rgba(129, 140, 248, 0.45);
+        border-radius: 0.75rem;
+        padding: 1.25rem 1rem;
+        margin-bottom: 1rem;
+        text-align: center;
+        background: rgba(0, 0, 0, 0.22);
+        transition: border-color 0.15s ease, background 0.15s ease;
+      }
+      .pw-drop-zone.dragover {
+        border-color: rgba(129, 140, 248, 0.95);
+        background: rgba(99, 102, 241, 0.12);
+      }
+      .pw-drop-zone p {
+        margin: 0;
+        font-size: 0.88rem;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+      .pw-drop-actions {
+        margin-top: 0.65rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+        align-items: center;
+      }
+      .pw-drop-actions .btn-file {
+        padding: 0.45rem 0.9rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--border);
+        background: rgba(99, 102, 241, 0.28);
+        color: var(--text);
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 0.82rem;
+        cursor: pointer;
+      }
+      .pw-drop-actions .btn-file:hover {
+        background: rgba(99, 102, 241, 0.42);
+      }
+      .pw-file-picked {
+        margin-top: 0.5rem;
+        font-size: 0.82rem;
+        color: var(--text);
+        font-weight: 600;
+      }
+      .pw-remove-file {
+        margin-left: 0.35rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #fca5a5;
+        background: none;
+        border: none;
+        cursor: pointer;
+        text-decoration: underline;
+        font-family: inherit;
+      }
+      .pw-divider {
+        margin: 1rem 0;
+        font-size: 0.72rem;
+        color: var(--muted);
+        text-align: center;
+        letter-spacing: 0.06em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="top-row">
+        <div>
+          <h1>Open project</h1>
+          <p class="sub" id="teamLine">Team · …</p>
+          <p class="sub" id="pwPostingAs" style="margin-top: 0.35rem; color: var(--muted)"></p>
+        </div>
+        <a id="backLink" href="./team-room.html">← Team room</a>
+      </div>
+
+      <p id="gateErr" class="hidden"></p>
+
+      <div id="wizardMain" class="card hidden">
+        <p class="hint" style="margin-top: 0">
+          Step <span id="pwStepNum">1</span> of 3 — publishing adds a team post with your presentation link.
+        </p>
+
+        <div class="pw-step" data-pw-step="1">
+          <label class="lbl" for="pwProjName">Project name</label>
+          <input id="pwProjName" type="text" maxlength="120" placeholder="e.g. Biology final presentation" autocomplete="off" />
+        </div>
+
+        <div class="pw-step hidden" data-pw-step="2">
+          <label class="lbl" for="pwProjDesc">Description</label>
+          <textarea id="pwProjDesc" maxlength="4000" placeholder="What is this project about?"></textarea>
+        </div>
+
+        <div class="pw-step hidden" data-pw-step="3">
+          <label class="lbl" for="pwFileLink">Presentation link</label>
+          <p class="hint" style="margin-top: 0">
+            Paste a public share URL from <strong>Canva</strong> or from <strong>PowerPoint</strong> on OneDrive / Microsoft 365 (<code>https://…</code>).
+          </p>
+          <input
+            id="pwFileLink"
+            type="url"
+            inputmode="url"
+            autocomplete="off"
+            placeholder="https://…"
+          />
+          <div id="pwPreviewArea" class="pw-preview-area" aria-live="polite"></div>
+          <button type="button" class="btn btn-primary" id="pwPublish" style="width: 100%; margin-top: 1rem">
+            Publish
+          </button>
+        </div>
+
+        <p class="invite-msg err hidden" id="pwErr" aria-live="polite"></p>
+
+        <div class="wizard-actions">
+          <button type="button" class="btn btn-secondary" id="pwCancel">Cancel</button>
+          <div class="right-btns">
+            <button type="button" class="btn btn-secondary hidden" id="pwBack">Back</button>
+            <button type="button" class="btn btn-primary" id="pwNext">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { tabStorageGetJson, tabStorageSetJson } from "./js/synthiq-tab-storage.js";
+      import {
+        auth,
+        authPersistenceReady,
+        db,
+        ensureUsernameIndexFromProfile,
+        refreshIdTokenForFirestore,
+      } from "./signup/signup-firebase.js";
+      import { logTeamActivity } from "./js/team-activity.js";
+      import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+      import {
+        doc,
+        getDoc,
+        collection,
+        addDoc,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+      import { appendAttachmentPreviewBlock } from "./js/team-post-attachment-preview.js";
+
+      const STORAGE_KEY = "synthiq_team_workspace_v1";
+
+      let teamId = "";
+      let myUid = "";
+      let pwStep = 1;
+
+      function loadWorkspace() {
+        return tabStorageGetJson(STORAGE_KEY, null);
+      }
+
+      function saveWorkspace(data) {
+        tabStorageSetJson(STORAGE_KEY, data);
+      }
+
+      function normalizeTeamId(raw) {
+        let t = String(raw || "").trim().toUpperCase().replace(/\s+/g, "");
+        if (!t.startsWith("SYN-")) t = "SYN-" + t.replace(/^SYN-?/, "");
+        return t;
+      }
+
+      function parseTeamIdFromUrl() {
+        try {
+          const p = new URLSearchParams(window.location.search);
+          return normalizeTeamId(p.get("id") || p.get("team") || "");
+        } catch (_) {
+          return "";
+        }
+      }
+
+      function syncPostingAsLine() {
+        const el = document.getElementById("pwPostingAs");
+        const u = auth.currentUser;
+        if (!el || !u) return;
+        const label = u.displayName?.trim() || u.email?.split("@")[0] || "Member";
+        el.textContent = "Posting as " + label;
+      }
+
+      function showGate(msg) {
+        const g = document.getElementById("gateErr");
+        g.textContent = msg;
+        g.classList.remove("hidden");
+        document.getElementById("wizardMain").classList.add("hidden");
+      }
+
+      function hideGateShowWizard(teamName) {
+        document.getElementById("gateErr").classList.add("hidden");
+        document.getElementById("wizardMain").classList.remove("hidden");
+        document.getElementById("teamLine").textContent = (teamName || "Team") + " · " + teamId;
+        document.getElementById("backLink").href =
+          "./team-room.html?id=" + encodeURIComponent(teamId) + "&tab=home";
+        syncPostingAsLine();
+      }
+
+      async function ensureWorkspaceForTeam(user, tid, teamName) {
+        let w = loadWorkspace();
+        const name = teamName || "Team";
+        if (!w || w.teamId !== tid) {
+          w = {
+            teamId: tid,
+            teamName: name,
+            invites: [],
+            docs: "",
+            presentations: [],
+            importedFiles: [],
+          };
+          saveWorkspace(w);
+        } else {
+          w.teamName = name;
+          saveWorkspace(w);
+        }
+      }
+
+      function pwSetErr(msg) {
+        const el = document.getElementById("pwErr");
+        if (!msg) {
+          el.textContent = "";
+          el.classList.add("hidden");
+          el.classList.remove("err");
+          return;
+        }
+        el.textContent = msg;
+        el.classList.remove("hidden");
+        el.classList.add("err");
+      }
+
+      function linkDisplayName(urlStr) {
+        try {
+          const u = new URL(urlStr);
+          const seg = u.pathname.split("/").filter(Boolean).pop();
+          if (seg) return decodeURIComponent(seg.replace(/\+/g, " ").split("?")[0]) || "Linked file";
+        } catch (_) {}
+        return "Linked file";
+      }
+
+      function escapeHtml(s) {
+        const d = document.createElement("div");
+        d.textContent = s ?? "";
+        return d.innerHTML;
+      }
+
+      function getPwFileLinkUrl() {
+        return document.getElementById("pwFileLink").value.trim();
+      }
+
+      function renderPwAttachmentPreview() {
+        const area = document.getElementById("pwPreviewArea");
+        if (!area || pwStep !== 3) return;
+        area.innerHTML = "";
+        const url = getPwFileLinkUrl();
+        if (/^https?:\/\//i.test(url)) {
+          appendAttachmentPreviewBlock(
+            area,
+            {
+              name: linkDisplayName(url),
+              mimeType: "",
+              size: 0,
+              dataUrl: "",
+              storageUrl: url,
+            },
+            { showDownload: true },
+          );
+        }
+      }
+
+      function showPwStepUi() {
+        document.querySelectorAll("[data-pw-step]").forEach(function (el) {
+          const n = parseInt(el.getAttribute("data-pw-step"), 10);
+          el.classList.toggle("hidden", n !== pwStep);
+        });
+        document.getElementById("pwStepNum").textContent = String(pwStep);
+        document.getElementById("pwBack").classList.toggle("hidden", pwStep <= 1);
+        document.getElementById("pwNext").classList.toggle("hidden", pwStep === 3);
+        if (pwStep === 3) {
+          renderPwAttachmentPreview();
+          document.getElementById("pwPublish").disabled = false;
+        }
+      }
+
+      function resetWizard() {
+        pwStep = 1;
+        document.getElementById("pwProjName").value = "";
+        document.getElementById("pwProjDesc").value = "";
+        document.getElementById("pwFileLink").value = "";
+        document.getElementById("pwPublish").disabled = false;
+        pwSetErr("");
+        showPwStepUi();
+        syncPostingAsLine();
+      }
+
+      document.getElementById("pwCancel").addEventListener("click", function () {
+        window.location.href = "./team-room.html?id=" + encodeURIComponent(teamId) + "&tab=home";
+      });
+
+      document.getElementById("pwFileLink").addEventListener("input", function () {
+        pwSetErr("");
+        renderPwAttachmentPreview();
+      });
+
+      document.getElementById("pwBack").addEventListener("click", function () {
+        if (pwStep <= 1) return;
+        pwStep -= 1;
+        pwSetErr("");
+        showPwStepUi();
+      });
+
+      document.getElementById("pwNext").addEventListener("click", function () {
+        pwSetErr("");
+        if (pwStep === 1) {
+          const nm = document.getElementById("pwProjName").value.trim();
+          if (!nm) {
+            pwSetErr("Enter a project name.");
+            return;
+          }
+          pwStep = 2;
+        } else if (pwStep === 2) {
+          const d = document.getElementById("pwProjDesc").value.trim();
+          if (!d) {
+            pwSetErr("Enter a description.");
+            return;
+          }
+          pwStep = 3;
+        }
+        showPwStepUi();
+      });
+
+      document.getElementById("pwPublish").addEventListener("click", async function () {
+        pwSetErr("");
+        const url = getPwFileLinkUrl();
+        const hasLink = /^https?:\/\//i.test(url);
+
+        if (!hasLink) {
+          pwSetErr("Paste a presentation link that starts with http:// or https://.");
+          return;
+        }
+        if (!myUid || !teamId) {
+          pwSetErr("Session or team missing.");
+          return;
+        }
+        const title = document.getElementById("pwProjName").value.trim();
+        const projDesc = document.getElementById("pwProjDesc").value.trim();
+        if (!title) {
+          pwSetErr("Project name is missing — go back to step 1.");
+          return;
+        }
+        if (!projDesc) {
+          pwSetErr("Description is missing — go back to step 2.");
+          return;
+        }
+        const description = projDesc;
+
+        const btn = document.getElementById("pwPublish");
+        btn.disabled = true;
+        try {
+          await refreshIdTokenForFirestore(myUid);
+          const label =
+            auth.currentUser?.displayName?.trim() ||
+            auth.currentUser?.email?.split("@")[0] ||
+            "Member";
+
+          const linkLabel = linkDisplayName(url);
+          await addDoc(collection(db, "teams", teamId, "posts"), {
+            title,
+            description,
+            component: "Project update",
+            authorUid: myUid,
+            authorLabel: label,
+            attachments: [
+              {
+                name: linkLabel,
+                mimeType: "application/octet-stream",
+                size: 0,
+                dataUrl: "",
+                storageUrl: url,
+              },
+            ],
+            createdAt: serverTimestamp(),
+          });
+
+          await logTeamActivity(db, teamId, myUid, label, "post", "Published project: " + title);
+          window.location.href = "./team-room.html?id=" + encodeURIComponent(teamId) + "&tab=home";
+        } catch (e) {
+          console.warn(e);
+          pwSetErr(e.message || "Could not publish.");
+          btn.disabled = false;
+        }
+      });
+
+      await authPersistenceReady;
+
+      onAuthStateChanged(auth, async function (user) {
+        if (!user) {
+          await new Promise(function (r) {
+            setTimeout(r, 120);
+          });
+          if (auth.currentUser) return;
+          window.location.replace("./signup/synthiq-signin.html");
+          return;
+        }
+
+        await ensureUsernameIndexFromProfile(user.uid);
+        myUid = user.uid;
+
+        teamId = parseTeamIdFromUrl();
+        if (!teamId || !/^SYN-[A-Z0-9-]+$/i.test(teamId)) {
+          showGate("Missing or invalid team ID. Open this page from Teams or the team room using Open project.");
+          return;
+        }
+
+        try {
+          await refreshIdTokenForFirestore(myUid);
+          const teamSnap = await getDoc(doc(db, "teams", teamId));
+          if (!teamSnap.exists()) {
+            showGate("Team not found.");
+            return;
+          }
+          const mu = teamSnap.data().memberUids;
+          if (!Array.isArray(mu) || mu.indexOf(myUid) === -1) {
+            showGate("You are not a member of this team.");
+            return;
+          }
+
+          const teamName = teamSnap.data().name || "Team";
+          await ensureWorkspaceForTeam(user, teamId, teamName);
+          hideGateShowWizard(teamName);
+          resetWizard();
+        } catch (e) {
+          console.warn(e);
+          showGate(e.message || "Could not load team.");
+        }
+      });
+    </script>
+    <footer class="synthiq-legal-footer" role="contentinfo">
+      <a href="./terms-and-services.html">Terms and services</a>
+    </footer>
+  </body>
+</html>

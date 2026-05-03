@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SynthIQ — Plans &amp; pricing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/synthiq-legal-footer.css" />
+    <style>
+      :root {
+        --bg: #050814;
+        --text: #e8ecff;
+        --muted: #94a3b8;
+        --accent: #a78bfa;
+        --accent2: #6366f1;
+        --stroke: rgba(129, 140, 248, 0.22);
+        --card: rgba(14, 18, 42, 0.72);
+        --card-border: rgba(139, 92, 246, 0.32);
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        font-family: "Outfit", system-ui, sans-serif;
+        background-color: var(--bg);
+        background-image:
+          radial-gradient(ellipse 100% 70% at 50% -25%, rgba(124, 58, 237, 0.45), transparent 55%),
+          radial-gradient(ellipse 55% 45% at 100% 20%, rgba(59, 130, 246, 0.35), transparent 50%),
+          linear-gradient(180deg, #050814 0%, #080d1f 40%, #050814 100%);
+        background-attachment: fixed;
+        color: var(--text);
+      }
+      .wrap {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 2.5rem 1.25rem 3.5rem;
+      }
+      .top {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 2.25rem;
+      }
+      .top h1 {
+        margin: 0;
+        font-size: clamp(1.55rem, 4vw, 2rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+      .top p {
+        margin: 0.35rem 0 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+        max-width: 36rem;
+      }
+      .back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.88rem;
+      }
+      .back:hover {
+        text-decoration: underline;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.25rem;
+        align-items: stretch;
+      }
+      .plan {
+        border-radius: 1.25rem;
+        padding: 1.35rem 1.25rem 1.5rem;
+        background: var(--card);
+        border: 1px solid var(--card-border);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        display: flex;
+        flex-direction: column;
+        transition:
+          transform 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+          box-shadow 0.24s ease,
+          border-color 0.24s ease,
+          background 0.24s ease;
+      }
+      .plan:hover {
+        transform: translateY(-8px) scale(1.015);
+        box-shadow:
+          0 22px 56px rgba(99, 102, 241, 0.28),
+          0 0 0 1px rgba(167, 139, 250, 0.5),
+          inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        border-color: rgba(167, 139, 250, 0.55);
+        background: rgba(22, 28, 58, 0.82);
+      }
+      .plan[data-plan] {
+        cursor: pointer;
+      }
+      .plan[data-plan]:active {
+        transform: translateY(-4px) scale(1.008);
+        transition-duration: 0.12s;
+      }
+      .plan.is-checkout-busy {
+        pointer-events: none;
+        opacity: 0.72;
+      }
+      .plan:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+      }
+      .plan-name {
+        font-size: 1.05rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin: 0 0 0.35rem;
+      }
+      .plan-price {
+        font-size: 1.65rem;
+        font-weight: 800;
+        background: linear-gradient(120deg, #fff, #c7d2fe);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin: 0 0 0.9rem;
+      }
+      .plan-sep {
+        height: 1px;
+        background: var(--stroke);
+        margin: 0 0 1rem;
+        border: 0;
+      }
+      .plan ul {
+        margin: 0;
+        padding-left: 1.15rem;
+        color: #c7cfe8;
+        font-size: 0.9rem;
+        line-height: 1.55;
+        flex: 1;
+      }
+      .plan li + li {
+        margin-top: 0.35rem;
+      }
+      .plan-classroom .plan-name {
+        margin-bottom: 0.75rem;
+      }
+      .cta-sales {
+        margin-top: 1.15rem;
+        width: 100%;
+        padding: 0.65rem 1rem;
+        border-radius: 0.75rem;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+        font-weight: 700;
+        font-size: 0.88rem;
+        color: #0f172a;
+        background: linear-gradient(135deg, #a78bfa, #6366f1);
+        box-shadow: 0 0 24px rgba(124, 58, 237, 0.35);
+      }
+      .cta-sales:hover {
+        filter: brightness(1.06);
+      }
+      .hidden {
+        display: none !important;
+      }
+      .checkout-notice {
+        margin: 0 0 1rem;
+        padding: 0.65rem 1rem;
+        border-radius: 0.65rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+      .checkout-notice--ok {
+        background: rgba(34, 197, 94, 0.14);
+        border: 1px solid rgba(74, 222, 128, 0.4);
+        color: #86efac;
+      }
+      .checkout-notice--cancel {
+        background: rgba(251, 191, 36, 0.1);
+        border: 1px solid rgba(251, 191, 36, 0.35);
+        color: #fde68a;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .plan {
+          transition: none;
+        }
+        .plan:hover,
+        .plan[data-plan]:active {
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="top">
+        <div>
+          <a class="back" href="./homepage.html">← Back to SynthIQ</a>
+          <p id="checkoutNotice" class="checkout-notice hidden" role="status"></p>
+          <h1>Choose your plan</h1>
+          <p>Pick the tier that fits your study group or classroom. All plans unlock SynthIQ Pro features at different scales.</p>
+        </div>
+      </div>
+
+      <div class="grid" role="list">
+        <article class="plan" role="listitem" data-plan="standard_pro" tabindex="0" aria-label="Select Standard Pro plan">
+          <h2 class="plan-name">Standard Pro</h2>
+          <p class="plan-price" aria-label="Ten dollars per period">$10</p>
+          <hr class="plan-sep" />
+          <ul>
+            <li>50 AI requests</li>
+            <li>Create 2 different teams</li>
+            <li>10 team members</li>
+          </ul>
+        </article>
+
+        <article class="plan" role="listitem" data-plan="teams" tabindex="0" aria-label="Select Teams plan">
+          <h2 class="plan-name">Teams</h2>
+          <p class="plan-price" aria-label="Twenty-five dollars per period">$25</p>
+          <hr class="plan-sep" />
+          <ul>
+            <li>100 AI requests</li>
+            <li>Create 5 different teams</li>
+            <li>50 team posts</li>
+            <li>20 team members</li>
+          </ul>
+        </article>
+
+        <article class="plan" role="listitem" data-plan="teams_pro" tabindex="0" aria-label="Select Teams Pro plan">
+          <h2 class="plan-name">Teams Pro</h2>
+          <p class="plan-price" aria-label="Sixty dollars per period">$60</p>
+          <hr class="plan-sep" />
+          <ul>
+            <li>150 AI requests</li>
+            <li>Create 10 different teams</li>
+            <li>30 team members</li>
+            <li>100 team posts</li>
+          </ul>
+        </article>
+
+        <article class="plan plan-classroom" role="listitem">
+          <h2 class="plan-name">Classroom</h2>
+          <p style="margin: 0 0 0.5rem; color: var(--muted); font-size: 0.9rem; line-height: 1.5">
+            Custom licensing and onboarding for schools and organizations.
+          </p>
+          <button type="button" class="cta-sales" id="btnClassroomSales">Contact SynthIQ sales team</button>
+        </article>
+      </div>
+    </div>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+      (function () {
+        var STRIPE_PUBLISHABLE_KEY =
+          "pk_test_51TPTzDPQL9GArt53sOZ6kK9BfpWIVw3axahjOTyIw9okurTJcfIVZ0JnHLrfKiXYnElDwgK16hFKAN6hg3KS4iVD00WosvhoVB";
+        if (typeof window !== "undefined" && window.Stripe && STRIPE_PUBLISHABLE_KEY) {
+          window.__synthiqStripe = window.Stripe(STRIPE_PUBLISHABLE_KEY);
+        }
+
+        function checkoutApiBases() {
+          var bases = [];
+          if (typeof window !== "undefined" && window.__SYNTHIQ_API_BASE__) {
+            var custom = String(window.__SYNTHIQ_API_BASE__).replace(/\/$/, "");
+            if (custom) bases.push(custom);
+          }
+          if (typeof window !== "undefined" && window.location && window.location.origin) {
+            if (window.location.protocol !== "file:") {
+              bases.push(String(window.location.origin).replace(/\/$/, ""));
+            }
+          }
+          bases.push("http://127.0.0.1:3000");
+          bases.push("http://localhost:3000");
+          var seen = {};
+          return bases.filter(function (b) {
+            if (!b || seen[b]) return false;
+            seen[b] = true;
+            return true;
+          });
+        }
+
+        function pricingOriginForStripe() {
+          if (typeof window === "undefined") return "http://127.0.0.1:3000";
+          if (window.location.protocol === "file:") return "http://127.0.0.1:3000";
+          return window.location.origin;
+        }
+
+        function showCheckoutNotice() {
+          var q = new URLSearchParams(window.location.search).get("checkout");
+          var el = document.getElementById("checkoutNotice");
+          if (!el || !q) return;
+          el.classList.remove("hidden", "checkout-notice--ok", "checkout-notice--cancel");
+          if (q === "success") {
+            el.textContent = "Payment completed — thank you! Your account upgrade will follow setup on our side.";
+            el.classList.add("checkout-notice--ok");
+          } else if (q === "cancel") {
+            el.textContent = "Checkout was canceled. You can choose a plan again anytime.";
+            el.classList.add("checkout-notice--cancel");
+          } else {
+            return;
+          }
+          el.classList.remove("hidden");
+        }
+
+        async function startPlanCheckout(plan, cardEl) {
+          var bases = checkoutApiBases();
+          var lastErr = "Could not reach the payment server.";
+          var payload = JSON.stringify({
+            plan: plan,
+            baseUrl: pricingOriginForStripe(),
+          });
+          for (var i = 0; i < bases.length; i++) {
+            try {
+              var r = await fetch(bases[i] + "/api/create-checkout-session", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: payload,
+              });
+              var data = null;
+              try {
+                data = await r.json();
+              } catch (_) {}
+              if (r.ok && data && data.ok && data.url) {
+                window.location.href = data.url;
+                return;
+              }
+              lastErr = (data && data.error) || "Request failed (" + r.status + ").";
+            } catch (e) {
+              lastErr = (e && e.message) || "Network error.";
+            }
+          }
+          alert(lastErr);
+          if (cardEl) cardEl.classList.remove("is-checkout-busy");
+        }
+
+        function bindPlanCards() {
+          document.querySelectorAll(".plan[data-plan]").forEach(function (card) {
+            card.addEventListener("click", function () {
+              if (card.classList.contains("is-checkout-busy")) return;
+              card.classList.add("is-checkout-busy");
+              startPlanCheckout(card.getAttribute("data-plan"), card);
+            });
+            card.addEventListener("keydown", function (e) {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                card.click();
+              }
+            });
+          });
+        }
+
+        showCheckoutNotice();
+        bindPlanCards();
+
+        document.getElementById("btnClassroomSales").addEventListener("click", function (e) {
+          e.stopPropagation();
+          window.location.href =
+            "mailto:sales@synthiq.com?subject=" + encodeURIComponent("SynthIQ Classroom plan");
+        });
+      })();
+    </script>
+    <footer class="synthiq-legal-footer" role="contentinfo">
+      <a href="./terms-and-services.html">Terms and services</a>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Team invites — SynthIQ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/synthiq-legal-footer.css" />
+    <style>
+      :root {
+        --bg: #050814;
+        --surface: rgba(18, 24, 48, 0.92);
+        --border: rgba(129, 140, 248, 0.22);
+        --text: #e8ecff;
+        --muted: #94a3b8;
+        --accent: #818cf8;
+        --radius: 1.25rem;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Outfit", system-ui, sans-serif;
+        background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.25), transparent),
+          var(--bg);
+        color: var(--text);
+        padding: clamp(1rem, 4vw, 2rem);
+      }
+      .top-bar-page {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem 1rem;
+        margin-bottom: 1.25rem;
+      }
+      .top-bar-page a {
+        color: var(--accent);
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+      .top-bar-page a:hover {
+        text-decoration: underline;
+      }
+      .top-bar-page .sep {
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      .wrap {
+        max-width: 520px;
+        margin: 0 auto;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.35rem;
+        backdrop-filter: blur(14px);
+      }
+      h1 {
+        margin: 0 0 0.35rem;
+        font-size: 1.35rem;
+        font-weight: 800;
+      }
+      .hint {
+        color: var(--muted);
+        font-size: 0.88rem;
+        margin: 0 0 1.25rem;
+        line-height: 1.5;
+      }
+      .invite-msg {
+        font-size: 0.85rem;
+        margin: 0 0 0.75rem;
+        min-height: 1.25rem;
+      }
+      .invite-msg.err {
+        color: #fca5a5;
+      }
+      .invite-msg.ok {
+        color: #6ee7b7;
+      }
+      .invite-result {
+        border-radius: 0.75rem;
+        border: 1px solid var(--border);
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.75rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        background: rgba(0, 0, 0, 0.22);
+      }
+      .invite-result .who {
+        font-weight: 700;
+      }
+      .btn {
+        padding: 0.55rem 1rem;
+        border-radius: 0.65rem;
+        border: none;
+        font-family: inherit;
+        font-weight: 700;
+        font-size: 0.88rem;
+        cursor: pointer;
+      }
+      .btn-primary {
+        background: linear-gradient(105deg, #7c3aed, #6366f1);
+        color: #fff;
+      }
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+      .btn-sm {
+        padding: 0.45rem 0.85rem;
+        font-size: 0.88rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="top-bar-page">
+        <a href="./homepage.html">← Dashboard</a>
+        <span class="sep">·</span>
+        <a href="./teams.html">Teams</a>
+      </div>
+
+      <div class="card">
+        <h1>Team invites</h1>
+        <p class="hint">When someone invites you by your SynthIQ username, their request appears here. Accept to join the team in Firebase.</p>
+        <p class="invite-msg" id="inboxMsg" aria-live="polite"></p>
+        <div id="inboxList"></div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { auth, authPersistenceReady, db, refreshIdTokenForFirestore } from "./signup/signup-firebase.js";
+      import { logTeamActivity } from "./js/team-activity.js";
+      import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+      import {
+        collection,
+        query,
+        where,
+        getDocs,
+        doc,
+        setDoc,
+        updateDoc,
+        serverTimestamp,
+        arrayUnion,
+      } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+      let myUid = null;
+
+      function escapeHtml(s) {
+        const d = document.createElement("div");
+        d.textContent = s ?? "";
+        return d.innerHTML;
+      }
+
+      function setInboxMsg(text, kind) {
+        const el = document.getElementById("inboxMsg");
+        if (!el) return;
+        el.textContent = text || "";
+        el.classList.remove("err", "ok");
+        if (kind === "err") el.classList.add("err");
+        if (kind === "ok") el.classList.add("ok");
+      }
+
+      async function loadInboxInvites() {
+        const listEl = document.getElementById("inboxList");
+        if (!listEl || !myUid) return;
+        listEl.innerHTML = "";
+        setInboxMsg("Loading…", "");
+        try {
+          await refreshIdTokenForFirestore(myUid);
+          const q = query(collection(db, "teamInvites"), where("toUid", "==", myUid));
+          const snap = await getDocs(q);
+          const pending = [];
+          snap.forEach(function (d) {
+            const data = d.data();
+            if (data.status === "pending") pending.push({ id: d.id, ref: d.ref, data: data });
+          });
+          setInboxMsg("", "");
+          if (!pending.length) {
+            listEl.innerHTML =
+              '<p class="hint" style="margin:0">No invites right now. Ask your teammate to invite your SynthIQ username from their team setup.</p>';
+            return;
+          }
+          pending.forEach(function (row) {
+            const data = row.data;
+            const teamId = data.teamId || "";
+            const teamName = escapeHtml(data.teamName || "Team");
+            const fromU = escapeHtml(data.fromUsername || data.fromUid || "Someone");
+            const wrap = document.createElement("div");
+            wrap.className = "invite-result";
+            wrap.innerHTML =
+              '<div><span class="who">' +
+              teamName +
+              '</span><br><span style="font-size:0.8rem;color:var(--muted)">Team ID ' +
+              escapeHtml(teamId) +
+              " · From @" +
+              fromU +
+              "</span></div>";
+            const actions = document.createElement("div");
+            actions.style.display = "flex";
+            actions.style.gap = "0.5rem";
+            actions.style.flexWrap = "wrap";
+            const acc = document.createElement("button");
+            acc.type = "button";
+            acc.className = "btn btn-primary btn-sm";
+            acc.textContent = "Accept";
+            const dec = document.createElement("button");
+            dec.type = "button";
+            dec.className = "btn btn-secondary btn-sm";
+            dec.textContent = "Decline";
+            acc.addEventListener("click", async function () {
+              acc.disabled = true;
+              dec.disabled = true;
+              await acceptTeamInvite(teamId, row.ref);
+              await loadInboxInvites();
+            });
+            dec.addEventListener("click", async function () {
+              acc.disabled = true;
+              dec.disabled = true;
+              await declineTeamInvite(row.ref);
+              await loadInboxInvites();
+            });
+            actions.appendChild(acc);
+            actions.appendChild(dec);
+            wrap.appendChild(actions);
+            listEl.appendChild(wrap);
+          });
+        } catch (e) {
+          console.warn(e);
+          setInboxMsg(
+            e.code === "permission-denied"
+              ? "Could not load invites (check Firestore rules)."
+              : e.message || "Could not load invites.",
+            "err"
+          );
+          listEl.innerHTML = "";
+        }
+      }
+
+      async function acceptTeamInvite(teamId, inviteRef) {
+        if (!myUid || !teamId) return;
+        try {
+          await refreshIdTokenForFirestore(myUid);
+          const teamRef = doc(db, "teams", teamId);
+          await updateDoc(teamRef, { memberUids: arrayUnion(myUid) });
+          await updateDoc(inviteRef, {
+            status: "accepted",
+            respondedAt: serverTimestamp(),
+          });
+          const joinLabel =
+            auth.currentUser?.displayName?.trim() ||
+            auth.currentUser?.email?.split("@")[0] ||
+            "Member";
+          try {
+            await logTeamActivity(db, teamId, myUid, joinLabel, "member_joined", "Joined the team.");
+          } catch (logErr) {
+            console.warn(logErr);
+          }
+          try {
+            await setDoc(doc(db, "users", myUid), { joinedTeamIds: arrayUnion(teamId) }, { merge: true });
+          } catch (idxErr) {
+            console.warn("SynthIQ: could not index joined team on profile", idxErr);
+          }
+          setInboxMsg("You joined the team. Open the room from Teams when you’re ready.", "ok");
+        } catch (e) {
+          console.warn(e);
+          setInboxMsg(
+            e.code === "permission-denied" ? "Could not accept (rules or invite expired)." : e.message || "Accept failed.",
+            "err"
+          );
+        }
+      }
+
+      async function declineTeamInvite(inviteRef) {
+        if (!myUid) return;
+        try {
+          await refreshIdTokenForFirestore(myUid);
+          await updateDoc(inviteRef, {
+            status: "declined",
+            respondedAt: serverTimestamp(),
+          });
+          setInboxMsg("Invite declined.", "ok");
+        } catch (e) {
+          console.warn(e);
+          setInboxMsg(e.code === "permission-denied" ? "Could not decline invite." : e.message || "Decline failed.", "err");
+        }
+      }
+
+      await authPersistenceReady;
+      onAuthStateChanged(auth, async function (user) {
+        if (!user) {
+          await new Promise(function (r) {
+            setTimeout(r, 120);
+          });
+          if (auth.currentUser) return;
+          window.location.replace("./signup/synthiq-signin.html");
+          return;
+        }
+        myUid = user.uid;
+        await loadInboxInvites();
+      });
+    </script>
+    <footer class="synthiq-legal-footer" role="contentinfo">
+      <a href="./terms-and-services.html">Terms and services</a>
+    </footer>
+  </body>
+</html>

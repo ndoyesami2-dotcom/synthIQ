@@ -1,0 +1,22 @@
+/* Shared site footer — link to legal docs */
+.synthiq-legal-footer {
+  padding: 1rem 1.25rem 1.35rem;
+  text-align: center;
+  font-size: 0.78rem;
+  color: #64748b;
+  border-top: 1px solid rgba(129, 140, 248, 0.15);
+  background: rgba(5, 8, 20, 0.72);
+  backdrop-filter: blur(8px);
+  margin-top: 2rem;
+}
+
+.synthiq-legal-footer a {
+  color: #a5b4fc;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.synthiq-legal-footer a:hover {
+  text-decoration: underline;
+  color: #c7d2fe;
+}

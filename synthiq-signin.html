@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in — synthIQ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="signup.css" />
+    <link rel="stylesheet" href="../css/synthiq-legal-footer.css" />
+  </head>
+  <body class="signup-page" data-progress-mode="signin">
+    <div class="signup-shell">
+      <div class="signup-visual">
+        <img
+          id="signupHeroImg"
+          data-hero-pool="signin"
+          src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&amp;fit=crop&amp;w=2000&amp;q=88"
+          width="2000"
+          height="1333"
+          alt=""
+          decoding="async"
+          fetchpriority="high"
+        />
+        <div class="signup-visual-caption">
+          <p>Welcome back—<span class="accent">SynthIQ</span> is ready when you are.</p>
+        </div>
+      </div>
+      <aside class="signup-aside">
+        <div class="signup-card-aura">
+          <div class="signup-card">
+            <div class="brand"><a href="/">← Home</a></div>
+            <div class="steps">synthIQ</div>
+            <h1>Sign in to your account</h1>
+            <p class="sub">Use the email and password for your synthIQ account.</p>
+            <form id="f" novalidate>
+              <div class="field">
+                <label for="email">Email</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autocomplete="username"
+                  required
+                  maxlength="254"
+                  placeholder="you@example.com"
+                />
+              </div>
+              <div class="field">
+                <label for="password">Password</label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autocomplete="current-password"
+                  required
+                  minlength="1"
+                  maxlength="128"
+                  placeholder="Your password"
+                />
+              </div>
+              <p class="err" id="err" hidden></p>
+              <p class="msg-ok" id="resetOk" hidden>
+                Check your email for the reset link. After you choose a new password, come back here to sign in.
+              </p>
+              <p class="field-meta">
+                <button type="button" class="link-btn" id="forgotBtn">Forgot password?</button>
+              </p>
+              <div class="actions">
+                <a
+                  class="btn btn-ghost"
+                  href="synthiq-1.html"
+                  style="text-decoration: none; display: inline-flex; align-items: center"
+                  >Create account</a
+                >
+                <button type="submit" class="btn btn-primary" id="signinSubmitBtn">Sign in</button>
+              </div>
+            </form>
+            <div class="signup-progress signup-progress--signin" aria-labelledby="signupProgressTitle">
+              <div class="signup-progress__top">
+                <span id="signupProgressTitle" class="signup-progress__title">Form progress</span>
+                <span class="signup-progress__pct" id="signupProgressPct">0%</span>
+              </div>
+              <div
+                class="signup-progress__track"
+                id="signupProgressTrack"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+                aria-labelledby="signupProgressTitle"
+              >
+                <div class="signup-progress__fill" id="signupProgressFill"></div>
+              </div>
+              <ol class="signup-progress__steps">
+                <li class="is-current">Sign in</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+    <script src="signup-common.js"></script>
+    <script type="module">
+      import { signInSynthIQ, sendSynthIQPasswordResetEmail, authErrorMessage } from "./signup-firebase.js";
+
+      var form = document.getElementById("f");
+      var err = document.getElementById("err");
+      var resetOk = document.getElementById("resetOk");
+      var btn = document.getElementById("signinSubmitBtn");
+      var forgotBtn = document.getElementById("forgotBtn");
+
+      try {
+        var landing = new URL(window.location.href);
+        if (landing.searchParams.get("pwdReset") === "1") {
+          resetOk.textContent =
+            "Password reset complete. Sign in below with your email and new password.";
+          resetOk.hidden = false;
+          landing.searchParams.delete("pwdReset");
+          var qs = landing.searchParams.toString();
+          history.replaceState({}, "", landing.pathname + (qs ? "?" + qs : "") + landing.hash);
+        }
+      } catch (e) {}
+
+      forgotBtn.addEventListener("click", async function () {
+        err.hidden = true;
+        resetOk.hidden = true;
+        var email = document.getElementById("email").value.trim();
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          err.textContent = "Enter your email in the field above, then tap Forgot password?.";
+          err.hidden = false;
+          return;
+        }
+        var prev = forgotBtn.textContent;
+        forgotBtn.disabled = true;
+        forgotBtn.textContent = "Sending…";
+        try {
+          await sendSynthIQPasswordResetEmail(email);
+          resetOk.hidden = false;
+        } catch (firebaseErr) {
+          var code = firebaseErr && firebaseErr.code ? String(firebaseErr.code) : "";
+          err.textContent = authErrorMessage(code) + (code ? " [" + code + "]" : "");
+          err.hidden = false;
+        } finally {
+          forgotBtn.disabled = false;
+          forgotBtn.textContent = prev;
+        }
+      });
+
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        err.hidden = true;
+        resetOk.hidden = true;
+        var email = document.getElementById("email").value.trim();
+        var password = document.getElementById("password").value;
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          err.textContent = "Enter a valid email address.";
+          err.hidden = false;
+          return;
+        }
+        if (!password) {
+          err.textContent = "Enter your password.";
+          err.hidden = false;
+          return;
+        }
+        var prev = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "Signing in…";
+        try {
+          await signInSynthIQ(email, password);
+          window.location.href = "../homepage.html";
+        } catch (firebaseErr) {
+          err.textContent = authErrorMessage(firebaseErr && firebaseErr.code ? firebaseErr.code : "");
+          err.hidden = false;
+        } finally {
+          btn.disabled = false;
+          btn.textContent = prev;
+        }
+      });
+    </script>
+    <footer class="synthiq-legal-footer" role="contentinfo">
+      <a href="../terms-and-services.html">Terms and services</a>
+    </footer>
+  </body>
+</html>
